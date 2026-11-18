@@ -21,6 +21,85 @@ frappe.ready(function () {
 
   const getMap = () => has("location") && wf.fields_dict.location.map;
 
+  // ---------- Photo ----------
+  // Frappe's upload dialog stays stuck for many phone photos: website users may only upload JPG/PNG/GIF
+  // (iPhone HEIC, WebP are refused), files with no reported type are skipped, and big photos hit the size
+  // limit. So the "Attach" button opens the phone's camera / gallery directly, the photo is resized and
+  // turned into a JPEG in the browser, and sent to our own upload method.
+  (function setupPhoto() {
+    const ctl = has("photo") && wf.fields_dict.photo;
+    if (!ctl) return;
+    const MAX_SIDE = 1600; // px, plenty for a tree photo and keeps uploads small
+
+    const picker = document.createElement("input");
+    picker.type = "file";
+    picker.accept = "image/*";
+    picker.style.display = "none";
+    document.body.appendChild(picker);
+
+    const pick = () => { picker.value = ""; picker.click(); };
+    ctl.on_attach_click = pick;
+    ctl.on_attach_doc_image = pick;
+    ctl.reload_attachment = pick;
+
+    function toJpeg(file) {
+      return new Promise((resolve, reject) => {
+        const src = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const k = Math.min(1, MAX_SIDE / Math.max(img.naturalWidth, img.naturalHeight));
+            const c = document.createElement("canvas");
+            c.width = Math.max(1, Math.round(img.naturalWidth * k));
+            c.height = Math.max(1, Math.round(img.naturalHeight * k));
+            const g = c.getContext("2d");
+            g.fillStyle = "#fff";
+            g.fillRect(0, 0, c.width, c.height);
+            g.drawImage(img, 0, 0, c.width, c.height);
+            resolve(c.toDataURL("image/jpeg", 0.85));
+          } catch (e) {
+            reject(e);
+          } finally {
+            URL.revokeObjectURL(src);
+          }
+        };
+        img.onerror = () => { URL.revokeObjectURL(src); reject(new Error("cannot open image")); };
+        img.src = src;
+      });
+    }
+
+    picker.addEventListener("change", async () => {
+      const file = picker.files && picker.files[0];
+      if (!file) return;
+      const btn = ctl.$input;
+      if (btn) btn.prop("disabled", true).text(__("Uploading photo..."));
+      try {
+        let data;
+        try {
+          data = await toJpeg(file);
+        } catch (e) {
+          console.error("Could not open photo:", e);
+          frappe.msgprint(__("This photo could not be opened on this phone. Please take a new photo with the camera, or choose a JPG/PNG photo."));
+          return;
+        }
+        const r = await frappe.call({
+          method: "hasiruratha.citizen_api.upload_photo",
+          type: "POST",
+          args: { data: data, filename: file.name || "photo" },
+        });
+        const url = r && r.message && r.message.file_url;
+        if (!url) throw new Error("upload returned no file");
+        await wf.set_value("photo", url);
+        frappe.show_alert({ message: __("Photo added"), indicator: "green" });
+      } catch (e) {
+        console.error("Photo upload failed:", e);
+        frappe.show_alert({ message: __("Photo upload failed. Please check your connection and try again."), indicator: "red" });
+      } finally {
+        if (btn) btn.prop("disabled", false).text(__("Attach"));
+      }
+    });
+  })();
+
   // ---------- Map drawing ----------
 
   const dot = (color, size, border) =>

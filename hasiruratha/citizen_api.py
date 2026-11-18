@@ -49,6 +49,36 @@ def _check_photo(url):
 	return url
 
 
+MAX_PHOTO_BYTES = 8 * 1024 * 1024
+
+
+@frappe.whitelist(methods=["POST"])
+@rate_limit(limit=60, seconds=3600)
+def upload_photo(data=None, filename=None):
+	"""Photo upload for the citizen web forms. The browser sends a resized JPEG as a data URL, so phone
+	photos in HEIC / WebP / very large sizes work too (Frappe's own uploader only takes JPG/PNG/GIF
+	from website users)."""
+	import base64
+	import re
+	import time
+
+	_login_required()
+	if not data:
+		frappe.throw(_("No photo received. Please try again."))
+	try:
+		raw = base64.b64decode(re.sub(r"^data:image/[\w.+-]+;base64,", "", data))
+	except Exception:
+		frappe.throw(_("Could not read the photo. Please try another one."))
+	if len(raw) > MAX_PHOTO_BYTES:
+		frappe.throw(_("Photo is too large. Please try another one."))
+	if not raw.startswith(b"\xff\xd8\xff"):
+		frappe.throw(_("Only JPEG photos are accepted."))
+	safe = re.sub(r"[^A-Za-z0-9._-]", "_", (filename or "").rsplit(".", 1)[0])[:80] or "photo"
+	f = frappe.get_doc({"doctype": "File", "file_name": "%s_%d.jpg" % (safe, int(time.time())),
+	                    "content": raw, "is_private": 0}).insert(ignore_permissions=True)
+	return {"file_url": f.file_url}
+
+
 def make_public(url):
 	"""Photos shown to citizens must be public files."""
 	if url and url.startswith("/private/"):
