@@ -326,7 +326,7 @@ def report_core(user, photo, lat, lng, issue_type, description, tree_id, road, a
 	if not tree_id:
 		# not in our records: save it as a flagged, unconfirmed entry so an admin can verify it
 		untracked = True
-		_, tree_id = _new_site_and_tree(user, lat, lng, "Unknown", road, area, address, photo, zone, "Identified",
+		_site_id, tree_id = _new_site_and_tree(user, lat, lng, "Unknown", road, area, address, photo, zone, "Identified",
 		                                "Tree not in records. Reported by a citizen: %s" % issue, condition="Unknown")
 	res = api.create_tree_report({"tree_id": tree_id, "issue_type": issue, "description": (description or "")[:500],
 	                              "priority": ISSUES[issue], "photo_url": photo, "gps_lat": lat, "gps_lng": lng})
