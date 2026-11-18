@@ -8,6 +8,8 @@ class HRCitizenPlanting(Document):
 	def validate(self):
 		if self.is_new():
 			cf.before_plant(self)
+		else:
+			cf.lock_after_submit(self)
 
 	def after_insert(self):
 		cf.after_plant(self)
