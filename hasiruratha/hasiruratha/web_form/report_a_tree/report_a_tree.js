@@ -21,6 +21,28 @@ frappe.ready(function () {
 
   const getMap = () => has("location") && wf.fields_dict.location.map;
 
+  // ---------- Build the map on page load ----------
+  // In a web form, Frappe's map field only builds its map when some pop-up (dialog) opens. The old
+  // upload window used to do that; the photo picker opens no pop-up, so we build the map ourselves.
+  // make_map is also guarded so later pop-ups don't try to build it a second time (Leaflet would throw
+  // "Map container is already initialized" and break that pop-up).
+  (function ensureMap() {
+    const ctl = has("location") && wf.fields_dict.location;
+    if (!ctl || typeof ctl.make_map !== "function") return;
+    if (!ctl._hr_guarded) {
+      const build = ctl.make_map.bind(ctl);
+      ctl.make_map = (value) => (ctl.map ? undefined : build(value));
+      ctl._hr_guarded = true;
+    }
+    if (ctl.map) return;
+    if (!window.L || !ctl.map_id || !document.getElementById(ctl.map_id)) return setTimeout(ensureMap, 200);
+    try {
+      ctl.make_map();
+    } catch (e) {
+      console.error("Could not build the map:", e);
+    }
+  })();
+
   // ---------- Photo ----------
   // Frappe's upload dialog stays stuck for many phone photos: website users may only upload JPG/PNG/GIF
   // (iPhone HEIC, WebP are refused), files with no reported type are skipped, and big photos hit the size
