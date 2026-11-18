@@ -8,8 +8,6 @@ class HRCitizenReport(Document):
 	def validate(self):
 		if self.is_new():
 			cf.before_report(self)
-		else:
-			cf.lock_after_submit(self)
 
 	def after_insert(self):
 		cf.after_report(self)

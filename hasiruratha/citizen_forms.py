@@ -35,16 +35,6 @@ def _prepare(doc):
 		doc.area, doc.road, doc.address = g.get("area"), g.get("road"), g.get("address")
 
 
-_STAFF = {"HR Admin", "System Manager"}
-
-
-def lock_after_submit(doc):
-	"""Citizens get "write" (if owner) only because Frappe's file upload needs it to attach a photo to a
-	new form. Once sent, a submission can only be changed by staff."""
-	if not doc.is_new() and not (set(frappe.get_roles()) & _STAFF):
-		frappe.throw(_("This submission has already been sent and cannot be changed."), frappe.PermissionError)
-
-
 # ───────────── plant ─────────────
 def before_plant(doc):
 	_prepare(doc)
