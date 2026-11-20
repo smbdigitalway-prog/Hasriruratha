@@ -13,5 +13,7 @@ Run:
 
     node citizen.js <screenshot-folder> <a-large-photo.jpg>
     node volunteer.js <screenshot-folder>
+    node admin.js <screenshot-folder>      # after running seed_admin.py with the bench Python
+    node desk.js <screenshot-folder>       # Desk: workspace, request list, form actions, Kanban (laptop size)
 
 Sign-in endpoints are rate limited; clear the local Redis cache between repeated runs.

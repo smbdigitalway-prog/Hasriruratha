@@ -158,3 +158,69 @@ def my_requests():
 		r["creation"] = str(r.creation)[:16]
 		r["completed_on"] = str(r.completed_on or "")
 	return rows
+
+
+# ───────────────────────────── admin actions (buttons on the HR Request form) ─────────────────────────────
+VISIT_FOR_ISSUE = {"Watering": "Watering / follow-up", "Tree guard": "Tree Guard Needed", "Support pole": "Support pole needed",
+                   "Pest / Disease": "Pesticide needed", "Debris / garbage": "Debris cleanup"}
+
+
+def _admin():
+	if not api._is_admin():
+		frappe.throw(_("Only admins can do this"), frappe.PermissionError)
+
+
+@frappe.whitelist()
+def admin_counts():
+	"""For the /hasiruratha admin home and the Desk: requests waiting for the team."""
+	_admin()
+	return {"open": frappe.db.count("HR Request", {"status": ["in", OPEN]}),
+	        "new": frappe.db.count("HR Request", {"status": "Received"}),
+	        "review": frappe.db.count("HR Request", {"status": "Under review"})}
+
+
+@frappe.whitelist(methods=["POST"])
+def register_spot(name=None):
+	"""New-location request -> a new HR Site at the request's GPS (status Planned), linked back."""
+	_admin()
+	r = frappe.get_doc("HR Request", name)
+	if r.site:
+		return {"site": r.site, "existing": True}
+	if r.request_type != "New location":
+		frappe.throw(_("Only a new-location request can be registered as a new spot"))
+	label = " - ".join(x for x in (r.area, r.road) if x) or r.name
+	s = api.add_site({"name": label[:140], "road": r.road, "area": r.area, "gps_lat": r.gps_lat, "gps_lng": r.gps_lng,
+	                  "site_type": "spot", "zone_id": r.zone, "photo_url": r.photo, "status": "Planned",
+	                  "notes": "From citizen request %s. %s %s" % (r.name, r.address_line or "", r.description or ""),
+	                  "added_by": get_fullname(frappe.session.user)})
+	if not s.get("success", True) or not s.get("site_id"):
+		frappe.throw(s.get("error") or _("Could not create the spot"))
+	frappe.db.set_value("HR Site", s["site_id"], {"submitted_via": "Citizen", "address_full": r.address_line, "admin_reviewed": 1})
+	r.site = s["site_id"]
+	if r.status in ("Received", "Under review"):
+		r.status = "Accepted"
+	r.save()
+	return {"site": r.site, "needs_review": bool(s.get("needs_review"))}
+
+
+@frappe.whitelist(methods=["POST"])
+def plan_visit(name=None, planned_date=None, service_type=None, volunteers_needed=2, notes=None):
+	"""Plan an HR Visit for the request's spot/tree and mark the request Scheduled."""
+	_admin()
+	r = frappe.get_doc("HR Request", name)
+	site = r.site or (frappe.db.get_value("HR Tree", r.related_tree, "site_id") if r.related_tree else None) or r.nearest_site
+	if not site:
+		frappe.throw(_("Register the spot first (button: Register as new spot), or link a spot"))
+	if not planned_date:
+		frappe.throw(_("Please choose a date"))
+	v = api.add_visit({"site_id": site, "tree_id": r.related_tree, "planned_date": planned_date,
+	                   "service_type": service_type or VISIT_FOR_ISSUE.get(r.issue_type) or
+	                   ("New plantation" if r.request_type == "New location" else "Maintenance visit"),
+	                   "volunteers_needed": cint(volunteers_needed) or 2,
+	                   "notes": (notes or "") + " (citizen request %s)" % r.name, "planned_by": get_fullname(frappe.session.user)})
+	if r.status in ("Received", "Under review", "Accepted"):
+		r.status = "Scheduled"
+	if not r.site:
+		r.site = site
+	r.save()
+	return {"visit": v.get("visit_id")}

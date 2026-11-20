@@ -26,7 +26,32 @@ def after_install():
 	for dt in ("HR Site", "HR Tree", "HR Tree Report"):
 		frappe.db.sql("update `tab%s` set latitude=gps_lat, longitude=gps_lng where latitude is null and gps_lat is not null" % dt)
 	frappe.db.sql("update `tabHR Tree Report` r join `tabHR Site` s on s.name=r.site_id set r.area=s.area, r.road=s.road where r.area is null")
+	ensure_request_kanban()
+	_fill_request_titles()
 	frappe.db.commit()
+
+
+def _fill_request_titles():
+	if not frappe.db.has_column("HR Request", "title"):
+		return
+	from hasiruratha.hasiruratha.doctype.hr_request.hr_request import make_title
+	for r in frappe.get_all("HR Request", {"title": ["is", "not set"]}, ["name", "request_type", "issue_type", "road", "area"]):
+		frappe.db.set_value("HR Request", r.name, "title", make_title(r), update_modified=False)
+
+
+def ensure_request_kanban():
+	"""Kanban board for citizen requests, one column per status (Desk: HR Request -> Kanban)."""
+	if not frappe.db.exists("DocType", "HR Request"):
+		return
+	if not frappe.db.exists("Kanban Board", "HR Requests"):
+		from frappe.desk.doctype.kanban_board.kanban_board import quick_kanban_board
+		quick_kanban_board("HR Request", "HR Requests", "status")
+	# Frappe v16 boards have their own card title / image settings
+	meta = frappe.get_meta("Kanban Board")
+	vals = {k: v for k, v in (("title_field", "title"), ("image_field", "photo"), ("use_kanban_v2", 1)) if meta.has_field(k)
+	        and frappe.db.get_value("Kanban Board", "HR Requests", k) != v}
+	if vals:
+		frappe.db.set_value("Kanban Board", "HR Requests", vals)
 
 
 def _role(name, desk_access):

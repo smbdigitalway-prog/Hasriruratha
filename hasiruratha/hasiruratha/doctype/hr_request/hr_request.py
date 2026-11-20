@@ -17,6 +17,12 @@ from frappe.utils import today
 GPS_FIELDS = ("gps_lat", "gps_lng", "gps_accuracy_m", "location_source")
 
 
+def make_title(d):
+	what = "New sapling" if d.request_type == "New location" else "Care: %s" % (d.issue_type or "tree")
+	where = ", ".join(x for x in (d.road, d.area) if x)
+	return ("%s · %s" % (what, where) if where else what)[:140]
+
+
 class HRRequest(Document):
 	def validate(self):
 		self.pincode = re.sub(r"\D", "", self.pincode or "")
@@ -27,6 +33,7 @@ class HRRequest(Document):
 			if before and any(str(before.get(f) or "") != str(self.get(f) or "") for f in GPS_FIELDS):
 				frappe.throw(_("The GPS location of a request cannot be changed"))
 		self.latitude, self.longitude = self.gps_lat, self.gps_lng
+		self.title = make_title(self)
 		if self.status == "Completed" and not self.completed_on:
 			self.completed_on = today()
 
