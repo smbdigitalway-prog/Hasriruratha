@@ -198,8 +198,8 @@
   },
   {
    "fieldname": "photo_url",
-   "fieldtype": "Small Text",
-   "label": "Photo URL"
+   "fieldtype": "Attach Image",
+   "label": "Site photo"
   },
   {
    "fieldname": "section_citizen",

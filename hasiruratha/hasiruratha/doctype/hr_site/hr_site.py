@@ -95,7 +95,15 @@ class HRSite(Document):
 
 	def after_insert(self):
 		if self.status == "Needs Review" and self.possible_duplicate_of:
+			from hasiruratha.hasiruratha.doctype.hr_duplicate_report.hr_duplicate_report import create_for_site
+
+			create_for_site(self)
 			_notify_admins(self)
+
+	def on_trash(self):
+		# Whatever way a site is deleted (button, Desk Delete, bulk), a copy is kept in HR Deleted Site.
+		if not frappe.db.exists("HR Deleted Site", {"original_site": self.name, "restored_site": ["is", "not set"]}):
+			_archive_site(self, _("Deleted from the desk"), None, [])
 
 
 def _notify_admins(doc):
@@ -126,6 +134,7 @@ def approve_site(name):
 	"""Admin: this is genuinely a different site."""
 	_require_admin()
 	doc = frappe.get_doc("HR Site", name)
+	_resolve_report(name, "Kept as New")
 	doc.flags.ignore_duplicate_check = True
 	doc.status, doc.possible_duplicate_of = "Identified", None
 	doc.save(ignore_permissions=True)
@@ -141,6 +150,7 @@ def merge_site(name, into=None):
 	target = into or dup.possible_duplicate_of
 	if not target or target == name or not frappe.db.exists("HR Site", target):
 		frappe.throw(_("Choose a different existing site to merge into"))
+	_resolve_report(name, "Merged", _("Merged into {0}").format(target))
 	for dt in ("HR Tree", "HR Visit", "HR Condition", "HR Tree Report"):
 		frappe.db.sql("update `tab%s` set site_id=%%s where site_id=%%s" % dt, (target, name))
 	count = frappe.db.count("HR Tree", {"site_id": target})
@@ -192,15 +202,8 @@ def delete_duplicate(name, reason=None):
 	if (trees or linked) and not target:
 		frappe.throw(_("This site has trees or records. Set Possible Duplicate Of first, so they can be moved there."))
 
-	card = _site_card(name)
-	archive = frappe.get_doc({
-		"doctype": "HR Deleted Site", "original_site": name, "site_name": doc.site_name, "photo": card.photo,
-		"reason": reason, "possible_duplicate_of": doc.possible_duplicate_of, "moved_to": target,
-		"trees_moved": ", ".join(trees) if target else "", "deleted_by": frappe.session.user,
-		"deleted_on": frappe.utils.now_datetime(), "site_type": doc.site_type, "status_at_delete": doc.status,
-		"zone": doc.zone_id, "road": doc.road, "area": doc.area, "gps_lat": doc.gps_lat, "gps_lng": doc.gps_lng,
-		"tree_count": doc.tree_count, "snapshot": json.dumps(doc.as_dict(), default=str, indent=1),
-	}).insert(ignore_permissions=True)
+	archive = _archive_site(doc, reason, target, trees)
+	_resolve_report(name, "Deleted", _("Deleted: {0}").format(reason), deleted_site=archive.name)
 
 	if target:
 		for dt in ("HR Tree", "HR Visit", "HR Condition", "HR Tree Report"):
@@ -211,3 +214,26 @@ def delete_duplicate(name, reason=None):
 	_close_todos(name)
 	frappe.delete_doc("HR Site", name, force=True, ignore_permissions=True)
 	return {"success": True, "archive": archive.name, "moved_to": target}
+
+
+def _resolve_report(site_name, status, remarks=None, **extra):
+	from hasiruratha.hasiruratha.doctype.hr_duplicate_report.hr_duplicate_report import create_for_site, resolve
+
+	if not frappe.db.exists("HR Duplicate Report", {"site": site_name, "status": "Pending Review"}):
+		doc = frappe.get_doc("HR Site", site_name) if frappe.db.exists("HR Site", site_name) else None
+		if doc and doc.possible_duplicate_of:
+			create_for_site(doc)          # sites flagged before reports existed still get a trail
+	resolve(site_name, status, remarks, **extra)
+
+
+def _archive_site(doc, reason, target, trees):
+	"""Copy of a site (photo, location, snapshot, which trees moved where) into HR Deleted Site."""
+	card = _site_card(doc.name) or frappe._dict(photo=None)
+	return frappe.get_doc({
+		"doctype": "HR Deleted Site", "original_site": doc.name, "site_name": doc.site_name, "photo": card.photo,
+		"reason": reason, "possible_duplicate_of": doc.possible_duplicate_of, "moved_to": target,
+		"trees_moved": ", ".join(trees) if target else "", "deleted_by": frappe.session.user,
+		"deleted_on": frappe.utils.now_datetime(), "site_type": doc.site_type, "status_at_delete": doc.status,
+		"zone": doc.zone_id, "road": doc.road, "area": doc.area, "gps_lat": doc.gps_lat, "gps_lng": doc.gps_lng,
+		"tree_count": doc.tree_count, "snapshot": json.dumps(doc.as_dict(), default=str, indent=1),
+	}).insert(ignore_permissions=True)
