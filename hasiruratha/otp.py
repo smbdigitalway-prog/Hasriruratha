@@ -31,7 +31,7 @@ def _key(purpose, ident):
 def send_code(purpose, ident, email, data=None, subject=None):
 	"""Create a code for (purpose, ident), email it, remember `data` with it."""
 	email = (email or "").strip().lower()
-	gap = "hr_otp_gap:%s" % email
+	gap = "hr_otp_gap:%s:%s" % (purpose, email)
 	if _cache().get_value(gap):
 		frappe.throw(_("A code was sent a moment ago. Please wait a minute before asking again."))
 	code = "%06d" % secrets.randbelow(10**6)

@@ -56,6 +56,22 @@ Open `/app/hr-console`. Tiles: Plant a sapling (opens `/hasiruratha`), Report a 
 Citizens use Frappe Web Forms and website pages. Each submission is first saved as a record the admin can filter and map (HR Citizen Planting, HR Citizen Report, HR Volunteer Request), then processed into the real site / tree / report / volunteer application by `citizen_forms.py`. Status flows back to the citizen automatically. The earlier custom page (`templates/citizen.html`, route `/citizen`) is still in the repo and can be deleted. See `docs/FRAPPE_SETUP.md`.
 
 ## CHANGELOG
+### 20 Nov 2026 (later): citizen and volunteer sign-in rebuilt
+* Public map `/trees` (no sign-in): spots in view load as the map moves; a spot shows photo, tree type, date
+  planted, age and whether it has a caretaker. No volunteer names/phones/emails. `/trees?spot=<id>` opens one spot.
+* Citizen sign-in `/citizen-login`: mobile + email + 6-digit code by email; "keep me signed in" (HR Device Login).
+* Requests `/request` (HR Request DocType): *New location* or *Maintenance*. GPS with accuracy shown, or a pin;
+  address (Door/Cross/Main, road, area, pin code, zone) filled from the map and editable; spots/trees within 60 m
+  shown with photos to avoid duplicates; photo shrunk on the phone before upload. Possible duplicates go to
+  *Under review*. GPS cannot be edited. Citizen emailed on status change. `/my-requests` shows progress.
+* Volunteers: sign up at `/volunteer-signup` (all details, email code, password; admin approves; citizens can
+  upgrade). Sign in at `/hasiruratha` with mobile + password (admins too). `/volunteer-reset` sets or resets
+  the password by email code, also for volunteers added by an admin who never had one.
+* Retired: mobile-number-only sign-in (`api.login_phone`) and instant self-registration (`api.register_phone`).
+* Fixed: `/citizen-home` and `/my-status` returned 500 (controller files must use `_`, not `-`).
+* Needs on the live site: an outgoing Email Account (codes and status emails), then deploy + migrate.
+* Tests: `tools/e2e/` (phone-size, citizen + volunteer).
+
 ### 20 Nov 2026: volunteer form fix + admin workspace in code
 * `web_form/become_a_volunteer/become_a_volunteer.py` was missing, so Frappe could not import the form module and the page never opened. Added.
 * `become_a_volunteer.js` was a copy of the map script. Replaced with a note; the real logic is the Web Form `client_script` (prefill via `citizen_api.my_profile`, "Send code" button with 60 s cooldown, pin code check).

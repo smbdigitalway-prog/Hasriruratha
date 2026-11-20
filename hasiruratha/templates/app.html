@@ -830,50 +830,25 @@ html, body { height:100%; overflow:auto !important; }
     <a href="https://linktr.ee/hasiruratha" target="_blank">linktr.ee/hasiruratha</a>
   </div>
   <div class="login-card" id="login-panel">
-    <h2>Welcome back</h2>
-    <p class="sub">Enter your mobile number to continue.</p>
+    <h2>Volunteer sign-in</h2>
+    <p class="sub">Use your mobile number and password.</p>
     <div class="field">
-      <label>Mobile number</label>
-      <input type="tel" id="login-phone" placeholder="e.g. 9845012345" inputmode="numeric" onkeydown="if(event.key==='Enter')doLogin()">
+      <label for="login-phone">Mobile number</label>
+      <input type="tel" id="login-phone" placeholder="e.g. 9845012345" inputmode="numeric" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
-    <div class="admin-toggle" onclick="toggleAdminMode()">
-      <input type="checkbox" id="admin-check" onchange="toggleAdminMode()">
-      <span>Admin login</span>
-    </div>
-    <div class="field" id="pin-field" style="display:none">
-      <label>Admin password</label>
-      <input type="password" id="login-pin" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doLogin()">
+    <div class="field">
+      <label for="login-pin">Password</label>
+      <input type="password" id="login-pin" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <div id="login-err" class="err"></div>
     <div style="margin-top:14px">
       <button class="btn-main" id="login-btn" onclick="doLogin()">
-        Enter <i class="ti ti-arrow-right" style="font-size:14px"></i>
+        Sign in <i class="ti ti-arrow-right" style="font-size:14px"></i>
       </button>
     </div>
-    <button class="link-btn" onclick="showRegister()">New volunteer? Register here →</button>
-  </div>
-  <div class="login-card" id="register-panel" style="display:none">
-    <h2>Join Hasiru Ratha</h2>
-    <p class="sub">Create your volunteer profile.</p>
-    <div class="field"><label>Full name *</label><input type="text" id="reg-name" placeholder="Your full name"></div>
-    <div class="field">
-      <label>Mobile number *</label>
-      <input type="tel" id="reg-phone" placeholder="10 digit mobile" inputmode="numeric">
-      <div class="hint">This will be your login ID</div>
-    </div>
-    <div class="field"><label>Email (optional)</label><input type="email" id="reg-email" placeholder="your@email.com"></div>
-    <div class="field">
-      <label>Your area / neighbourhood</label>
-      <input type="text" id="reg-area" placeholder="e.g. JP Nagar 7th Phase, BTM Layout" autocomplete="off">
-      <div class="hint">Helps us assign you to the right zone</div>
-    </div>
-    <div id="reg-err" class="err"></div>
-    <div style="margin-top:14px">
-      <button class="btn-main" id="reg-btn" onclick="doRegister()">
-        <i class="ti ti-user-check" style="font-size:14px"></i> Register & Enter
-      </button>
-    </div>
-    <button class="link-btn" onclick="showLogin()">Already registered? Login →</button>
+    <a class="link-btn" href="/volunteer-reset" style="display:block;text-align:center">Forgot or set password</a>
+    <a class="link-btn" href="/volunteer-signup" style="display:block;text-align:center">New volunteer? Register here →</a>
+    <a class="link-btn" href="/trees" style="display:block;text-align:center">Not a volunteer? See the map or raise a request</a>
   </div>
 </div>
 
@@ -1498,7 +1473,7 @@ async function frappePost(method, params = {}) {
       headers: { 'X-Frappe-CSRF-Token': CSRF_TOKEN, 'Accept': 'application/json' },
       body,
     });
-    if ((res.status === 401 || res.status === 403) && method !== 'login' && method !== 'hasiruratha.dashboard_api.admin_login') {
+    if ((res.status === 401 || res.status === 403) && method !== 'login' && method !== 'hasiruratha.volunteer_auth.login') {
       if (HR_BOOT_DATA.logged_in) { showToast('Session expired — signing in again'); setTimeout(() => location.reload(), 900); }
       return { success: false, error: 'Please sign in again' };
     }
@@ -1639,103 +1614,23 @@ if (!navigator.onLine) document.getElementById('offline-banner').classList.add('
 // ═══════════════════════════════════════════════════════════════════
 //  AUTH
 // ═══════════════════════════════════════════════════════════════════
-function showRegister() {
-  document.getElementById('login-panel').style.display    = 'none';
-  document.getElementById('register-panel').style.display = '';
-  const ph = document.getElementById('login-phone').value.trim();
-  if (ph) document.getElementById('reg-phone').value = ph;
-}
-function showLogin() {
-  document.getElementById('register-panel').style.display = 'none';
-  document.getElementById('login-panel').style.display    = '';
-}
-function toggleAdminMode() {
-  const chk = document.getElementById('admin-check');
-  // If called from div click (not checkbox), toggle manually
-  // If called from checkbox onchange, state is already correct
-  if (event && event.target !== chk) chk.checked = !chk.checked;
-  document.getElementById('pin-field').style.display = chk.checked ? '' : 'none';
-  // Clear PIN and error when toggling off
-  if (!chk.checked) {
-    document.getElementById('login-pin').value = '';
-    document.getElementById('login-err').style.display = 'none';
-  }
-}
-
 async function doLogin() {
-  const phone   = document.getElementById('login-phone').value.replace(/\D/g,'');
-  const isAdmin = document.getElementById('admin-check').checked;
-  const pin     = document.getElementById('login-pin').value.trim();
-  const err     = document.getElementById('login-err');
-  err.style.display = 'none';
-  if (isAdmin) {
-    if (!phone || phone.length < 10) {
-      showErr('login-err', 'Enter a valid admin mobile number.');
-      return;
-    }
-    if (!pin) {
-      showErr('login-err', 'Enter your admin password.');
-      return;
-    }
-
-    const btn = document.getElementById('login-btn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-inline"></span>';
-
-    const login = await frappePost('hasiruratha.dashboard_api.admin_login', {
-      phone: phone,
-      password: pin
-    });
-
-    if (!login || !login.success || !login.is_admin) {
-      btn.disabled = false;
-      btn.innerHTML = 'Enter <i class="ti ti-arrow-right" style="font-size:14px"></i>';
-      showErr('login-err', login && login.error ? login.error : 'Invalid admin credentials.');
-      return;
-    }
-
-    // Admins must land directly on the Hasiru Ratha SPA Homepage after login.
-    // The legacy /dashboard route renders the old dashboard and is not the admin workspace.
-    window.location.href = '/hasiruratha#admin-home';
-    return;
-  }
-  if (!phone)  { showErr('login-err','Please enter your mobile number.'); return; }
+  const phone = document.getElementById('login-phone').value.replace(/\D/g,'');
+  const pwd   = document.getElementById('login-pin').value;
+  document.getElementById('login-err').style.display = 'none';
+  if (phone.length < 10) { showErr('login-err', 'Enter your 10-digit mobile number.'); return; }
+  if (!pwd)              { showErr('login-err', 'Enter your password.'); return; }
   const btn = document.getElementById('login-btn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner-inline"></span>';
-  const res = await frappePost('hasiruratha.api.login_phone', { phone });
-  btn.disabled = false;
-  btn.innerHTML = 'Enter <i class="ti ti-arrow-right" style="font-size:14px"></i>';
-  if (!res.success) {
-    if (!navigator.onLine) {
-      const s = loadSession();
-      if (s && String(s.phone).replace(/\D/g,'') === phone) { enterApp(s, isAdmin); return; }
-    }
-    showErr('login-err', res.error && res.error !== 'Network error' ? res.error : 'Could not connect. Check your internet and try again.');
+  const res = await frappePost('hasiruratha.volunteer_auth.login', { mobile: phone, password: pwd });
+  if (!res || !res.success) {
+    btn.disabled = false;
+    btn.innerHTML = 'Sign in <i class="ti ti-arrow-right" style="font-size:14px"></i>';
+    showErr('login-err', res && res.error && res.error !== 'Network error' ? res.error : 'Could not connect. Check your internet and try again.');
     return;
   }
-  if (!res.found) {
-    showErr('login-err','Mobile number not registered. Please sign up.');
-    showRegister();
-    document.getElementById('reg-phone').value = phone;
-    return;
-  }
-  window.location.href = '/hasiruratha';
-}
-
-async function doRegister() {
-  const name  = document.getElementById('reg-name').value.trim();
-  const phone = document.getElementById('reg-phone').value.replace(/\D/g,'');
-  const email = document.getElementById('reg-email').value.trim();
-  if (!name || phone.length < 10) { showErr('reg-err','Please fill in name and a valid 10-digit mobile number.'); return; }
-  const btn = document.getElementById('reg-btn');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner-inline"></span>';
-  const area = document.getElementById('reg-area').value.trim();
-  const res = await frappePost('hasiruratha.api.register_phone', { name, phone, email, area, group_id: GROUP_ID });
-  btn.disabled = false; btn.innerHTML = '<i class="ti ti-user-check" style="font-size:14px"></i> Register & Enter';
-  if (!res.success) { showErr('reg-err', res.error || 'Registration failed. Try again.'); return; }
-  showToast('✅ Welcome to Hasiru Ratha, ' + name + '!');
-  setTimeout(() => window.location.href = '/hasiruratha', 700);
+  window.location.href = res.is_admin ? '/hasiruratha#admin-home' : '/hasiruratha';
 }
 
 function enterApp(user, isAdmin) {

@@ -1,0 +1,93 @@
+{% extends "templates/base.html" %}
+{% block title %}Become a volunteer · Hasiru Ratha{% endblock %}
+{% block style %}{% include "templates/includes/hr_ui.html" %}{% endblock %}
+{% block navbar %}{% include "templates/includes/hr_top.html" %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block content %}
+<script>document.body.classList.add("hr")</script>
+<main class="hr-wrap">
+	<h1>Become a volunteer</h1>
+	<p class="hr-muted">Adopt saplings near your home and join planting and care drives. All fields are needed so we can place you in the right zone.</p>
+
+	<section class="hr-card" id="step1">
+		<h2><span class="hr-step">1</span>About you</h2>
+		<label for="nm">Full name</label>
+		<input id="nm" type="text" maxlength="60" autocomplete="name" value="{{ me_name or '' }}">
+		<label for="mob">Mobile number <span class="opt">(you sign in with it)</span></label>
+		<input id="mob" type="tel" inputmode="numeric" maxlength="14" autocomplete="tel" value="{{ me_mobile or '' }}" {{ 'readonly' if me_email }}>
+		<label for="eml">Email</label>
+		<input id="eml" type="email" autocomplete="email" value="{{ me_email or '' }}" {{ 'readonly' if me_email }}>
+		{% if me_email %}<p class="hr-muted" style="margin:6px 0 0">You are signed in, so your requests stay with your volunteer account.</p>{% endif %}
+
+		<h2 style="margin-top:20px"><span class="hr-step">2</span>Where you live</h2>
+		<label for="addr">Door no / Cross / Main</label>
+		<input id="addr" type="text" maxlength="200" placeholder="e.g. #12, 4th Cross, 9th Main" autocomplete="address-line1">
+		<label for="road">Road</label><input id="road" type="text" maxlength="140">
+		<label for="area">Area</label><input id="area" type="text" maxlength="140" placeholder="e.g. Jayanagar 2nd Block">
+		<div class="hr-row">
+			<div><label for="pin">Pin code</label><input id="pin" type="tel" inputmode="numeric" maxlength="6" autocomplete="postal-code"></div>
+			<div><label for="zone">Zone</label><select id="zone"><option value="">Choose…</option></select></div>
+		</div>
+		<label for="why">Why do you want to volunteer? <span class="opt">(optional)</span></label>
+		<textarea id="why" maxlength="500"></textarea>
+		<div id="m1" class="hr-msg"></div>
+		<button class="hr-btn" id="send" style="margin-top:14px">Email me a code</button>
+	</section>
+
+	<section class="hr-card hr-hidden" id="step2">
+		<h2><span class="hr-step">3</span>Confirm and choose a password</h2>
+		<p class="sub" id="sentto"></p>
+		<label for="code">Code from the email</label>
+		<input id="code" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="font-size:22px;letter-spacing:5px;text-align:center">
+		<label for="pw">Password <span class="opt">(at least 8 characters, letters and numbers)</span></label>
+		<input id="pw" type="password" autocomplete="new-password">
+		<label for="pw2">Password again</label>
+		<input id="pw2" type="password" autocomplete="new-password">
+		<div id="m2" class="hr-msg"></div>
+		<button class="hr-btn" id="verify" style="margin-top:14px">Register</button>
+	</section>
+
+	<section class="hr-card hr-hidden" id="done" style="text-align:center">
+		<div style="font-size:44px">🤝</div>
+		<h2>Thank you for signing up!</h2>
+		<p>An admin will check and approve your registration. We will email you, then you can sign in with your mobile number and password.</p>
+		<a class="hr-btn ghost" href="/trees">Back to the map</a>
+	</section>
+	<p class="hr-muted" style="text-align:center">Already a volunteer? <a class="link" href="/hasiruratha">Sign in</a></p>
+</main>
+{% endblock %}
+{% block script %}
+{% include "templates/includes/hr_js.html" %}
+<script>
+(function () {
+	const v = id => HR.$(id).value.trim();
+	HR.call("hasiruratha.public_api.zones").then(z => z.forEach(x =>
+		HR.$("#zone").insertAdjacentHTML("beforeend", `<option value="${HR.esc(x.id)}">${HR.esc(x.name)}</option>`))).catch(() => {});
+	HR.$("#send").onclick = async function () {
+		const m = HR.$("#m1"); HR.msg(m, "");
+		const need = [["#nm", "your name"], ["#mob", "mobile number"], ["#eml", "email"], ["#addr", "Door no / Cross / Main"],
+			["#road", "road"], ["#area", "area"], ["#pin", "pin code"], ["#zone", "zone"]].filter(([id]) => !v(id)).map(x => x[1]);
+		if (need.length) return HR.msg(m, "Please fill in: " + need.join(", "));
+		if (!/^\d{6}$/.test(v("#pin"))) return HR.msg(m, "Please enter the 6-digit pin code.");
+		this.disabled = true;
+		try {
+			const r = await HR.call("hasiruratha.volunteer_auth.signup_start", { full_name: v("#nm"), mobile: v("#mob"), email: v("#eml"),
+				address: v("#addr"), road: v("#road"), area: v("#area"), pincode: v("#pin"), zone: v("#zone"), reason: v("#why") }, true);
+			HR.$("#step1").classList.add("hr-hidden"); HR.$("#step2").classList.remove("hr-hidden");
+			HR.$("#sentto").textContent = "We sent a code to " + r.sent_to + ". It is valid for 10 minutes.";
+			HR.$("#code").focus(); scrollTo(0, 0);
+		} catch (e) { HR.msg(m, e.message); }
+		this.disabled = false;
+	};
+	HR.$("#verify").onclick = async function () {
+		const m = HR.$("#m2"); HR.msg(m, "");
+		if (HR.$("#pw").value !== HR.$("#pw2").value) return HR.msg(m, "The two passwords are not the same.");
+		this.disabled = true;
+		try {
+			await HR.call("hasiruratha.volunteer_auth.signup_verify", { email: v("#eml"), code: v("#code"), password: HR.$("#pw").value }, true);
+			HR.$("#step2").classList.add("hr-hidden"); HR.$("#done").classList.remove("hr-hidden"); scrollTo(0, 0);
+		} catch (e) { HR.msg(m, e.message); this.disabled = false; }
+	};
+})();
+</script>
+{% endblock %}
