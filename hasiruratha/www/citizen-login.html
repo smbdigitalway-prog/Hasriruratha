@@ -1,37 +1,79 @@
-{% extends "templates/web.html" %}
-{% block page_content %}
-<div class="container" style="max-width:440px;margin:32px auto">
-	<div class="text-center mb-4">
-		<div style="font-size:52px">🌳</div>
-		<h2>Hasiru Ratha</h2>
-		<p class="text-muted">Every tree we plant makes Bengaluru greener.</p>
-	</div>
-	<div class="card"><div class="card-body">
-		<div class="form-group"><label>Mobile number</label>
-			<input id="lp" type="tel" inputmode="numeric" class="form-control" placeholder="10-digit mobile number" autocomplete="tel"></div>
-		<div class="form-group"><label>Email</label>
-			<input id="le" type="email" class="form-control" placeholder="you@gmail.com" autocomplete="email"></div>
-		<div class="form-group" id="lnw" style="display:none"><label>Your name (first time only)</label>
-			<input id="ln" class="form-control" autocomplete="name"></div>
-		<button class="btn btn-primary btn-block" id="lgo" style="width:100%">Continue</button>
-		<p class="text-danger mt-3 mb-0" id="lerr"></p>
-	</div></div>
-	<p class="text-center text-muted small mt-3">Follow us:
-		<a href="https://www.facebook.com/rathahasiru/" target="_blank" rel="noopener">Facebook</a> ·
-		<a href="https://x.com/RathaHasiru" target="_blank" rel="noopener">X</a></p>
-</div>
+{% extends "templates/base.html" %}
+{% block title %}Sign in · Hasiru Ratha{% endblock %}
+{% block style %}{% include "templates/includes/hr_ui.html" %}{% endblock %}
+{% block navbar %}{% include "templates/includes/hr_top.html" %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block content %}
+<script>document.body.classList.add("hr")</script>
+<main class="hr-wrap">
+	<h1>Sign in to raise a request</h1>
+	<p class="hr-muted">Use your mobile number and email. We email you a 6-digit code the first time on this phone.</p>
+
+	<section class="hr-card" id="step1">
+		<label for="mob">Mobile number</label>
+		<input id="mob" type="tel" inputmode="numeric" maxlength="14" placeholder="10-digit mobile number" autocomplete="tel">
+		<label for="eml">Email</label>
+		<input id="eml" type="email" placeholder="you@example.com" autocomplete="email">
+		<div id="namewrap" class="hr-hidden">
+			<label for="nm">Your name</label>
+			<input id="nm" type="text" maxlength="60" autocomplete="name" placeholder="First time here? Tell us your name">
+		</div>
+		<div id="m1" class="hr-msg"></div>
+		<button class="hr-btn" id="send" style="margin-top:14px">Email me a code</button>
+	</section>
+
+	<section class="hr-card hr-hidden" id="step2">
+		<h2>Enter the code</h2>
+		<p class="sub" id="sentto"></p>
+		<input id="code" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="6-digit code"
+			style="font-size:24px;letter-spacing:6px;text-align:center">
+		<label class="hr-check"><input type="checkbox" id="remember" checked> Keep me signed in on this phone</label>
+		<div id="m2" class="hr-msg"></div>
+		<button class="hr-btn" id="verify" style="margin-top:14px">Sign in</button>
+		<p class="hr-muted" style="margin:12px 0 0">No email? Check spam, or <a href="#" class="link" id="again">send it again</a>.</p>
+	</section>
+
+	<p class="hr-muted" style="text-align:center">Volunteer? <a class="link" href="/hasiruratha">Volunteer sign-in</a> ·
+		<a class="link" href="/volunteer-signup">Become a volunteer</a></p>
+</main>
+{% endblock %}
+{% block script %}
+{% include "templates/includes/hr_js.html" %}
 <script>
-document.getElementById("lgo").onclick = async function () {
-	const err = document.getElementById("lerr"), b = this; err.textContent = ""; b.disabled = true;
-	try {
-		const r = await fetch("/api/method/hasiruratha.citizen_api.citizen_login", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" },
-			body: JSON.stringify({ phone: lp.value, email: le.value, full_name: ln.value }) });
-		const j = await r.json(); const m = j.message || {};
-		if (m.success && m.need_name) { lnw.style.display = "block"; ln.focus(); err.textContent = "Welcome! Please tell us your name."; }
-		else if (m.success) { const to = new URLSearchParams(location.search).get("redirect-to"); location.href = to && to.startsWith("/") && !to.startsWith("//") ? to : "/citizen-home"; }
-		else err.textContent = m.error || "Something went wrong. Please try again.";
-	} catch (e) { err.textContent = "Something went wrong. Please try again."; }
-	b.disabled = false;
-};
+(function () {
+	const next = (() => { const to = new URLSearchParams(location.search).get("redirect-to");
+		return to && to.startsWith("/") && !to.startsWith("//") ? to : "/request"; })();
+	const go = () => location.replace(next);
+	// A phone that chose "keep me signed in" comes straight back in.
+	HR.call("hasiruratha.citizen_auth.resume", {}, true).then(r => { if (r && r.success) go(); }).catch(() => {});
+
+	const send = async () => {
+		const b = HR.$("#send"), m = HR.$("#m1"); HR.msg(m, ""); b.disabled = true;
+		try {
+			const r = await HR.call("hasiruratha.citizen_auth.start",
+				{ mobile: HR.$("#mob").value, email: HR.$("#eml").value, full_name: HR.$("#nm").value }, true);
+			if (r.need_name) {
+				HR.$("#namewrap").classList.remove("hr-hidden"); HR.$("#nm").focus();
+				HR.msg(m, "Welcome! Please add your name, then tap the button again.", "ok");
+			} else {
+				HR.$("#step1").classList.add("hr-hidden"); HR.$("#step2").classList.remove("hr-hidden");
+				HR.$("#sentto").textContent = "We sent a code to " + r.sent_to + ". It is valid for 10 minutes.";
+				HR.$("#code").focus();
+			}
+		} catch (e) { HR.msg(m, e.message); }
+		b.disabled = false;
+	};
+	HR.$("#send").onclick = send;
+	HR.$("#again").onclick = (e) => { e.preventDefault(); HR.$("#step2").classList.add("hr-hidden"); HR.$("#step1").classList.remove("hr-hidden"); send(); };
+	HR.$("#verify").onclick = async function () {
+		const m = HR.$("#m2"); HR.msg(m, ""); this.disabled = true;
+		try {
+			await HR.call("hasiruratha.citizen_auth.verify",
+				{ email: HR.$("#eml").value, code: HR.$("#code").value, remember: HR.$("#remember").checked ? 1 : 0 }, true);
+			go();
+		} catch (e) { HR.msg(m, e.message); this.disabled = false; }
+	};
+	HR.$("#code").addEventListener("keydown", e => { if (e.key === "Enter") HR.$("#verify").click(); });
+})();
 </script>
 {% endblock %}

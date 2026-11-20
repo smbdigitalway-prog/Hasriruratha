@@ -1,0 +1,61 @@
+{% extends "templates/base.html" %}
+{% block title %}Set your password · Hasiru Ratha{% endblock %}
+{% block style %}{% include "templates/includes/hr_ui.html" %}{% endblock %}
+{% block navbar %}{% include "templates/includes/hr_top.html" %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block content %}
+<script>document.body.classList.add("hr")</script>
+<main class="hr-wrap">
+	<h1>Forgot or set your password</h1>
+	<p class="hr-muted">For volunteers. We email a code to the address on your volunteer record.</p>
+	<section class="hr-card" id="step1">
+		<label for="mob">Your mobile number</label>
+		<input id="mob" type="tel" inputmode="numeric" maxlength="14" autocomplete="username">
+		<div id="m1" class="hr-msg"></div>
+		<button class="hr-btn" id="send" style="margin-top:14px">Email me a code</button>
+	</section>
+	<section class="hr-card hr-hidden" id="step2">
+		<p class="sub" id="sentto"></p>
+		<label for="code">Code from the email</label>
+		<input id="code" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="font-size:22px;letter-spacing:5px;text-align:center">
+		<label for="pw">New password <span class="opt">(at least 8 characters, letters and numbers)</span></label>
+		<input id="pw" type="password" autocomplete="new-password">
+		<label for="pw2">New password again</label>
+		<input id="pw2" type="password" autocomplete="new-password">
+		<div id="m2" class="hr-msg"></div>
+		<button class="hr-btn" id="save" style="margin-top:14px">Save password</button>
+	</section>
+	<section class="hr-card hr-hidden" id="done" style="text-align:center">
+		<div style="font-size:44px">🔑</div>
+		<h2>Password saved</h2>
+		<a class="hr-btn" href="/hasiruratha" style="margin-top:8px">Sign in</a>
+	</section>
+</main>
+{% endblock %}
+{% block script %}
+{% include "templates/includes/hr_js.html" %}
+<script>
+(function () {
+	HR.$("#send").onclick = async function () {
+		const m = HR.$("#m1"); HR.msg(m, ""); this.disabled = true;
+		try {
+			const r = await HR.call("hasiruratha.volunteer_auth.reset_start", { mobile: HR.$("#mob").value }, true);
+			if (!r.success) throw new Error(r.error);
+			HR.$("#step1").classList.add("hr-hidden"); HR.$("#step2").classList.remove("hr-hidden");
+			HR.$("#sentto").textContent = "We sent a code to " + r.sent_to + ". It is valid for 10 minutes.";
+			HR.$("#code").focus();
+		} catch (e) { HR.msg(m, e.message); }
+		this.disabled = false;
+	};
+	HR.$("#save").onclick = async function () {
+		const m = HR.$("#m2"); HR.msg(m, "");
+		if (HR.$("#pw").value !== HR.$("#pw2").value) return HR.msg(m, "The two passwords are not the same.");
+		this.disabled = true;
+		try {
+			await HR.call("hasiruratha.volunteer_auth.reset_verify", { mobile: HR.$("#mob").value, code: HR.$("#code").value, password: HR.$("#pw").value }, true);
+			HR.$("#step2").classList.add("hr-hidden"); HR.$("#done").classList.remove("hr-hidden");
+		} catch (e) { HR.msg(m, e.message); this.disabled = false; }
+	};
+})();
+</script>
+{% endblock %}

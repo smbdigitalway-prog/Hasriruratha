@@ -82,7 +82,8 @@ def _nominatim(lat, lng):
 	a = j.get("address") or {}
 	road = a.get("road") or a.get("pedestrian") or a.get("residential") or ""
 	area = a.get("suburb") or a.get("neighbourhood") or a.get("quarter") or a.get("city_district") or ""
-	return {"success": True, "road": road or area, "area": area, "address": j.get("display_name") or ""}
+	return {"success": True, "road": road or area, "area": area, "pincode": a.get("postcode") or "",
+	        "address": j.get("display_name") or ""}
 
 
 def suggest_zone(lat, lng, road, area):
@@ -451,7 +452,28 @@ def review_application(name=None, approve=1, notes=None):
 		app.status = "Rejected"
 	app.save(ignore_permissions=True)
 	frappe.db.set_value("ToDo", {"reference_type": "HR Application", "reference_name": app.name, "status": "Open"}, "status", "Closed")
+	_email_volunteer_decision(app)
 	return {"success": True, "status": app.status}
+
+
+def _email_volunteer_decision(app):
+	vol = frappe.db.get_value("HR Volunteer", app.volunteer, ["volunteer_name", "email", "user"], as_dict=True) or {}
+	to = vol.get("email") or vol.get("user")
+	if not to or "@volunteer.hasiruratha.local" in to:
+		return
+	if app.status in ("Approved", "Assigned"):
+		subject = _("Welcome to Hasiru Ratha, you are now a volunteer")
+		body = _("<p>Hello {0},</p><p>Your volunteer registration is approved. Sign in with your mobile number and "
+		         "password at <a href='{1}'>{1}</a>.</p>").format(frappe.utils.escape_html(vol.get("volunteer_name") or ""),
+		                                                         frappe.utils.get_url("/hasiruratha"))
+	elif app.status == "Rejected":
+		subject = _("About your Hasiru Ratha volunteer registration")
+		body = _("<p>Hello {0},</p><p>We could not approve your volunteer registration right now.</p>{1}").format(
+			frappe.utils.escape_html(vol.get("volunteer_name") or ""),
+			("<p>%s</p>" % frappe.utils.escape_html(app.review_notes)) if app.review_notes else "")
+	else:
+		return
+	frappe.sendmail(recipients=[to], subject=subject, message=body, reference_doctype=app.doctype, reference_name=app.name)
 
 
 # ───────────────────────────── admin view of citizen submissions ─────────────────────────────

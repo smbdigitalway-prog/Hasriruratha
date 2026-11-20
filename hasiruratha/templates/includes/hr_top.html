@@ -1,0 +1,14 @@
+{#- Top bar for the citizen pages. Set `hr_page` in the page context to highlight a link. -#}
+<header class="hr-top">
+	<a class="hr-brand" href="/trees"><span aria-hidden="true">🌳</span><span class="txt">Hasiru Ratha</span></a>
+	<nav class="hr-nav" aria-label="Main">
+		<a href="/trees" class="{{ 'on' if hr_page == 'map' }}">Map</a>
+		<a href="/request" class="{{ 'on' if hr_page == 'request' }}">Request</a>
+		{% if frappe.session.user != "Guest" %}
+		<a href="/my-requests" class="{{ 'on' if hr_page == 'mine' }}">My requests</a>
+		<a href="#" id="hr-signout">Sign out</a>
+		{% else %}
+		<a href="/citizen-login" class="{{ 'on' if hr_page == 'login' }}">Sign in</a>
+		{% endif %}
+	</nav>
+</header>

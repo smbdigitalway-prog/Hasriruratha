@@ -7,7 +7,7 @@ This is a Python port of the Google Apps Script web app (Code.gs). The browser
 app calls ONE endpoint, `hasiruratha.api.call`, with the same action names the
 Apps Script used (getSites, addTree, ...). Everything else here is new:
 
-    login_phone / register_phone  -> mobile-number sign-in -> real Frappe session
+    sign-in lives in volunteer_auth.py (mobile + password) and citizen_auth.py (email code)
     upload_photo                  -> replaces the Cloudflare worker + Google Drive
     reverse_geocode (action)      -> replaces the browser -> Google Geocoding call
 """
@@ -844,17 +844,20 @@ def reverse_geocode(p):
 	if res.get("status") != "OK" or not res.get("results"):
 		return {"success": False, "error": res.get("status") or "NO_RESULT"}
 
-	road = area = ""
+	road = area = pincode = ""
 	for result in res["results"]:
 		for c in result.get("address_components", []):
 			types = c.get("types", [])
+			if not pincode and "postal_code" in types:
+				pincode = c["long_name"]
 			if not road and "route" in types:
 				road = c["long_name"]
 			if not area and any(t in types for t in ("sublocality_level_1", "sublocality", "neighborhood")):
 				area = c["long_name"]
-		if road and area:
+		if road and area and pincode:
 			break
-	out = {"success": True, "road": road or area, "area": area, "address": res["results"][0].get("formatted_address")}
+	out = {"success": True, "road": road or area, "area": area, "pincode": pincode,
+	       "address": res["results"][0].get("formatted_address")}
 	_cache().set_value(key, out, expires_in_sec=6 * 3600)
 	return out
 
@@ -904,64 +907,20 @@ def _find_volunteer(phone):
 	return None
 
 
-def _ensure_user(vol):
-	if vol.user and frappe.db.exists("User", vol.user):
-		return vol.user
-	email = "v%s@volunteer.hasiruratha.local" % _last10(vol.phone)
-	if not frappe.db.exists("User", email):
-		frappe.get_doc({
-			"doctype": "User", "email": email, "first_name": vol.volunteer_name or "Volunteer",
-			"enabled": 1, "user_type": "Website User", "send_welcome_email": 0,
-			"new_password": secrets.token_urlsafe(24),
-			"roles": [{"role": VOLUNTEER_ROLE}],
-		}).insert(ignore_permissions=True)
-	frappe.db.set_value("HR Volunteer", vol.name, "user", email)
-	return email
-
-
-def _login_as(user):
-	if PRIVILEGED & set(frappe.get_roles(user)):
-		# a mobile number must never open an admin account
-		frappe.throw(_("This account must sign in with the admin login"), frappe.PermissionError)
-	if not cint(frappe.db.get_value("User", user, "enabled")):
-		frappe.throw(_("Account disabled"), frappe.PermissionError)
-	frappe.local.login_manager.login_as(user)
-
-
 @frappe.whitelist(allow_guest=True, methods=["POST"])
 @rate_limit(limit=30, seconds=300)
 def login_phone(phone=None):
-	if not _settings_flag("allow_phone_login"):
-		return {"success": False, "error": "Mobile sign-in is turned off"}
-	vol = _find_volunteer(phone)
-	if not vol:
-		return {"success": True, "found": False}
-	if not cint(vol.active):
-		return {"success": False, "error": "This volunteer account is inactive"}
-	_login_as(_ensure_user(vol))
-	return {"success": True, "found": True}
+	"""Retired. Mobile-number-only sign-in let anyone who knew a number open that volunteer's account.
+	Volunteers sign in with mobile + password: hasiruratha.volunteer_auth.login."""
+	return {"success": False, "error": "Please sign in with your mobile number and password."}
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])
 @rate_limit(limit=10, seconds=3600)
 def register_phone(name=None, phone=None, email=None, area=None, group_id=None):
-	if not _settings_flag("allow_self_registration"):
-		return {"success": False, "error": "Registration is closed. Ask an admin to add you."}
-	name = (name or "").strip()
-	phone = _digits(phone)
-	if not name or len(phone) < 10:
-		return {"success": False, "error": "Name and a valid 10-digit mobile number required"}
-	if _find_volunteer(phone):
-		return {"success": False, "error": "Already registered. Please sign in."}
-	vid = _gen_id("VOL")
-	frappe.get_doc({
-		"doctype": "HR Volunteer", "volunteer_id": vid, "volunteer_name": name, "phone": phone,
-		"email": (email or "").strip(), "area": (area or "").strip(),
-		"group_id": group_id or GROUP, "joined_date": getdate(today()), "active": 1,
-	}).insert(ignore_permissions=True)
-	vol = _find_volunteer(phone)
-	_login_as(_ensure_user(vol))
-	return {"success": True, "volunteer_id": vid}
+	"""Retired. It made anyone an active volunteer at once. Sign-up is at /volunteer-signup
+	(email confirmed by a code, then an admin approves): hasiruratha.volunteer_auth.signup_start."""
+	return {"success": False, "error": "Please register at /volunteer-signup."}
 
 
 def build_boot():

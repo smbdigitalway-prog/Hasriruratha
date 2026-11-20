@@ -1,0 +1,128 @@
+{% extends "templates/base.html" %}
+{% block title %}Trees we look after · Hasiru Ratha{% endblock %}
+{% block style %}{% include "templates/includes/hr_ui.html" %}
+<style>
+#map{position:fixed;left:0;right:0;bottom:0;top:52px;z-index:1}
+.fab{position:fixed;z-index:500;border:0;border-radius:999px;box-shadow:0 2px 10px rgba(0,0,0,.25);font-weight:600;cursor:pointer}
+#near{right:12px;top:66px;background:var(--hr-card);color:var(--hr-ink);padding:10px 14px;font-size:14px}
+#status{left:50%;transform:translateX(-50%);top:66px;background:var(--hr-card);color:var(--hr-muted);padding:7px 12px;font-size:13px;cursor:default;max-width:60vw;text-align:center}
+#status:empty{display:none}
+#actions{position:fixed;z-index:500;left:12px;right:12px;bottom:14px;display:flex;gap:10px;max-width:560px;margin:0 auto}
+#actions .hr-btn{box-shadow:0 2px 10px rgba(0,0,0,.25)}
+#actions .ghost{background:var(--hr-card)}
+#sheet{position:fixed;z-index:600;left:0;right:0;bottom:0;max-height:72vh;overflow:auto;background:var(--hr-card);
+	border-radius:18px 18px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,.25);padding:8px 16px 20px;max-width:560px;margin:0 auto;
+	transform:translateY(105%);transition:transform .2s ease}
+#sheet.open{transform:none}
+#sheet .grab{width:42px;height:5px;border-radius:3px;background:var(--hr-line);margin:4px auto 10px}
+#sheet .close{position:absolute;right:10px;top:8px;border:0;background:transparent;font-size:26px;line-height:1;color:var(--hr-muted);cursor:pointer;padding:6px}
+#sheet .hero{width:100%;height:180px;object-fit:cover;border-radius:12px;background:var(--hr-tint);display:block}
+.tree{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--hr-line)}
+.tree:first-of-type{border-top:0}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:14px}.kv dt{color:var(--hr-muted);font-weight:400}.kv dd{margin:0}
+</style>
+{% endblock %}
+{% block navbar %}{% include "templates/includes/hr_top.html" %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block content %}
+<script>document.body.classList.add("hr")</script>
+<div id="map" role="application" aria-label="Map of trees Hasiru Ratha looks after"></div>
+<button class="fab" id="near" type="button">📍 Near me</button>
+<div class="fab" id="status" aria-live="polite"></div>
+<div id="actions">
+	<a class="hr-btn" href="/request?type=new">🌱 Request a sapling</a>
+	<a class="hr-btn ghost" href="/request?type=maintenance">🛠 Tree needs care</a>
+</div>
+<section id="sheet" aria-live="polite">
+	<div class="grab"></div>
+	<button class="close" type="button" aria-label="Close">×</button>
+	<div id="sheetbody"></div>
+</section>
+{% endblock %}
+{% block script %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+{% include "templates/includes/hr_js.html" %}
+<script>
+(function () {
+	const map = L.map("map", { zoomControl: false }).setView([12.925, 77.585], 14);
+	L.control.zoom({ position: "bottomright" }).addTo(map);
+	HR.tiles(map);
+	const layer = L.layerGroup().addTo(map);
+	let me = null, timer = null, seq = 0;
+	const status = HR.$("#status"), sheet = HR.$("#sheet"), body = HR.$("#sheetbody");
+
+	async function load() {
+		const b = map.getBounds(), n = ++seq;
+		status.textContent = "Loading trees…";
+		try {
+			const r = await HR.call("hasiruratha.public_api.spots",
+				{ south: b.getSouth(), west: b.getWest(), north: b.getNorth(), east: b.getEast() });
+			if (n !== seq) return;
+			layer.clearLayers();
+			if (r.zoom_in) { status.textContent = "Zoom in to see the trees"; return; }
+			r.spots.forEach(s => {
+				L.marker([s.lat, s.lng], { icon: HR.treeIcon(), title: s.name, alt: s.name, keyboard: true })
+					.on("click", () => open(s.id)).addTo(layer);
+			});
+			status.textContent = r.spots.length ? (r.spots.length + (r.more ? "+" : "") + (r.spots.length === 1 ? " spot" : " spots") + " here · tap to see")
+				: "No registered trees in this area yet";
+		} catch (e) { if (n === seq) status.textContent = e.message; }
+	}
+	map.on("moveend", () => { clearTimeout(timer); timer = setTimeout(load, 350); });
+
+	async function open(id) {
+		body.innerHTML = '<p class="hr-muted">Loading…</p>'; sheet.classList.add("open");
+		try {
+			const s = await HR.call("hasiruratha.public_api.spot", { site_id: id });
+			if (!s.found) { body.innerHTML = '<p class="hr-muted">This spot is not available.</p>'; return; }
+			history.replaceState(null, "", "/trees?spot=" + encodeURIComponent(s.id));
+			const hero = s.photo || (s.trees.find(t => t.photo) || {}).photo;
+			const trees = s.trees.map(t => `
+				<div class="tree">
+					${t.photo ? `<img class="hr-thumb" src="${HR.esc(t.photo)}" alt="" loading="lazy">` : `<div class="hr-thumb">🌳</div>`}
+					<div style="min-width:0">
+						<div style="font-weight:600">${HR.esc(t.species)}</div>
+						<dl class="kv">
+							${t.planted ? `<dt>Planted</dt><dd>${HR.esc(t.planted)}${t.age ? " · " + HR.esc(t.age) + " old" : ""}</dd>` : ""}
+							${t.condition ? `<dt>Condition</dt><dd>${HR.esc(t.condition)}</dd>` : ""}
+							<dt>Caretaker</dt><dd>${t.cared ? "A volunteer looks after it" : '<span class="hr-chip warn">Looking for a volunteer</span>'}</dd>
+						</dl>
+					</div>
+				</div>`).join("");
+			const visits = (s.visits || []).map(v => `<li>${HR.esc(v.actual_date || v.planned_date || "")} · ${HR.esc(v.service_type || "")} · ${HR.esc(v.status || "")}</li>`).join("");
+			body.innerHTML = `
+				${hero ? `<img class="hero" src="${HR.esc(hero)}" alt="Photo of ${HR.esc(s.name)}">` : ""}
+				<h2 style="font-size:19px;margin:12px 0 2px">${HR.esc(s.name)}</h2>
+				<p class="hr-muted" style="margin:0 0 10px">${[...new Set([s.road, s.area].filter(Boolean).map(x => x.trim()))].concat(s.zone ? [s.zone + " zone"] : []).map(HR.esc).join(" · ")}</p>
+				<p style="margin:0 0 6px"><span class="hr-chip">${s.trees.length} tree${s.trees.length === 1 ? "" : "s"}</span>
+					<span class="hr-chip grey">${s.type === "stretch" ? "Stretch" : "Spot"}</span></p>
+				${trees || '<p class="hr-muted">No trees recorded here yet.</p>'}
+				${visits ? `<h3 style="font-size:15px;margin:14px 0 6px">Maintenance (volunteers only)</h3><ul class="hr-muted" style="padding-left:18px">${visits}</ul>` : ""}
+				<a class="hr-btn ghost" style="margin-top:12px" href="/request?type=maintenance&site=${encodeURIComponent(s.id)}">🛠 This spot needs care</a>`;
+			map.panTo([s.lat, s.lng]);
+		} catch (e) { body.innerHTML = `<p class="hr-msg err">${HR.esc(e.message)}</p>`; }
+	}
+	HR.$("#sheet .close").onclick = () => { sheet.classList.remove("open"); history.replaceState(null, "", "/trees"); };
+
+	function nearMe(quiet) {
+		if (!navigator.geolocation) { if (!quiet) status.textContent = "Location is not available on this device"; return; }
+		if (!quiet) status.textContent = "Finding you…";
+		navigator.geolocation.getCurrentPosition(p => {
+			const ll = [p.coords.latitude, p.coords.longitude];
+			if (me) me.setLatLng(ll); else me = L.marker(ll, { icon: HR.treeIcon("me"), interactive: false }).addTo(map);
+			map.setView(ll, 16);          // about 1 km across on a phone
+		}, () => { if (!quiet) status.textContent = "Could not get your location. Move the map instead."; },
+		{ enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 });
+	}
+	HR.$("#near").onclick = () => nearMe(false);
+
+	const spot = new URLSearchParams(location.search).get("spot");
+	if (spot) {
+		HR.call("hasiruratha.public_api.spot", { site_id: spot }).then(s => { if (s.found) map.setView([s.lat, s.lng], 17); open(spot); });
+	} else {
+		load();
+		if (navigator.permissions) navigator.permissions.query({ name: "geolocation" }).then(p => { if (p.state === "granted") nearMe(true); }).catch(() => {});
+	}
+})();
+</script>
+{% endblock %}

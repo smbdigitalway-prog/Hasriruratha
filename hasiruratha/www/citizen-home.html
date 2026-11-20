@@ -13,9 +13,9 @@
 	</div>
 
 	<div class="row text-center mb-3">
-		<div class="col-4"><a class="btn btn-primary btn-block py-3" style="width:100%" href="/plant-a-tree/new"><div style="font-size:26px">🌱</div>Plant a tree</a></div>
-		<div class="col-4"><a class="btn btn-default btn-block py-3" style="width:100%" href="/report-a-tree/new"><div style="font-size:26px">📝</div>Report a tree</a></div>
-		<div class="col-4"><a class="btn btn-default btn-block py-3" style="width:100%" href="/become-a-volunteer/new"><div style="font-size:26px">🤝</div>Volunteer</a></div>
+		<div class="col-4"><a class="btn btn-primary btn-block py-3" style="width:100%" href="/request?type=new"><div style="font-size:26px">🌱</div>Request a sapling</a></div>
+		<div class="col-4"><a class="btn btn-default btn-block py-3" style="width:100%" href="/request?type=maintenance"><div style="font-size:26px">🛠</div>Tree needs care</a></div>
+		<div class="col-4"><a class="btn btn-default btn-block py-3" style="width:100%" href="/volunteer-signup"><div style="font-size:26px">🤝</div>Volunteer</a></div>
 	</div>
 
 	<div class="row text-center mb-3">
@@ -67,7 +67,7 @@
 		{% if ov.volunteers|length > 80 %}<span class="text-muted">+{{ ov.volunteers|length - 80 }} more</span>{% endif %}
 	</div></div>
 </div>
-<a href="/my-status" class="btn btn-primary" style="position:fixed;right:16px;bottom:16px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.25);z-index:20">📊 My status</a>
+<a href="/my-requests" class="btn btn-primary" style="position:fixed;right:16px;bottom:16px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.25);z-index:20">📋 My requests</a>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
 const D = {{ charts | safe }};
