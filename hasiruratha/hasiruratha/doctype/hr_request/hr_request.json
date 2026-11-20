@@ -5,6 +5,7 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "title",
   "request_type",
   "status",
   "issue_type",
@@ -12,6 +13,7 @@
   "photo",
   "description",
   "section_location",
+  "location_map",
   "gps_lat",
   "gps_lng",
   "gps_accuracy_m",
@@ -46,6 +48,14 @@
   "longitude"
  ],
  "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "read_only": 1,
+   "no_copy": 1,
+   "in_list_view": 0
+  },
   {
    "fieldname": "request_type",
    "fieldtype": "Select",
@@ -91,6 +101,11 @@
    "fieldname": "section_location",
    "fieldtype": "Section Break",
    "label": "Location"
+  },
+  {
+   "fieldname": "location_map",
+   "fieldtype": "HTML",
+   "label": "Map"
   },
   {
    "fieldname": "gps_lat",
@@ -287,7 +302,7 @@
   }
  ],
  "links": [],
- "modified": "2026-11-20 12:00:00.000000",
+ "modified": "2026-11-21 11:30:00.000000",
  "modified_by": "Administrator",
  "module": "Hasiruratha",
  "name": "HR Request",
@@ -319,11 +334,14 @@
   }
  ],
  "row_format": "Dynamic",
- "search_fields": "request_type,area,road,citizen_name",
+ "search_fields": "request_type,road,area,citizen_name",
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
- "title_field": "area",
+ "title_field": "title",
  "track_changes": 1,
- "description": "A citizen's request: plant at a new location, or look after an existing tree."
+ "description": "A citizen's request: plant at a new location, or look after an existing tree.",
+ "image_field": "photo",
+ "show_preview_popup": 1,
+ "show_title_field_in_link": 1
 }

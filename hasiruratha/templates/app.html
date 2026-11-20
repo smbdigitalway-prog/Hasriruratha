@@ -603,6 +603,8 @@ body.hr-plantation-form-active{overflow:hidden!important}
 .hr-admin-nav button{border:0;background:transparent;color:#6c8074;padding:11px 15px;border-radius:10px;display:flex;align-items:center;gap:8px;white-space:nowrap;font-weight:700;font-size:12px;cursor:pointer}
 .hr-admin-nav button.active,.hr-admin-nav button:hover{background:#e8f5ec;color:#116542}
 .hr-admin-main{max-width:1500px;margin:0 auto;padding:28px clamp(16px,4vw,52px) 60px}
+.hx-req{display:flex;align-items:center;gap:12px;margin:14px 0 4px;padding:14px 16px;border-radius:16px;background:#fff;border:1px solid #dfe9e3;color:#0b3d2c;text-decoration:none}
+.hx-req span{font-size:26px}.hx-req div{flex:1;min-width:0}.hx-req b{display:block;font-size:15px}.hx-req small{color:#5d6b64;font-size:13px}.hx-req i{font-style:normal;font-size:24px;color:#9bb3a6}
 .hr-admin-hero{border-radius:20px;padding:30px 34px;background:linear-gradient(115deg,#073d2b,#13825b);color:white;display:flex;justify-content:space-between;align-items:center;overflow:hidden}
 .hr-admin-hero span,.hr-admin-eyebrow{font-size:10px;font-weight:800;letter-spacing:.16em;color:#87a995}
 .hr-admin-hero h1{font-size:32px;margin:8px 0}.hr-admin-hero p{font-size:13px;opacity:.82;margin:0;max-width:620px}.hr-admin-hero-mark{font-size:75px;opacity:.18}
@@ -4816,8 +4818,12 @@ const hTKey=t=>{const s=HX.sm[t.site_id]||{};return [t.tree_id,t.species,s.name,
 function vHome(){const u=currentUser||{},h=new Date().getHours(),g=h<12?'Good morning':h<17?'Good afternoon':'Good evening',nm=(u.name||'').split(' ')[0];
 return `<div class="hx-hero"><small>${g}${nm?', '+hE(nm):''} 🌱</small><h1>Hasiru Ratha</h1><p>Every tree we plant makes Bengaluru greener.</p>${hAdm()?'<button class="hx-add" onclick="openAddChooser()">＋ Add new site</button>':''}<div class="hx-leaf">🌳</div></div>
 <div class="hx-stats"><div onclick="hxGo('zone','*')"><b>${HX.trees.length}</b>Trees</div><div onclick="hxTop('sites')"><b>${HX.sites.length}</b>Sites</div><div onclick="hxTop('sites')"><b>${zoneSummary.length}</b>Zones</div><div class="u" onclick="hxGo('status','Urgent')"><b>${hSites('*','Urgent').length}</b>Urgent</div></div>
+${hAdm()?`<a class="hx-req" href="/app/hr-request?status=%5B%22in%22%2C%5B%22Received%22%2C%22Under%20review%22%2C%22Accepted%22%2C%22Scheduled%22%5D%5D"><span>📋</span><div><b>Citizen requests</b><small id="hx-req-n">${HX.reqText||'Open the list in Desk'}</small></div><i>›</i></a>`:''}
 <h3 class="hx-h">Browse by status</h3><div class="hx-stg">${HXS.map(hStCard).join('')}</div>
 <h3 class="hx-h">Zones</h3>`+hList('h',hZones(),z=>hZoneCard(z),z=>z.zone_name,'Search zone…')}
+// open citizen requests count for the admin home link (the list itself is the Frappe Desk list)
+function hxReqCount(){fetch('/api/method/hasiruratha.request_api.admin_counts',{credentials:'same-origin',headers:{Accept:'application/json'}})
+.then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.message)return;const m=j.message;HX.reqText=m.open+' open'+(m.review?' · '+m.review+' to check for duplicates':'')+(m.new?' · '+m.new+' new':'');const el=$h('hx-req-n');if(el)el.textContent=HX.reqText}).catch(()=>{})}
 function vSites(){const all=HX.tab==='all';return `<div class="hx-top"><h2>Sites</h2><p>${HX.sites.length} sites across ${zoneSummary.length} zones</p></div>`+hTabs(['zones','Zones'],['all','All sites'],all?'all':'zones')+(all?hChips(HX.sites,hSiteIn,HX.st)+hList('a',HX.sites.filter(s=>hSiteIn(s,HX.st)),hSiteCard,hSKey,'Search site, road or area…'):hList('a',hZones(),z=>hZoneCard(z),z=>z.zone_name,'Search zone…'))}
 function vStatus(){const st=HX.st;if(!st)return `<div class="hx-top"><h2>Status</h2><p>Tap a status to see its zones</p></div><div class="hx-stg">${HXS.map(hStCard).join('')}</div>`;
 const zs=hZones().filter(z=>hSites(z.zone_id,st).length||hTrees(z.zone_id,st).length);return hBack()+`<div class="hx-top" style="background:${HXC[st]}"><h2>${HXI[st]} ${st}</h2><p>${hSites('*',st).length} sites · ${hTrees('*',st).length} trees</p></div>`+hList('s',zs,z=>hZoneCard(z,st),z=>z.zone_name,'Search zone…')}
@@ -4831,7 +4837,8 @@ if(!HX.ready)html='<div class="loading"><div class="spinner"></div>Loading your 
 if(adm){document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));$h('pane-admin').classList.add('on');hrAdminShell('<div class="hx-wrap">'+html+'</div>',v==='status'?'status':v==='home'?'home':'sites');$h('admin-content').scrollTop=0}
 else if(v==='home'){showPane('pane-map',$h('tab-map'));$h('hx-home').innerHTML=html;$h('hx-home').scrollTop=0}
 else{$h('hx-view').innerHTML=html;showPane('pane-hx',$h(HX.root==='status'?'tab-status':'tab-sites'));$h('hx-scroll').scrollTop=0}
-if(HX.ready&&v==='sdet'){HX.tries=0;hxMap()}}
+if(HX.ready&&v==='sdet'){HX.tries=0;hxMap()}
+if(adm&&v==='home')hxReqCount()}
 function hxGo(v,a,b){HX.stack.push({v:HX.v,zone:HX.zone,st:HX.st,tab:HX.tab,site:HX.site,root:HX.root});if(v==='status')HX.root='status';else if(v==='sites'||HX.v==='home')HX.root='sites';HX.v=v;if(v==='zone'){HX.zone=a;HX.st=b||null;HX.tab='sites'}else if(v==='status'){HX.st=a||null}else if(v==='sdet')HX.site=a;hxShow()}
 function hxTop(v){HX.stack=[];HX.v=v;HX.st=null;HX.tab=v==='sites'?'zones':HX.tab;if(v!=='home')HX.root=v;hxShow()}
 function hxBack(){const p=HX.stack.pop();if(!p)return hxTop('home');Object.assign(HX,p);hxShow()}
