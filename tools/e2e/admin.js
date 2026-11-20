@@ -1,0 +1,20 @@
+const { chromium, devices } = require('playwright');
+const B = 'http://hr.localhost:8000'; let fails = 0;
+const ok = (c, w, d) => { if (!c) fails++; console.log(c ? 'PASS' : 'FAIL', '|', w, d ? '| ' + d : ''); };
+(async () => {
+  const b = await chromium.launch({ args: ['--host-resolver-rules=MAP hr.localhost 127.0.0.1'] });
+  let ctx = await b.newContext({ ...devices['iPhone 13'] }), p = await ctx.newPage();
+  await p.goto(B + '/hasiruratha', { waitUntil: 'networkidle' });
+  await p.fill('#login-phone', 'boss@example.com'); await p.fill('#login-pin', 'wrongpass1'); await p.click('#login-btn'); await p.waitForTimeout(1200);
+  ok((await p.locator('#login-err').innerText()).includes('not correct'), 'Admin by email: wrong password refused');
+  await p.fill('#login-pin', 'Admin2026pass'); await p.click('#login-btn');
+  await p.waitForSelector('#s-app.on', { timeout: 15000 }).catch(() => {});
+  ok(await p.locator('#s-app.on').count() === 1, 'Admin with no mobile number signs in with email + password', p.url());
+  await p.waitForTimeout(1500); await p.screenshot({ path: process.argv[2] + '/ADM-app.png' });
+  await ctx.close();
+  ctx = await b.newContext({ ...devices['iPhone 13'] }); p = await ctx.newPage();
+  await p.goto(B + '/volunteer-reset', { waitUntil: 'networkidle' });
+  await p.fill('#mob', '9123456789'); await p.click('#send'); await p.waitForTimeout(1200);
+  ok((await p.locator('#m1').innerText()).includes('Admins reset'), 'Reset page refuses a number that belongs to an admin', await p.locator('#m1').innerText());
+  console.log(fails ? fails + ' FAILED' : 'ALL PASSED'); await b.close();
+})();

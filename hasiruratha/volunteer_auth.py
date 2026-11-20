@@ -138,11 +138,20 @@ def signup_verify(email=None, code=None, password=None):
 @frappe.whitelist(allow_guest=True, methods=["POST"])
 @rate_limit(limit=10, seconds=300)
 def login(mobile=None, password=None):
-	mobile10 = api._last10(mobile)
-	if len(mobile10) < 10 or not password:
-		return {"success": False, "error": _("Enter your mobile number and password.")}
-	user, vol = _account_for(mobile10)
-	generic = _("Mobile number or password is not correct.")
+	"""`mobile` may also be an email address (admins often have no mobile number on their account)."""
+	ident = (mobile or "").strip()
+	generic = _("Mobile number / email or password is not correct.")
+	if "@" in ident:
+		user = frappe.db.get_value("User", {"email": ident.lower(), "enabled": 1}, "name")
+		vol = frappe.db.get_value("HR Volunteer", {"user": user}, ["name", "active", "user", "volunteer_name"],
+		                          as_dict=True) if user else None
+		if not password:
+			return {"success": False, "error": _("Enter your password.")}
+	else:
+		mobile10 = api._last10(ident)
+		if len(mobile10) < 10 or not password:
+			return {"success": False, "error": _("Enter your mobile number (or email) and password.")}
+		user, vol = _account_for(mobile10)
 	if not user:
 		if vol:
 			return {"success": False, "need_password": True,
@@ -168,6 +177,14 @@ def login(mobile=None, password=None):
 
 
 # ───────────────────────────── forgot / set password ─────────────────────────────
+def _is_admin_account(user, mobile10):
+	"""Never let the volunteer reset touch an admin account (enabled or disabled) with this number."""
+	users = set(_users_with_mobile(mobile10)) | ({user} if user else set())
+	users |= set(u for u in frappe.get_all("User", {"mobile_no": ["like", "%" + mobile10], "enabled": 0}, pluck="name")
+	             if api._last10(frappe.db.get_value("User", u, "mobile_no")) == mobile10)
+	return any(api.PRIVILEGED & set(frappe.get_roles(u)) for u in users)
+
+
 def _reset_target(mobile10):
 	user, vol = _account_for(mobile10)
 	email = None
@@ -187,8 +204,8 @@ def reset_start(mobile=None):
 	user, vol, email = _reset_target(mobile10)
 	if not (user or vol):
 		return {"success": False, "error": _("We could not find a volunteer with this mobile number.")}
-	if user and api.PRIVILEGED & set(frappe.get_roles(user)) and not vol:
-		return {"success": False, "error": _("Admins reset their password from the admin login page.")}
+	if _is_admin_account(user, mobile10):
+		return {"success": False, "error": _("Admins reset their password at /login → Forgot password.")}
 	if not email or not validate_email_address(email):
 		return {"success": False, "error": _("We do not have an email for this number. Please ask an admin to add your email.")}
 	otp.send_code("volunteer_reset", mobile10, email, {"email": email}, subject=_("Reset your Hasiru Ratha password"))
@@ -202,6 +219,8 @@ def reset_verify(mobile=None, code=None, password=None):
 	pwd = _check_password(password)
 	data = otp.check_code("volunteer_reset", mobile10, code)
 	user, vol, email = _reset_target(mobile10)
+	if _is_admin_account(user, mobile10):
+		frappe.throw(_("Admins reset their password at /login → Forgot password."))
 	if (not user or PLACEHOLDER_EMAIL.search(user)) and not vol:
 		frappe.throw(_("We could not find a volunteer with this mobile number."))
 	if not user or PLACEHOLDER_EMAIL.search(user):

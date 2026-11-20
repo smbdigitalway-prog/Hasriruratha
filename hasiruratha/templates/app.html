@@ -831,10 +831,10 @@ html, body { height:100%; overflow:auto !important; }
   </div>
   <div class="login-card" id="login-panel">
     <h2>Volunteer sign-in</h2>
-    <p class="sub">Use your mobile number and password.</p>
+    <p class="sub">Use your mobile number (admins can also use their email) and password.</p>
     <div class="field">
-      <label for="login-phone">Mobile number</label>
-      <input type="tel" id="login-phone" placeholder="e.g. 9845012345" inputmode="numeric" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+      <label for="login-phone">Mobile number or email</label>
+      <input type="text" id="login-phone" placeholder="e.g. 9845012345" autocomplete="username" autocapitalize="off" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <div class="field">
       <label for="login-pin">Password</label>
@@ -1615,10 +1615,11 @@ if (!navigator.onLine) document.getElementById('offline-banner').classList.add('
 //  AUTH
 // ═══════════════════════════════════════════════════════════════════
 async function doLogin() {
-  const phone = document.getElementById('login-phone').value.replace(/\D/g,'');
+  const raw   = document.getElementById('login-phone').value.trim();
+  const phone = raw.includes('@') ? raw : raw.replace(/\D/g,'');
   const pwd   = document.getElementById('login-pin').value;
   document.getElementById('login-err').style.display = 'none';
-  if (phone.length < 10) { showErr('login-err', 'Enter your 10-digit mobile number.'); return; }
+  if (!raw.includes('@') && phone.length < 10) { showErr('login-err', 'Enter your 10-digit mobile number or your email.'); return; }
   if (!pwd)              { showErr('login-err', 'Enter your password.'); return; }
   const btn = document.getElementById('login-btn');
   btn.disabled = true;
@@ -1630,7 +1631,14 @@ async function doLogin() {
     showErr('login-err', res && res.error && res.error !== 'Network error' ? res.error : 'Could not connect. Check your internet and try again.');
     return;
   }
-  window.location.href = res.is_admin ? '/hasiruratha#admin-home' : '/hasiruratha';
+  // reload so the server sends the signed-in app (changing only the #hash would not reload)
+  const target = res.is_admin ? '/hasiruratha#admin-home' : '/hasiruratha';
+  if (location.pathname + location.hash === target || location.pathname === '/hasiruratha') {
+    history.replaceState(null, '', target);
+    location.reload();
+  } else {
+    location.href = target;
+  }
 }
 
 function enterApp(user, isAdmin) {
