@@ -82,7 +82,8 @@ def _nominatim(lat, lng):
 	a = j.get("address") or {}
 	road = a.get("road") or a.get("pedestrian") or a.get("residential") or ""
 	area = a.get("suburb") or a.get("neighbourhood") or a.get("quarter") or a.get("city_district") or ""
-	return {"success": True, "road": road or area, "area": area, "address": j.get("display_name") or ""}
+	return {"success": True, "road": road or area, "area": area, "pincode": a.get("postcode") or "",
+	        "address": j.get("display_name") or ""}
 
 
 def suggest_zone(lat, lng, road, area):

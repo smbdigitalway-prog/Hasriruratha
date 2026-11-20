@@ -844,17 +844,20 @@ def reverse_geocode(p):
 	if res.get("status") != "OK" or not res.get("results"):
 		return {"success": False, "error": res.get("status") or "NO_RESULT"}
 
-	road = area = ""
+	road = area = pincode = ""
 	for result in res["results"]:
 		for c in result.get("address_components", []):
 			types = c.get("types", [])
+			if not pincode and "postal_code" in types:
+				pincode = c["long_name"]
 			if not road and "route" in types:
 				road = c["long_name"]
 			if not area and any(t in types for t in ("sublocality_level_1", "sublocality", "neighborhood")):
 				area = c["long_name"]
-		if road and area:
+		if road and area and pincode:
 			break
-	out = {"success": True, "road": road or area, "area": area, "address": res["results"][0].get("formatted_address")}
+	out = {"success": True, "road": road or area, "area": area, "pincode": pincode,
+	       "address": res["results"][0].get("formatted_address")}
 	_cache().set_value(key, out, expires_in_sec=6 * 3600)
 	return out
 

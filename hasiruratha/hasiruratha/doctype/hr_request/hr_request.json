@@ -1,0 +1,329 @@
+{
+ "actions": [],
+ "autoname": "format:HRQ-{#####}",
+ "creation": "2026-11-20 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "request_type",
+  "status",
+  "issue_type",
+  "column_break_a",
+  "photo",
+  "description",
+  "section_location",
+  "gps_lat",
+  "gps_lng",
+  "gps_accuracy_m",
+  "location_source",
+  "column_break_b",
+  "address_line",
+  "road",
+  "area",
+  "pincode",
+  "zone",
+  "zone_note",
+  "section_match",
+  "nearest_site",
+  "nearest_distance_m",
+  "column_break_c",
+  "related_tree",
+  "citizen_says_new",
+  "possible_duplicate",
+  "section_citizen",
+  "citizen_user",
+  "citizen_name",
+  "column_break_d",
+  "mobile",
+  "email",
+  "section_admin",
+  "assigned_volunteer",
+  "site",
+  "column_break_e",
+  "admin_notes",
+  "completed_on",
+  "latitude",
+  "longitude"
+ ],
+ "fields": [
+  {
+   "fieldname": "request_type",
+   "fieldtype": "Select",
+   "label": "Request type",
+   "options": "New location\nMaintenance",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Received\nUnder review\nAccepted\nScheduled\nCompleted\nDuplicate\nRejected",
+   "default": "Received",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "issue_type",
+   "fieldtype": "Select",
+   "label": "What is needed",
+   "options": "Dead tree\nDamage\nPest / Disease\nWatering\nLeaning\nTree guard\nSupport pole\nDebris / garbage\nOther",
+   "depends_on": "eval:doc.request_type==\"Maintenance\"",
+   "mandatory_depends_on": "eval:doc.request_type==\"Maintenance\"",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "column_break_a",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "photo",
+   "fieldtype": "Attach Image",
+   "label": "Photo"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Notes from the citizen"
+  },
+  {
+   "fieldname": "section_location",
+   "fieldtype": "Section Break",
+   "label": "Location"
+  },
+  {
+   "fieldname": "gps_lat",
+   "fieldtype": "Float",
+   "label": "Latitude",
+   "precision": "7",
+   "read_only": 1
+  },
+  {
+   "fieldname": "gps_lng",
+   "fieldtype": "Float",
+   "label": "Longitude",
+   "precision": "7",
+   "read_only": 1
+  },
+  {
+   "fieldname": "gps_accuracy_m",
+   "fieldtype": "Int",
+   "label": "GPS accuracy (m)",
+   "read_only": 1,
+   "description": "How accurate the phone said its location was. Empty when the citizen placed a pin."
+  },
+  {
+   "fieldname": "location_source",
+   "fieldtype": "Select",
+   "label": "Location from",
+   "options": "GPS\nMap pin",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_b",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "address_line",
+   "fieldtype": "Data",
+   "label": "Door no / Cross / Main"
+  },
+  {
+   "fieldname": "road",
+   "fieldtype": "Data",
+   "label": "Road",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "area",
+   "fieldtype": "Data",
+   "label": "Area",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "pincode",
+   "fieldtype": "Data",
+   "label": "Pin code",
+   "length": 6
+  },
+  {
+   "fieldname": "zone",
+   "fieldtype": "Link",
+   "label": "Zone",
+   "options": "HR Zone",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "zone_note",
+   "fieldtype": "Small Text",
+   "label": "How the zone was chosen",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_match",
+   "fieldtype": "Section Break",
+   "label": "Existing spots nearby"
+  },
+  {
+   "fieldname": "nearest_site",
+   "fieldtype": "Link",
+   "label": "Nearest registered spot",
+   "options": "HR Site"
+  },
+  {
+   "fieldname": "nearest_distance_m",
+   "fieldtype": "Int",
+   "label": "Distance to it (m)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_c",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "related_tree",
+   "fieldtype": "Link",
+   "label": "Tree (maintenance)",
+   "options": "HR Tree"
+  },
+  {
+   "fieldname": "citizen_says_new",
+   "fieldtype": "Check",
+   "label": "Citizen says this is a different spot",
+   "read_only": 1
+  },
+  {
+   "fieldname": "possible_duplicate",
+   "fieldtype": "Check",
+   "label": "Possible duplicate",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "section_citizen",
+   "fieldtype": "Section Break",
+   "label": "Requested by"
+  },
+  {
+   "fieldname": "citizen_user",
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "citizen_name",
+   "fieldtype": "Data",
+   "label": "Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_d",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "mobile",
+   "fieldtype": "Data",
+   "label": "Mobile",
+   "read_only": 1,
+   "options": "Phone"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "read_only": 1,
+   "options": "Email"
+  },
+  {
+   "fieldname": "section_admin",
+   "fieldtype": "Section Break",
+   "label": "Team"
+  },
+  {
+   "fieldname": "assigned_volunteer",
+   "fieldtype": "Link",
+   "label": "Assigned volunteer",
+   "options": "HR Volunteer"
+  },
+  {
+   "fieldname": "site",
+   "fieldtype": "Link",
+   "label": "Spot (after it is registered)",
+   "options": "HR Site"
+  },
+  {
+   "fieldname": "column_break_e",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "admin_notes",
+   "fieldtype": "Small Text",
+   "label": "Notes for the citizen",
+   "description": "Shown to the citizen on My requests."
+  },
+  {
+   "fieldname": "completed_on",
+   "fieldtype": "Date",
+   "label": "Completed on"
+  },
+  {
+   "fieldname": "latitude",
+   "fieldtype": "Float",
+   "label": "latitude",
+   "hidden": 1,
+   "read_only": 1,
+   "precision": "7"
+  },
+  {
+   "fieldname": "longitude",
+   "fieldtype": "Float",
+   "label": "longitude",
+   "hidden": 1,
+   "read_only": 1,
+   "precision": "7"
+  }
+ ],
+ "links": [],
+ "modified": "2026-11-20 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Hasiruratha",
+ "name": "HR Request",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "HR Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "request_type,area,road,citizen_name",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "area",
+ "track_changes": 1,
+ "description": "A citizen's request: plant at a new location, or look after an existing tree."
+}

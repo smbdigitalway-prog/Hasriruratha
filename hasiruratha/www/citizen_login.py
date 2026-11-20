@@ -5,7 +5,8 @@ no_cache = 1
 
 def get_context(context):
 	context.no_breadcrumbs = True
-	context.title = "Sign in"
+	context.hr_page = "login"
 	if frappe.session.user != "Guest":
-		frappe.local.flags.redirect_location = "/citizen-home"
+		to = frappe.form_dict.get("redirect-to") or ""
+		frappe.local.flags.redirect_location = to if to.startswith("/") and not to.startswith("//") else "/request"
 		raise frappe.Redirect
