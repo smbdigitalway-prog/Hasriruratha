@@ -28,7 +28,7 @@ def execute():
 		{"label": "Citizen Requests", "type": "DocType", "link_to": "HR Request", "doc_view": "List", "color": "Green",
 		 "stats_filter": json.dumps({"status": ["in", ["Received", "Under review", "Accepted", "Scheduled"]]})},
 		{"label": "Requests Board", "type": "DocType", "link_to": "HR Request", "doc_view": "Kanban", "kanban_board": "HR Requests"},
-		{"label": "Requests Map", "type": "URL", "url": "/app/hr-request/view/map"},
+		{"label": "Requests Map", "type": "URL", "url": "/desk/hr-request/view/map"},
 	]
 	for s in shortcuts:
 		ws.append("shortcuts", s)
