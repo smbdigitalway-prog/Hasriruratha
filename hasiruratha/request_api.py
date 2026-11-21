@@ -92,7 +92,7 @@ def _open_requests_near(lat, lng, radius, exclude=None):
 @rate_limit(limit=30, seconds=3600)
 def submit(request_type=None, lat=None, lng=None, accuracy=None, source=None, photo_url=None, issue_type=None,
            description=None, address_line=None, road=None, area=None, pincode=None, zone=None,
-           existing_site=None, tree=None, different_spot=0):
+           existing_site=None, tree=None, different_spot=0, landmark=None):
 	user = _user()
 	if request_type not in TYPES:
 		frappe.throw(_("Please choose what you are asking for"))
@@ -134,6 +134,7 @@ def submit(request_type=None, lat=None, lng=None, accuracy=None, source=None, ph
 		"gps_accuracy_m": cint(accuracy) if source == "GPS" and accuracy else None,
 		"location_source": "GPS" if source == "GPS" else "Map pin",
 		"address_line": (address_line or "").strip()[:200], "road": road, "area": area, "pincode": pin,
+		"landmark": (landmark or "").strip()[:140] or None,
 		"zone": zone or auto.get("zone_id"), "zone_note": "Chosen by the citizen" if zone else auto.get("zone_note"),
 		"nearest_site": nearest.name if nearest else None,
 		"nearest_distance_m": nearest.distance_m if nearest else None,
@@ -195,7 +196,11 @@ def register_spot(name=None):
 	                  "added_by": get_fullname(frappe.session.user)})
 	if not s.get("success", True) or not s.get("site_id"):
 		frappe.throw(s.get("error") or _("Could not create the spot"))
-	frappe.db.set_value("HR Site", s["site_id"], {"submitted_via": "Citizen", "address_full": r.address_line, "admin_reviewed": 1})
+	site = frappe.get_doc("HR Site", s["site_id"])
+	site.update({"submitted_via": "Citizen", "admin_reviewed": 1, "landmark": r.landmark,
+	             "address_line": r.address_line, "pincode": r.pincode})
+	site.flags.ignore_duplicate_check = True
+	site.save(ignore_permissions=True)
 	r.site = s["site_id"]
 	if r.status in ("Received", "Under review"):
 		r.status = "Accepted"

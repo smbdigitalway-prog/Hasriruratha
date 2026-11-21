@@ -4821,6 +4821,7 @@ const hTKey=t=>{const s=HX.sm[t.site_id]||{};return [t.tree_id,t.species,s.name,
 function vHome(){const u=currentUser||{},h=new Date().getHours(),g=h<12?'Good morning':h<17?'Good afternoon':'Good evening',nm=(u.name||'').split(' ')[0];
 return `<div class="hx-hero"><small>${g}${nm?', '+hE(nm):''} 🌱</small><h1>Hasiru Ratha</h1><p>Every tree we plant makes Bengaluru greener.</p>${hAdm()?'<button class="hx-add" onclick="openAddChooser()">＋ Add new site</button>':''}<div class="hx-leaf">🌳</div></div>
 <div class="hx-stats"><div onclick="hxGo('zone','*')"><b>${HX.trees.length}</b>Trees</div><div onclick="hxTop('sites')"><b>${HX.sites.length}</b>Sites</div><div onclick="hxTop('sites')"><b>${zoneSummary.length}</b>Zones</div><div class="u" onclick="hxGo('status','Urgent')"><b>${hSites('*','Urgent').length}</b>Urgent</div></div>
+${!hAdm()?`<a class="hx-req" href="/my-trees"><span>🪴</span><div><b>Log watering &amp; care</b><small>For the trees you look after</small></div><i>›</i></a>`:''}
 ${hAdm()?`<a class="hx-req" href="/desk/hr-request?status=%5B%22in%22%2C%5B%22Received%22%2C%22Under%20review%22%2C%22Accepted%22%2C%22Scheduled%22%5D%5D"><span>📋</span><div><b>Citizen requests</b><small id="hx-req-n">${HX.reqText||'Open the list in Desk'}</small></div><i>›</i></a>`:''}
 <h3 class="hx-h">Browse by status</h3><div class="hx-stg">${HXS.map(hStCard).join('')}</div>
 <h3 class="hx-h">Zones</h3>`+hList('h',hZones(),z=>hZoneCard(z),z=>z.zone_name,'Search zone…')}
@@ -4896,8 +4897,10 @@ else if(p==='site'){HX.v='sdet';HX.site=r.siteId;HX.root='sites'}
 else{HX.v=p;HX.st=null;HX.tab=p==='sites'?'zones':HX.tab;HX.root=p==='status'?'status':'sites'}
 hxShow();hxLoad();return}
 return _hrRoute()};
-const _otr=hrOpenTreeReport;
-hrOpenTreeReport=async function(){try{await loadHrAdminData(true)}catch(e){}return _otr()};
+// hrOpenTreeReport is defined in a later <script> block, so wrap it once the whole page is parsed
+// (wrapping it here threw a ReferenceError that stopped this block and left the volunteer home blank).
+document.addEventListener('DOMContentLoaded',()=>{if(typeof hrOpenTreeReport!=='function')return;
+const _otr=hrOpenTreeReport;window.hrOpenTreeReport=async function(){try{await loadHrAdminData(true)}catch(e){}return _otr()}});
 (function w(){if(typeof currentUser!=='undefined'&&currentUser){if(!hAdm())hxShow();hxLoad()}else setTimeout(w,300)})();
 
 </script>

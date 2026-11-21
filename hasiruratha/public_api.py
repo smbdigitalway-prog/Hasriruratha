@@ -80,19 +80,29 @@ def spots(south=None, west=None, north=None, east=None):
 def spot(site_id=None):
 	"""One spot with its trees. Volunteers/admins also get the maintenance history."""
 	r = frappe.db.get_value("HR Site", site_id, ["name", "site_name", "site_type", "road", "area", "zone_id", "gps_lat",
-	                                             "gps_lng", "photo_url", "status"], as_dict=True)
+	                                             "gps_lng", "photo_url", "status", "landmark", "companion_plants"], as_dict=True)
 	if not r or r.status in HIDDEN_STATUS:
 		return {"found": False}
 	trees = []
+	species = {}
 	for t in frappe.get_all("HR Tree", {"site_id": r.name, "status": ["!=", "Merged"]},
-	                        ["name", "species", "date_planted", "photo_url", "condition", "tree_guard", "owner_volunteer_id"],
+	                        ["name", "species", "date_planted", "photo_url", "condition", "tree_guard", "owner_volunteer_id",
+	                         "last_watered", "planting_type"],
 	                        order_by="position", limit_page_length=200):
+		if t.species and t.species not in species:
+			species[t.species] = frappe.db.get_value("HR Species", t.species, ["kannada_name", "botanical_name", "description"],
+			                                         as_dict=True) or {}
+		sp = species.get(t.species) or {}
 		trees.append({"id": t.name, "species": t.species or "Not known yet", "planted": str(t.date_planted or ""),
 		              "age": age_text(t.date_planted), "photo": t.photo_url or "", "condition": t.condition or "",
-		              "guard": t.tree_guard or "", "cared": bool(t.owner_volunteer_id)})
+		              "guard": t.tree_guard or "", "cared": bool(t.owner_volunteer_id),
+		              "last_watered": str(t.last_watered or ""), "planting_type": t.planting_type or "",
+		              "kannada": sp.get("kannada_name") or "", "botanical": sp.get("botanical_name") or "",
+		              "about": sp.get("description") or ""})
 	out = {"found": True, "id": r.name, "name": r.site_name or r.road or r.name, "type": r.site_type or "spot",
 	       "road": r.road or "", "area": r.area or "", "zone": _zone_names().get(r.zone_id, ""),
-	       "lat": flt(r.gps_lat), "lng": flt(r.gps_lng), "photo": r.photo_url or "", "trees": trees}
+	       "lat": flt(r.gps_lat), "lng": flt(r.gps_lng), "photo": r.photo_url or "", "trees": trees,
+	       "landmark": r.landmark or "", "companions": r.companion_plants or ""}
 	if frappe.session.user != "Guest" and api._is_member():
 		out["visits"] = frappe.get_all("HR Visit", {"site_id": r.name},
 		                               ["planned_date", "actual_date", "service_type", "status", "notes"],

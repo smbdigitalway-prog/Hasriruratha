@@ -55,6 +55,8 @@
 	HR.tiles(map);
 	const layer = L.layerGroup().addTo(map);
 	let me = null, timer = null, seq = 0;
+	const agoText = d => { const n = Math.round((new Date(new Date().toDateString()) - new Date(d + "T00:00:00")) / 86400000);
+		return n <= 0 ? "today" : n === 1 ? "yesterday" : n + " days ago"; };
 	const status = HR.$("#status"), sheet = HR.$("#sheet"), body = HR.$("#sheetbody");
 
 	async function load() {
@@ -87,10 +89,14 @@
 				<div class="tree">
 					${t.photo ? `<img class="hr-thumb" src="${HR.esc(t.photo)}" alt="" loading="lazy">` : `<div class="hr-thumb">🌳</div>`}
 					<div style="min-width:0">
-						<div class="text-base-semibold text-ink-gray-9">${HR.esc(t.species)}</div>
+						<div class="text-base-semibold text-ink-gray-9">${HR.esc(t.species)}${t.kannada ? ` <span class="text-ink-gray-5" style="font-weight:400">· ${HR.esc(t.kannada)}</span>` : ""}</div>
+					${t.botanical ? `<div class="text-sm text-ink-gray-5"><i>${HR.esc(t.botanical)}</i></div>` : ""}
+					${t.about ? `<details class="text-sm text-ink-gray-6"><summary>About this tree</summary>${HR.esc(t.about)}</details>` : ""}
 						<dl class="kv">
 							${t.planted ? `<dt>Planted</dt><dd>${HR.esc(t.planted)}${t.age ? " · " + HR.esc(t.age) + " old" : ""}</dd>` : ""}
 							${t.condition ? `<dt>Condition</dt><dd>${HR.esc(t.condition)}</dd>` : ""}
+							<dt>Watered</dt><dd>${t.last_watered ? HR.esc(agoText(t.last_watered)) : "Not recorded yet"}</dd>
+							${t.planting_type && t.planting_type !== "New" ? `<dt>Planted as</dt><dd>${HR.esc(t.planting_type)}</dd>` : ""}
 							<dt>Caretaker</dt><dd>${t.cared ? "A volunteer looks after it" : '<span class="es-badge" data-theme="amber">Looking for a volunteer</span>'}</dd>
 						</dl>
 					</div>
@@ -99,10 +105,12 @@
 			body.innerHTML = `
 				${hero ? `<img class="hero" src="${HR.esc(hero)}" alt="Photo of ${HR.esc(s.name)}">` : ""}
 				<h2 class="text-xl-semibold text-ink-gray-9" style="margin:12px 0 2px">${HR.esc(s.name)}</h2>
+				${s.landmark ? `<p class="text-base text-ink-gray-7" style="margin:0">📍 ${HR.esc(s.landmark)}</p>` : ""}
 				<p class="text-base text-ink-gray-5" style="margin:0 0 10px">${[...new Set([s.road, s.area].filter(Boolean).map(x => x.trim()))].concat(s.zone ? [s.zone + " zone"] : []).map(HR.esc).join(" · ")}</p>
 				<p style="margin:0 0 6px"><span class="es-badge" data-theme="green">${s.trees.length} tree${s.trees.length === 1 ? "" : "s"}</span>
 					<span class="es-badge">${s.type === "stretch" ? "Stretch" : "Spot"}</span></p>
 				${trees || '<p class="text-base text-ink-gray-5">No trees recorded here yet.</p>'}
+				${s.companions ? `<p class="text-sm text-ink-gray-5" style="margin:8px 0 0">Also planted here: ${HR.esc(s.companions)}</p>` : ""}
 				${visits ? `<h3 class="text-base-semibold text-ink-gray-9" style="margin:14px 0 6px">Maintenance (volunteers only)</h3><ul class="text-base text-ink-gray-6" style="padding-left:18px">${visits}</ul>` : ""}
 				<a class="es-button w-full" data-size="lg" style="margin-top:12px" href="/request?type=maintenance&site=${encodeURIComponent(s.id)}">🛠 This spot needs care</a>`;
 			map.panTo([s.lat, s.lng]);

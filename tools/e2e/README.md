@@ -7,7 +7,7 @@ Setup once:
 2. A local mail catcher so the tests can read the one-time codes:
    `python mailcatch.py` (needs `pip install aiosmtpd`; saves mail to `/opt/mailcatch/mail`), and an
    Email Account on the site with SMTP server `127.0.0.1`, port `1025`, no authentication, default outgoing.
-3. Copy `approve.py` and `add_volunteer.py` to `/home/frappe/` (the volunteer test runs them with the bench Python).
+3. Copy `approve.py`, `add_volunteer.py` and `seed_care.py` to `/home/frappe/` (the volunteer test runs them with the bench Python).
 
 Run:
 
@@ -15,5 +15,6 @@ Run:
     node volunteer.js <screenshot-folder>
     node admin.js <screenshot-folder>      # after running seed_admin.py with the bench Python
     node desk.js <screenshot-folder>       # Desk: workspace, request list, form actions, Kanban (laptop size)
+    node care.js <screenshot-folder>       # after seed_care.py: volunteer logs watering, adds GPS, public map shows it
 
 Sign-in endpoints are rate limited; clear the local Redis cache between repeated runs.
