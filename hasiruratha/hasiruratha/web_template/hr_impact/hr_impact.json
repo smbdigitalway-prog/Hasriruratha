@@ -1,0 +1,50 @@
+{
+ "creation": "2026-11-21 15:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Web Template",
+ "fields": [
+  {
+   "fieldname": "trees_label",
+   "fieldtype": "Data",
+   "label": "Trees label",
+   "reqd": 0,
+   "default": "Trees on our map"
+  },
+  {
+   "fieldname": "cared_label",
+   "fieldtype": "Data",
+   "label": "Cared label",
+   "reqd": 0,
+   "default": "Trees cared for in the last 12 months"
+  },
+  {
+   "fieldname": "waterings_label",
+   "fieldtype": "Data",
+   "label": "Waterings label",
+   "reqd": 0,
+   "default": "Waterings logged this year"
+  },
+  {
+   "fieldname": "volunteers_label",
+   "fieldtype": "Data",
+   "label": "Volunteers label",
+   "reqd": 0,
+   "default": "Active volunteers"
+  },
+  {
+   "fieldname": "note",
+   "fieldtype": "Small Text",
+   "label": "Small note under the numbers",
+   "reqd": 0,
+   "default": "Live counts from the Hasiru Ratha tree records. Older work is still being added."
+  }
+ ],
+ "idx": 0,
+ "modified": "2026-11-21 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Hasiruratha",
+ "name": "HR Impact",
+ "owner": "Administrator",
+ "standard": 1,
+ "type": "Section"
+}

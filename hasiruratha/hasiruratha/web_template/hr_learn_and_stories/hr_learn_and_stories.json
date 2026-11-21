@@ -1,0 +1,71 @@
+{
+ "creation": "2026-11-21 15:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Web Template",
+ "fields": [
+  {
+   "fieldname": "learn_title",
+   "fieldtype": "Data",
+   "label": "Learn title",
+   "reqd": 0,
+   "default": "Learn & Grow"
+  },
+  {
+   "fieldname": "learn_text",
+   "fieldtype": "Small Text",
+   "label": "Learn text",
+   "reqd": 0,
+   "default": "How to choose a location, plant a sapling, water it and know when a tree guard should be removed."
+  },
+  {
+   "fieldname": "learn_link_label",
+   "fieldtype": "Data",
+   "label": "Learn link label",
+   "reqd": 0,
+   "default": "Read planting guides \u2192"
+  },
+  {
+   "fieldname": "learn_link_url",
+   "fieldtype": "Data",
+   "label": "Learn link url",
+   "reqd": 0,
+   "default": "/blog"
+  },
+  {
+   "fieldname": "stories_title",
+   "fieldtype": "Data",
+   "label": "Stories title",
+   "reqd": 0,
+   "default": "Field notes & stories"
+  },
+  {
+   "fieldname": "stories_text",
+   "fieldtype": "Small Text",
+   "label": "Stories text",
+   "reqd": 0,
+   "default": "Follow volunteer experiences, tree-care lessons and stories from South Bengaluru."
+  },
+  {
+   "fieldname": "stories_link_label",
+   "fieldtype": "Data",
+   "label": "Stories link label",
+   "reqd": 0,
+   "default": "Visit the blog \u2192"
+  },
+  {
+   "fieldname": "stories_link_url",
+   "fieldtype": "Data",
+   "label": "Stories link url",
+   "reqd": 0,
+   "default": "/blog"
+  }
+ ],
+ "idx": 0,
+ "modified": "2026-11-21 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Hasiruratha",
+ "name": "HR Learn and Stories",
+ "owner": "Administrator",
+ "standard": 1,
+ "type": "Section"
+}

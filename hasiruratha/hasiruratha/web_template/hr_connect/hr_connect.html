@@ -1,0 +1,14 @@
+{%- set v = values or {} -%}{%- set L = hr_links() -%}
+<div class="hrw hrw-wrap">
+	<h2>{{ v.title or "Stay connected." }}</h2>
+	<p>{{ v.text or "Follow field updates, join the community and share locations where saplings need attention." }}</p>
+	<div class="hrw-links">
+		<a class="hrw-link" href="{{ L.whatsapp_url }}" target="_blank" rel="noopener">Join our WhatsApp community ↗</a>
+		<a class="hrw-link" href="{{ L.instagram_url }}" target="_blank" rel="noopener">Instagram ↗</a>
+		<a class="hrw-link" href="{{ L.facebook_url }}" target="_blank" rel="noopener">Facebook ↗</a>
+		<a class="hrw-link" href="{{ L.x_url }}" target="_blank" rel="noopener">X ↗</a>
+		<a class="hrw-link" href="{{ L.linktree_url }}" target="_blank" rel="noopener">Linktree ↗</a>
+		<a class="hrw-link" href="mailto:{{ L.contact_email }}">{{ L.contact_email }}</a>
+		<a class="hrw-link" href="/request?type=maintenance">Report a sapling that needs attention →</a>
+	</div>
+</div>

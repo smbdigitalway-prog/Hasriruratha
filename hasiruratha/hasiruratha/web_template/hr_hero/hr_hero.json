@@ -1,0 +1,105 @@
+{
+ "creation": "2026-11-21 15:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Web Template",
+ "fields": [
+  {
+   "fieldname": "eyebrow",
+   "fieldtype": "Data",
+   "label": "Eyebrow",
+   "reqd": 0,
+   "default": "Citizen-led since 2017"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "reqd": 0,
+   "default": "We don't just plant trees."
+  },
+  {
+   "fieldname": "title_accent",
+   "fieldtype": "Data",
+   "label": "Title, second line (green)",
+   "reqd": 0,
+   "default": "We help them grow."
+  },
+  {
+   "fieldname": "text",
+   "fieldtype": "Small Text",
+   "label": "Text",
+   "reqd": 0,
+   "default": "Early mornings, neighbourhood streets and a shared commitment to caring for Bengaluru's trees."
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "label": "Image",
+   "reqd": 0,
+   "default": "/assets/hasiruratha/images/site/photo03.jpg"
+  },
+  {
+   "fieldname": "image_alt",
+   "fieldtype": "Data",
+   "label": "Image description",
+   "reqd": 0,
+   "default": "Hasiru Ratha volunteers caring for a sapling"
+  },
+  {
+   "fieldname": "buttons",
+   "fieldtype": "Section Break",
+   "label": "Buttons",
+   "reqd": 0
+  },
+  {
+   "fieldname": "button_1_label",
+   "fieldtype": "Data",
+   "label": "Button 1 label",
+   "reqd": 0,
+   "default": "Volunteer with us"
+  },
+  {
+   "fieldname": "button_1_url",
+   "fieldtype": "Data",
+   "label": "Button 1 url",
+   "reqd": 0,
+   "default": "/volunteer-signup"
+  },
+  {
+   "fieldname": "button_2_label",
+   "fieldtype": "Data",
+   "label": "Button 2 label",
+   "reqd": 0,
+   "default": "Report a sapling issue"
+  },
+  {
+   "fieldname": "button_2_url",
+   "fieldtype": "Data",
+   "label": "Button 2 url",
+   "reqd": 0,
+   "default": "/request?type=maintenance"
+  },
+  {
+   "fieldname": "button_3_label",
+   "fieldtype": "Data",
+   "label": "Button 3 label",
+   "reqd": 0,
+   "default": "Suggest a planting spot"
+  },
+  {
+   "fieldname": "button_3_url",
+   "fieldtype": "Data",
+   "label": "Button 3 url",
+   "reqd": 0,
+   "default": "/request?type=new"
+  }
+ ],
+ "idx": 0,
+ "modified": "2026-11-21 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Hasiruratha",
+ "name": "HR Hero",
+ "owner": "Administrator",
+ "standard": 1,
+ "type": "Section"
+}

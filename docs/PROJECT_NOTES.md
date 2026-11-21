@@ -56,6 +56,20 @@ Open `/app/hr-console`. Tiles: Plant a sapling (opens `/hasiruratha`), Report a 
 Citizens use Frappe Web Forms and website pages. Each submission is first saved as a record the admin can filter and map (HR Citizen Planting, HR Citizen Report, HR Volunteer Request), then processed into the real site / tree / report / volunteer application by `citizen_forms.py`. Status flows back to the citizen automatically. The earlier custom page (`templates/citizen.html`, route `/citizen`) is still in the repo and can be deleted. See `docs/FRAPPE_SETUP.md`.
 
 ## CHANGELOG
+### 21 Nov 2026 (later): new website from the design handoff (Frappe Web Page + blocks)
+* Section blocks (Web Templates, shipped in the app, editable in Desk): HR Navbar, HR Footer, HR Hero,
+  HR Impact (live counts), HR Work Tiles, HR Story, HR Green Diary, HR Get Involved, HR Learn and Stories
+  (latest Blog posts), HR Connect. Styles: public/css/hr_website.css (design tokens). Photos:
+  public/images/site (defaults, replaceable in Desk).
+* New home page "Hasiru Ratha – In Service of Nature" at /home-new (patch create_new_home_page). The old
+  home page (route hasiru-ratha) is untouched.
+* Go live: Website Settings -> Home Page = home-new, Navbar Template = HR Navbar, Footer Template = HR Footer.
+* New: HR Diary Entry (volunteers submit at /green-diary-new, admin approves, public /green-diary),
+  HR Internship Application (/internship, spam trap + rate limit + consent).
+* Consent on request and volunteer forms; volunteer interests/availability; zone public description and
+  coordinator. Social links and contact email in Hasiruratha Settings.
+* Fixed: Hasiruratha Settings could not be saved (HR Milestone / HR Gallery Image class names).
+
 ### 21 Nov 2026: places hierarchy, care log, spreadsheet import (#5 and related)
 * Lists (dropdown or type a new name): **HR Area** (zone, part of), **HR Road**, **HR Landmark**,
   **HR Route** (watering route = just a name for a group of spots), **HR Species** (Kannada and botanical

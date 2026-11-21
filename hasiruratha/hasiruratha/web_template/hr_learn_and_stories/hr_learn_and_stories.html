@@ -1,0 +1,16 @@
+{%- set v = values or {} -%}{%- set posts = hr_blog_posts(3) -%}
+<div class="hrw hrw-wrap hrw-duo">
+	<div class="hrw-panel">
+		<h2>{{ v.learn_title or "Learn & Grow" }}</h2>
+		<p>{{ v.learn_text or "How to choose a location, plant a sapling, water it and know when a tree guard should be removed." }}</p>
+		<a class="hrw-link" href="{{ v.learn_link_url or '/blog' }}">{{ v.learn_link_label or "Read planting guides →" }}</a>
+	</div>
+	<div class="hrw-panel">
+		<h2>{{ v.stories_title or "Field notes & stories" }}</h2>
+		<p>{{ v.stories_text or "Follow volunteer experiences, tree-care lessons and stories from South Bengaluru." }}</p>
+		{%- if posts -%}
+		<ul class="hrw-posts">{%- for p in posts -%}<li><a href="/{{ p.route }}">{{ p.title }}</a><small>{{ frappe.utils.formatdate(p.published_on, "d MMM yyyy") if p.published_on else "" }}</small></li>{%- endfor -%}</ul>
+		{%- endif -%}
+		<a class="hrw-link" href="{{ v.stories_link_url or '/blog' }}">{{ v.stories_link_label or "Visit the blog →" }}</a>
+	</div>
+</div>

@@ -1,0 +1,14 @@
+{%- set v = values or {} -%}{%- set rows = hr_diary(v.count or 5) -%}
+{%- set fallback = ["photo01.jpg", "photo05.jpg", "photo09.jpg", "photo10.jpg", "photo03.jpg"] -%}
+<div class="hrw hrw-wrap">
+	<div class="hrw-sectionhead"><h2>{{ v.title or "From the Green Diary" }}</h2><p class="hrw-muted">{{ v.subtitle or "Real photographs from everyday work, dated and tagged by area." }}</p></div>
+	<div class="hrw-gallery">
+		{%- for r in rows -%}
+		<figure><img src="{{ r.photo }}" alt="{{ r.title or '' }}" loading="lazy">
+			<figcaption><b>{{ r.date_label }}</b>{% if r.area %} · {{ r.area }}{% endif %}<br>{{ r.title or "" }}</figcaption></figure>
+		{%- endfor -%}
+		{#- until there are enough approved entries, fill the row with the team's photos -#}
+		{%- for f in fallback[: (5 - rows|length) if rows|length < 5 else 0] -%}<figure><img src="/assets/hasiruratha/images/site/{{ f }}" alt="Hasiru Ratha volunteers at work" loading="lazy"></figure>{%- endfor -%}
+	</div>
+	<p style="margin-top:16px"><a class="hrw-link" href="/green-diary">{{ v.link_label or "See the whole diary →" }}</a></p>
+</div>

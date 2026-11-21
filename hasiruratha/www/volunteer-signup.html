@@ -33,9 +33,21 @@
 				</div>
 			</div>
 			<div class="form-group flex flex-col items-start gap-1.5 mb-0">
+				<label class="text-base text-ink-gray-5 w-full mb-0">{{ _("What would you like to help with?") }}</label>
+				<div id="interests" class="flex flex-col gap-1">
+					{% for i in ["Planting", "Watering and care", "Tree guards", "Spreading the word", "Photos and stories"] %}
+					<label class="hr-check text-base mb-0" style="margin:0 !important"><input type="checkbox" value="{{ i }}"> {{ i }}</label>{% endfor %}
+				</div>
+			</div>
+			<div class="form-group flex flex-col items-start gap-1.5 mb-0">
+				<label class="text-base text-ink-gray-5 w-full mb-0" for="avail">{{ _("When are you usually free?") }}</label>
+				<select id="avail" class="form-control"><option value="">{{ _("Choose…") }}</option><option>Weekday mornings</option><option>Weekend mornings</option><option>Weekday evenings</option><option>Flexible</option></select>
+			</div>
+			<div class="form-group flex flex-col items-start gap-1.5 mb-0">
 				<label class="text-base text-ink-gray-5 w-full mb-0" for="why">{{ _("Why do you want to volunteer?") }} <span class="opt">({{ _("optional") }})</span></label>
 				<textarea id="why" maxlength="500" class="form-control"></textarea>
 			</div>
+			<label class="hr-check text-base mb-0"><input type="checkbox" id="consent"> {{ _("I agree that Hasiru Ratha keeps these details to organise volunteering and contact me. They are never shown publicly.") }}</label>
 			<div id="m1" class="es-alert hr-hidden"></div>
 			<button class="es-button w-full" data-variant="solid" id="send">{{ _("Email me a code") }}</button>
 		</div>
@@ -76,10 +88,12 @@
 			["#road", "road"], ["#area", "area"], ["#pin", "pin code"], ["#zone", "zone"]].filter(([id]) => !v(id)).map(x => x[1]);
 		if (need.length) return HR.msg(m, "Please fill in: " + need.join(", "));
 		if (!/^\d{6}$/.test(v("#pin"))) return HR.msg(m, "Please enter the 6-digit pin code.");
+		if (!HR.$("#consent").checked) return HR.msg(m, "Please tick the box to agree to how we use your details.");
 		this.disabled = true;
 		try {
 			const r = await HR.call("hasiruratha.volunteer_auth.signup_start", { full_name: v("#nm"), mobile: v("#mob"), email: v("#eml"),
-				address: v("#addr"), road: v("#road"), area: v("#area"), pincode: v("#pin"), zone: v("#zone"), reason: v("#why") }, true);
+				address: v("#addr"), road: v("#road"), area: v("#area"), pincode: v("#pin"), zone: v("#zone"), reason: v("#why"),
+				interests: [...document.querySelectorAll("#interests input:checked")].map(c => c.value).join(", "), availability: v("#avail"), consent: 1 }, true);
 			HR.$("#step1").classList.add("hr-hidden"); HR.$("#step2").classList.remove("hr-hidden");
 			HR.$("#sentto").textContent = "We sent a code to " + r.sent_to + ". It is valid for 10 minutes.";
 			HR.$("#code").focus(); scrollTo(0, 0);

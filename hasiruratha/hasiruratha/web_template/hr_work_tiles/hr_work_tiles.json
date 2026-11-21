@@ -1,0 +1,165 @@
+{
+ "creation": "2026-11-21 15:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Web Template",
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "reqd": 0,
+   "default": "Our work, every week."
+  },
+  {
+   "fieldname": "subtitle",
+   "fieldtype": "Data",
+   "label": "Subtitle",
+   "reqd": 0,
+   "default": "Plant. Nurture. Protect. Reuse."
+  },
+  {
+   "fieldname": "tile_1",
+   "fieldtype": "Section Break",
+   "label": "Tile 1",
+   "reqd": 0
+  },
+  {
+   "fieldname": "tile_1_title",
+   "fieldtype": "Data",
+   "label": "Tile 1 title",
+   "reqd": 0,
+   "default": "Plant"
+  },
+  {
+   "fieldname": "tile_1_text",
+   "fieldtype": "Small Text",
+   "label": "Tile 1 text",
+   "reqd": 0,
+   "default": "Choose appropriate locations, mindful of pathways and utilities."
+  },
+  {
+   "fieldname": "tile_1_image",
+   "fieldtype": "Attach Image",
+   "label": "Tile 1 image",
+   "reqd": 0,
+   "default": "/assets/hasiruratha/images/site/photo04.jpg"
+  },
+  {
+   "fieldname": "tile_1_url",
+   "fieldtype": "Data",
+   "label": "Tile 1 url",
+   "reqd": 0,
+   "default": "/request?type=new"
+  },
+  {
+   "fieldname": "tile_2",
+   "fieldtype": "Section Break",
+   "label": "Tile 2",
+   "reqd": 0
+  },
+  {
+   "fieldname": "tile_2_title",
+   "fieldtype": "Data",
+   "label": "Tile 2 title",
+   "reqd": 0,
+   "default": "Nurture"
+  },
+  {
+   "fieldname": "tile_2_text",
+   "fieldtype": "Small Text",
+   "label": "Tile 2 text",
+   "reqd": 0,
+   "default": "Regular watering and maintenance for young saplings."
+  },
+  {
+   "fieldname": "tile_2_image",
+   "fieldtype": "Attach Image",
+   "label": "Tile 2 image",
+   "reqd": 0,
+   "default": "/assets/hasiruratha/images/site/photo02.jpg"
+  },
+  {
+   "fieldname": "tile_2_url",
+   "fieldtype": "Data",
+   "label": "Tile 2 url",
+   "reqd": 0,
+   "default": "/trees"
+  },
+  {
+   "fieldname": "tile_3",
+   "fieldtype": "Section Break",
+   "label": "Tile 3",
+   "reqd": 0
+  },
+  {
+   "fieldname": "tile_3_title",
+   "fieldtype": "Data",
+   "label": "Tile 3 title",
+   "reqd": 0,
+   "default": "Protect"
+  },
+  {
+   "fieldname": "tile_3_text",
+   "fieldtype": "Small Text",
+   "label": "Tile 3 text",
+   "reqd": 0,
+   "default": "Install, repair and maintain tree guards."
+  },
+  {
+   "fieldname": "tile_3_image",
+   "fieldtype": "Attach Image",
+   "label": "Tile 3 image",
+   "reqd": 0,
+   "default": "/assets/hasiruratha/images/site/photo06.jpg"
+  },
+  {
+   "fieldname": "tile_3_url",
+   "fieldtype": "Data",
+   "label": "Tile 3 url",
+   "reqd": 0,
+   "default": "/trees"
+  },
+  {
+   "fieldname": "tile_4",
+   "fieldtype": "Section Break",
+   "label": "Tile 4",
+   "reqd": 0
+  },
+  {
+   "fieldname": "tile_4_title",
+   "fieldtype": "Data",
+   "label": "Tile 4 title",
+   "reqd": 0,
+   "default": "Reuse"
+  },
+  {
+   "fieldname": "tile_4_text",
+   "fieldtype": "Small Text",
+   "label": "Tile 4 text",
+   "reqd": 0,
+   "default": "Free mature trees from guards and reuse them for new saplings."
+  },
+  {
+   "fieldname": "tile_4_image",
+   "fieldtype": "Attach Image",
+   "label": "Tile 4 image",
+   "reqd": 0,
+   "default": "/assets/hasiruratha/images/site/photo08.jpg"
+  },
+  {
+   "fieldname": "tile_4_url",
+   "fieldtype": "Data",
+   "label": "Tile 4 url",
+   "reqd": 0,
+   "default": "/green-diary"
+  }
+ ],
+ "idx": 0,
+ "modified": "2026-11-21 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Hasiruratha",
+ "name": "HR Work Tiles",
+ "owner": "Administrator",
+ "standard": 1,
+ "type": "Section"
+}

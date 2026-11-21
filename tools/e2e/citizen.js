@@ -88,6 +88,7 @@ async function latestCode(email, after) {
 	await page.click('#send'); await page.waitForTimeout(500);
 	ok((await page.locator('#m').innerText()).includes('already registered right here'), 'B: cannot send until the citizen says whether it is the same spot');
 	await page.click('#notlisted');
+	await page.check('#consent');
 	await page.setInputFiles('#photo', PHOTO);
 	await page.waitForFunction(() => document.querySelector('#m').innerText.includes('Photo added'), null, { timeout: 15000 }).catch(() => {});
 	const kb = (await page.locator('#m').innerText()).match(/(\d+) KB/);
@@ -110,6 +111,7 @@ async function latestCode(email, after) {
 	await page.setInputFiles('#photo', PHOTO);
 	await page.waitForFunction(() => document.querySelector('#m').innerText.includes('Photo added'), null, { timeout: 15000 }).catch(() => {});
 	if (!/^\d{6}$/.test(await page.inputValue('#pin'))) await page.fill('#pin', '560011');
+	await page.check('#consent');
 	await shot(page, 'B4-maintenance-form');
 	await page.click('#send');
 	await page.waitForSelector('#done:not(.hr-hidden)', { timeout: 15000 }).catch(() => {});

@@ -6,3 +6,4 @@ hasiruratha.patches.create_duplicate_reports
 hasiruratha.patches.add_field_app_shortcut
 hasiruratha.patches.create_pick_lists
 hasiruratha.patches.add_places_and_care_section
+hasiruratha.patches.create_new_home_page

@@ -1,0 +1,49 @@
+{% extends "templates/web.html" %}
+{% block title %}Green Diary · Hasiru Ratha{% endblock %}
+{% block style %}{% include "templates/includes/hr_ui.html" %}
+<style>
+.hrw-diary{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.hrw-diary figure{margin:0}
+.hrw-diary img{width:100%;height:240px;object-fit:cover;display:block;cursor:zoom-in}
+.hrw-diary figcaption{padding:8px 2px 0;font-size:14px}
+.hrw-diary figcaption b{font-family:var(--hrw-serif);font-size:17px;display:block;color:var(--hrw-ink)}
+.hrw-diary .meta{color:var(--hrw-muted);font-size:13px}
+.hrw-diary .thumbs{display:flex;gap:6px;margin-top:6px}.hrw-diary .thumbs img{width:56px;height:56px}
+@media(max-width:760px){.hrw-diary{grid-template-columns:1fr}.hrw-diary img{height:220px}}
+</style>
+{% endblock %}
+{% block page_content %}
+<div class="hrw hrw-wrap" style="padding-top:28px;padding-bottom:56px">
+	<div class="hrw-sectionhead">
+		<div><div class="hrw-eyebrow">Real photographs from everyday work</div><h1 style="font-size:clamp(32px,4vw,48px)">Green Diary</h1></div>
+		{% if is_volunteer %}<a class="hrw-btn" href="/green-diary-new">+ Add an entry</a>{% endif %}
+	</div>
+	<div id="list" class="hrw-diary"><p class="hrw-muted">Loading…</p></div>
+	<p style="margin-top:22px"><button class="hrw-btn outline hr-hidden" id="more" type="button">Show more</button></p>
+</div>
+{% endblock %}
+{% block script %}
+{{ super() }}
+{% include "templates/includes/hr_js.html" %}
+<script>
+(function () {
+	let start = 0; const N = 24, el = HR.$("#list");
+	const fmt = d => d ? new Date(d + "T00:00:00").toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "";
+	async function load() {
+		const rows = await HR.call("hasiruratha.site_forms.diary_list", { start, page_length: N });
+		if (!start) el.innerHTML = rows.length ? "" : '<p class="hrw-muted">No diary entries yet. Volunteers add them after field work.</p>';
+		el.insertAdjacentHTML("beforeend", rows.map(r => `<figure>
+			<a href="${HR.esc(r.photo)}" target="_blank" rel="noopener"><img src="${HR.esc(r.photo)}" alt="${HR.esc(r.title)}" loading="lazy"></a>
+			${(r.photo_2 || r.photo_3) ? `<div class="thumbs">${[r.photo_2, r.photo_3].filter(Boolean).map(p => `<a href="${HR.esc(p)}" target="_blank" rel="noopener"><img src="${HR.esc(p)}" alt="" loading="lazy"></a>`).join("")}</div>` : ""}
+			<figcaption><b>${HR.esc(r.title)}</b>
+				<span class="meta">${HR.esc([fmt(r.entry_date), r.area, r.activity].filter(Boolean).join(" · "))}</span>
+				${r.story ? `<p style="margin:6px 0 0">${HR.esc(r.story)}</p>` : ""}
+				${r.volunteers ? `<span class="meta">With ${HR.esc(r.volunteers)}</span>` : ""}</figcaption></figure>`).join(""));
+		start += rows.length;
+		HR.$("#more").classList.toggle("hr-hidden", rows.length < N);
+	}
+	HR.$("#more").onclick = load;
+	load().catch(e => { el.innerHTML = `<p class="hrw-muted">${HR.esc(e.message)}</p>`; });
+})();
+</script>
+{% endblock %}

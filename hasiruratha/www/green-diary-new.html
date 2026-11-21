@@ -1,0 +1,73 @@
+{% extends "templates/web.html" %}
+{% block title %}Add to the Green Diary · Hasiru Ratha{% endblock %}
+{% block style %}{% include "templates/includes/hr_ui.html" %}{% endblock %}
+{% block page_content %}
+<div class="hr-page">
+	<nav class="hr-subnav" aria-label="Volunteer">
+		<a class="es-button" data-variant="ghost" href="/green-diary">‹ {{ _("Green Diary") }}</a>
+		<a class="es-button" data-variant="ghost" href="/my-trees">{{ _("My trees") }}</a>
+	</nav>
+	<div id="form">
+		<h1 class="text-2xl-bold text-ink-gray-9 mb-1">{{ _("Add to the Green Diary") }}</h1>
+		<p class="text-p-base text-ink-gray-6">{{ _("A few photos and a line about today's work. An admin checks it before it appears on the website.") }}</p>
+		<div class="hr-row">
+			<div class="form-group"><label for="day">{{ _("Date") }}</label><input id="day" type="date" class="form-control"></div>
+			<div class="form-group"><label for="act">{{ _("Activity") }}</label><select id="act" class="form-control">
+				{% for a in ["Planting", "Watering", "Tree guards", "Maintenance", "Awareness", "Other"] %}<option>{{ a }}</option>{% endfor %}</select></div>
+		</div>
+		<div class="form-group"><label for="cap">{{ _("Caption") }}</label><input id="cap" class="form-control" maxlength="140" placeholder="{{ _('e.g. Guards reused for 6 new saplings on Ashoka Pillar Road') }}"></div>
+		<div class="form-group"><label for="area">{{ _("Area") }}</label><input id="area" class="form-control" maxlength="140" list="dl-area" autocomplete="off"><datalist id="dl-area"></datalist></div>
+		<div class="form-group"><label>{{ _("Photos (1 to 3)") }}</label>
+			<label for="photos" class="es-button w-full" data-size="md" style="margin:0" id="photobtn">📷 {{ _("Take or choose photos") }}</label>
+			<input type="file" id="photos" accept="image/*" multiple class="hr-file">
+			<div id="previews" class="flex gap-2" style="margin-top:8px"></div></div>
+		<div class="form-group"><label for="story">{{ _("What happened") }} <span class="opt">({{ _("optional") }})</span></label><textarea id="story" class="form-control" maxlength="1500"></textarea></div>
+		<div class="form-group"><label for="who">{{ _("Who took part") }} <span class="opt">({{ _("optional, shown publicly") }})</span></label><input id="who" class="form-control" maxlength="140" placeholder="{{ _('e.g. 6 volunteers') }}"></div>
+		<label class="hr-check"><input type="checkbox" id="consent"> {{ _("People who can be recognised in the photos agreed to them being published.") }}</label>
+		<div id="m" class="es-alert hr-hidden"></div>
+		<button class="es-button" data-variant="solid" data-size="lg" id="send" type="button" style="margin-top:12px">{{ _("Send for approval") }}</button>
+	</div>
+	<div id="done" class="hr-hidden flex flex-col items-start gap-3" style="padding-top:12px">
+		<h1 class="text-2xl-bold text-ink-gray-9 m-0">{{ _("Thank you!") }}</h1>
+		<p class="text-p-base text-ink-gray-6 mb-0">{{ _("Your entry is waiting for an admin to approve it.") }}</p>
+		<a class="es-button" data-variant="solid" data-size="lg" href="/green-diary-new">{{ _("Add another") }}</a>
+		<a class="es-button" data-size="lg" href="/green-diary">{{ _("See the Green Diary") }}</a>
+	</div>
+</div>
+{% endblock %}
+{% block script %}
+{{ super() }}
+{% include "templates/includes/hr_js.html" %}
+<script>
+(function () {
+	const photos = []; let busy = false;
+	HR.$("#day").value = new Date().toISOString().slice(0, 10); HR.$("#day").max = HR.$("#day").value;
+	HR.call("hasiruratha.masters.options", { kind: "area" }).then(n => HR.$("#dl-area").innerHTML = n.map(x => `<option value="${HR.esc(x)}"></option>`).join("")).catch(() => {});
+	HR.$("#photos").onchange = async function () {
+		const m = HR.$("#m"); busy = true; HR.msg(m, "Uploading photos…", "ok");
+		try {
+			for (const f of [...this.files].slice(0, 3 - photos.length)) {
+				const up = await HR.uploadPhoto(f); photos.push(up.url);
+				HR.$("#previews").insertAdjacentHTML("beforeend", `<img class="hr-thumb" src="${HR.esc(up.url)}" alt="">`);
+			}
+			HR.msg(m, photos.length + (photos.length === 1 ? " photo" : " photos") + " added.", "ok");
+		} catch (e) { HR.msg(m, e.message); }
+		busy = false; this.value = "";
+		HR.$("#photobtn").classList.toggle("hr-hidden", photos.length >= 3);
+	};
+	HR.$("#send").onclick = async function () {
+		const m = HR.$("#m"), v = id => HR.$(id).value.trim();
+		if (busy) return HR.msg(m, "Please wait for the photos to upload.");
+		if (!v("#cap")) return HR.msg(m, "Please add a short caption.");
+		if (!photos.length) return HR.msg(m, "Please add at least one photo.");
+		this.disabled = true;
+		try {
+			await HR.call("hasiruratha.site_forms.diary_submit", { entry_date: v("#day"), title: v("#cap"), activity: v("#act"), area: v("#area"),
+				photo_url: photos[0], photo_2: photos[1], photo_3: photos[2], story: v("#story"), volunteers: v("#who"),
+				consent: HR.$("#consent").checked ? 1 : 0 }, true);
+			HR.$("#form").classList.add("hr-hidden"); HR.$("#done").classList.remove("hr-hidden"); scrollTo(0, 0);
+		} catch (e) { HR.msg(m, e.message); this.disabled = false; }
+	};
+})();
+</script>
+{% endblock %}
