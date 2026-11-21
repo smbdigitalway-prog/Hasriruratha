@@ -4,3 +4,4 @@
 hasiruratha.patches.add_citizen_requests_to_workspace
 hasiruratha.patches.create_duplicate_reports
 hasiruratha.patches.add_field_app_shortcut
+hasiruratha.patches.create_pick_lists

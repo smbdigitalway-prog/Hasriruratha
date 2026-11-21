@@ -18,6 +18,10 @@
   "column_break_1",
   "road",
   "area",
+  "landmark",
+  "route",
+  "address_line",
+  "pincode",
   "tree_count",
   "stretch_length",
   "added_by",
@@ -25,11 +29,13 @@
   "section_gps",
   "gps_lat",
   "gps_lng",
+  "gps_status",
   "column_break_2",
   "gps_lat2",
   "gps_lng2",
   "section_more",
   "notes",
+  "companion_plants",
   "photo_url",
   "section_citizen",
   "submitted_via",
@@ -120,16 +126,43 @@
   },
   {
    "fieldname": "road",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "label": "Road",
    "in_list_view": 1,
-   "in_standard_filter": 1
+   "in_standard_filter": 1,
+   "options": "HR Road"
   },
   {
    "fieldname": "area",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "label": "Area",
+   "in_standard_filter": 1,
+   "options": "HR Area"
+  },
+  {
+   "fieldname": "landmark",
+   "fieldtype": "Link",
+   "options": "HR Landmark",
+   "label": "Landmark",
    "in_standard_filter": 1
+  },
+  {
+   "fieldname": "route",
+   "fieldtype": "Link",
+   "options": "HR Route",
+   "label": "Watering route",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "address_line",
+   "fieldtype": "Data",
+   "label": "Door no / Cross / Main"
+  },
+  {
+   "fieldname": "pincode",
+   "fieldtype": "Data",
+   "label": "Pin code",
+   "length": 6
   },
   {
    "fieldname": "tree_count",
@@ -170,6 +203,15 @@
    "precision": "9"
   },
   {
+   "fieldname": "gps_status",
+   "fieldtype": "Select",
+   "label": "GPS",
+   "options": "Captured\nPending",
+   "read_only": 1,
+   "in_standard_filter": 1,
+   "description": "Pending = no GPS yet (e.g. imported from the spreadsheet). Capture it with the phone app on the next visit."
+  },
+  {
    "fieldname": "column_break_2",
    "fieldtype": "Column Break",
    "label": "Column Break 2"
@@ -197,6 +239,12 @@
    "label": "Notes"
   },
   {
+   "fieldname": "companion_plants",
+   "fieldtype": "Small Text",
+   "label": "Companion plants",
+   "description": "Noted only, not counted as trees, e.g. hibiscus."
+  },
+  {
    "fieldname": "photo_url",
    "fieldtype": "Attach Image",
    "label": "Site photo"
@@ -218,8 +266,9 @@
   {
    "fieldname": "address_full",
    "fieldtype": "Small Text",
-   "label": "Address (from location)",
-   "read_only": 1
+   "label": "Address from GPS",
+   "read_only": 1,
+   "description": "Filled automatically from the GPS location."
   },
   {
    "fieldname": "zone_note",
@@ -255,7 +304,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-15 10:00:00.000000",
+ "modified": "2026-11-21 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Hasiruratha",
  "name": "HR Site",

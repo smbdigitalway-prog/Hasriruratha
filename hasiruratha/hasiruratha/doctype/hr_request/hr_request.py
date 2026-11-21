@@ -14,6 +14,8 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import today
 
+from hasiruratha import masters
+
 GPS_FIELDS = ("gps_lat", "gps_lng", "gps_accuracy_m", "location_source")
 
 
@@ -23,7 +25,7 @@ def make_title(d):
 	return ("%s · %s" % (what, where) if where else what)[:140]
 
 
-class HRRequest(Document):
+class HRRequest(masters.AutoLinks, Document):
 	def validate(self):
 		self.pincode = re.sub(r"\D", "", self.pincode or "")
 		if self.pincode and len(self.pincode) != 6:
