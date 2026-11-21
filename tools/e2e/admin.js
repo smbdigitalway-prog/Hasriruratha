@@ -11,7 +11,7 @@ const ok = (c, w, d) => { if (!c) fails++; console.log(c ? 'PASS' : 'FAIL', '|',
   await p.waitForURL(/\/desk\//, { timeout: 15000 }).catch(() => {});
   await p.waitForTimeout(3000);
   const body = await p.locator('body').innerText().catch(() => '');
-  ok(p.url().includes('/desk/hasiruratha/hasiru_ratha_admin') && body.includes('Citizen requests') && body.includes('Field App'),
+  ok(p.url().includes('/desk/hasiruratha/hasiru_ratha_admin') && body.includes('Citizen requests') && !body.includes('Field App'),
      'Admin (no mobile number) signs in with email + password and lands in the Desk workspace', p.url());
   await p.waitForTimeout(1500); await p.screenshot({ path: process.argv[2] + '/ADM-app.png' });
   await ctx.close();

@@ -8,3 +8,4 @@ hasiruratha.patches.create_pick_lists
 hasiruratha.patches.add_places_and_care_section
 hasiruratha.patches.create_new_home_page
 hasiruratha.patches.add_gps_tagging_shortcut
+hasiruratha.patches.volunteers_use_desk

@@ -20,7 +20,7 @@ def base(context, page, title):
 	return context
 
 
-def safe_next(path, default="/hasiruratha"):
+def safe_next(path, default="/desk/hasiruratha/hasiru_ratha"):
 	"""A local path to come back to after signing in (never another site)."""
 	path = (path or "").strip()
 	return path if path.startswith("/") and not path.startswith("//") and "\\" not in path else default

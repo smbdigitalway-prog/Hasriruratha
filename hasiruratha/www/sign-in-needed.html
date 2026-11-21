@@ -13,7 +13,7 @@
 			{% set card_sub = _("Thank you for registering as a volunteer, {0}. An admin still has to approve you. We will email you as soon as you can sign in.").format(full_name) %}
 		{% elif who == "volunteer" %}
 			{% set card_title = _("This area is for admins") %}
-			{% set card_sub = _("You are signed in as {0}. The admin area is only for the Hasiru Ratha admin team. Your volunteer tools are in the field app.").format(full_name) %}
+			{% set card_sub = _("You are signed in as {0}. This part of the admin area is only for the Hasiru Ratha admin team. Your volunteer tools are in the volunteer desk.").format(full_name) %}
 		{% else %}
 			{% set card_title = _("This area is for the Hasiru Ratha team") if admin_area else _("Please register as a volunteer") %}
 			{% set card_sub = (_("You are signed in as {0}. The admin area is only for the Hasiru Ratha team.") if admin_area
@@ -27,7 +27,7 @@
 			<a class="es-button w-full" data-variant="solid" href="{{ login_url }}">{{ _("Sign in") }}</a>
 			{% if not admin_area %}<a class="es-button w-full" href="/volunteer-signup">{{ _("New volunteer? Register") }}</a>{% endif %}
 		{% elif who == "volunteer" %}
-			<a class="es-button w-full" data-variant="solid" href="/hasiruratha">{{ _("Open the field app") }}</a>
+			<a class="es-button w-full" data-variant="solid" href="/desk/hasiruratha/hasiru_ratha">{{ _("Open the volunteer desk") }}</a>
 			<a class="es-button w-full" href="/my-trees">{{ _("My trees") }}</a>
 		{% elif who == "pending" %}
 			<a class="es-button w-full" data-variant="solid" href="/my-requests">{{ _("My requests") }}</a>

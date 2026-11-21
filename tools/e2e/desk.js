@@ -68,11 +68,9 @@ const call = (p, m, args) => p.evaluate(([m, a]) => frappe.xcall(m, a), [m, args
 	await mp.fill('#login-phone', 'boss@example.com'); await mp.fill('#login-pin', 'Admin2026pass'); await mp.click('#login-btn');
 	await mp.waitForURL(/\/desk\//, { timeout: 15000 }).catch(() => {});
 	ok(mp.url().includes('/desk/'), 'Admin sign-in at /hasiruratha lands in the Desk workspace', mp.url());
-	await mp.goto(B + '/hasiruratha', { waitUntil: 'networkidle' });   // Field App shortcut
-	await mp.waitForSelector('.hx-req', { timeout: 15000 }).catch(() => {});
-	await mp.waitForTimeout(1500);
-	const link = await mp.locator('.hx-req').innerText().catch(() => '');
-	ok(/Citizen requests/.test(link) && /open/.test(link), 'Admin home in /hasiruratha links to citizen requests with a count', link.replace(/\s+/g, ' '));
+	await mp.goto(B + '/hasiruratha', { waitUntil: 'networkidle' });   // the old field app is retired
+	await mp.waitForURL(/hasiru_ratha_admin/, { timeout: 15000 }).catch(() => {});
+	ok(mp.url().includes('/desk/hasiruratha/hasiru_ratha_admin'), 'Old /hasiruratha link takes a signed-in admin to the admin workspace', mp.url());
 	await mp.screenshot({ path: `${OUT}/D6-admin-home.png` });
 
 	console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

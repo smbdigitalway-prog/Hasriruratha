@@ -16,8 +16,8 @@ ZONES = [
 def after_install():
 	"""Idempotent - safe to run on every migrate."""
 	_role("HR Admin", desk_access=1)
-	_role("HR Citizen", desk_access=0)        # citizens use /citizen only
-	_role("HR Volunteer", desk_access=0)      # volunteers use /hasiruratha only, never /app
+	_role("HR Citizen", desk_access=0)        # citizens use the website pages only
+	_role("HR Volunteer", desk_access=1)      # volunteers use the Desk (read-only except their own trees)
 	for zid, name in ZONES:
 		if not frappe.db.exists("HR Zone", zid):
 			frappe.get_doc({"doctype": "HR Zone", "zone_id": zid, "zone_name": name,

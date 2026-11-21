@@ -593,7 +593,9 @@ def get_volunteers(p):
 	if not _is_admin():
 		# contact details are masked on the SERVER for volunteers, not just hidden in the UI
 		for v in data:
-			v["phone"], v["email"] = _mask_phone(v["phone"]), _mask_email(v["email"])
+			v["phone"], v["email"] = _mask_phone(v.get("phone")), _mask_email(v.get("email"))
+			for k in ("address", "pincode", "user"):
+				v.pop(k, None)
 	return {"success": True, "data": data}
 
 
