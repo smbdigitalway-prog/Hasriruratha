@@ -16,3 +16,10 @@ for t in trees:
 frappe.db.sql("delete from `tabHR Care Log` where tree in %s", (tuple(trees),))
 frappe.db.set_value("HR Tree", trees[-1], {"gps_lat": 0, "gps_lng": 0, "gps_status": "Pending"})
 frappe.db.commit(); print(trees)
+# a plain citizen account for access.js (no volunteer role)
+cit = "probe.citizen@example.com"
+if not frappe.db.exists("User", cit):
+    frappe.get_doc({"doctype": "User", "email": cit, "first_name": "Probe Citizen", "enabled": 1, "user_type": "Website User",
+                    "send_welcome_email": 0}).insert(ignore_permissions=True)
+update_password(cit, "Citizen2026x")
+frappe.db.commit()

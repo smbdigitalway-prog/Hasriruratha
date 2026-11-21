@@ -14,3 +14,5 @@ class HRTree(masters.AutoLinks, Document):
 			self.latitude, self.longitude = flt(self.gps_lat), flt(self.gps_lng)
 		if self.planting_type != "Replacement":
 			self.replaces_tree = None
+		if self.owner_volunteer_id and not self.caretaker_type:
+			self.caretaker_type = "Volunteer"

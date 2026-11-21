@@ -56,7 +56,7 @@ def spots(south=None, west=None, north=None, east=None):
 	trees = {}
 	if rows:
 		for t in frappe.get_all("HR Tree", {"site_id": ["in", [r.name for r in rows]], "status": ["!=", "Merged"]},
-		                        ["site_id", "species", "date_planted", "photo_url", "owner_volunteer_id"], limit_page_length=0):
+		                        ["site_id", "species", "date_planted", "photo_url", "owner_volunteer_id", "caretaker_type"], limit_page_length=0):
 			trees.setdefault(t.site_id, []).append(t)
 	zones = _zone_names()
 	out = []
@@ -70,7 +70,7 @@ def spots(south=None, west=None, north=None, east=None):
 			"zone": zones.get(r.zone_id, ""), "trees": len(ts) or (r.tree_count or 0), "species": species[:5],
 			"planted": str(planted or ""), "age": age_text(planted),
 			"photo": r.photo_url or next((t.photo_url for t in ts if t.photo_url), ""),
-			"cared": sum(1 for t in ts if t.owner_volunteer_id),
+			"cared": sum(1 for t in ts if t.owner_volunteer_id or t.caretaker_type),
 		})
 	return {"spots": out, "more": more}
 
@@ -87,7 +87,7 @@ def spot(site_id=None):
 	species = {}
 	for t in frappe.get_all("HR Tree", {"site_id": r.name, "status": ["!=", "Merged"]},
 	                        ["name", "species", "date_planted", "photo_url", "condition", "tree_guard", "owner_volunteer_id",
-	                         "last_watered", "planting_type"],
+	                         "last_watered", "planting_type", "caretaker_type"],
 	                        order_by="position", limit_page_length=200):
 		if t.species and t.species not in species:
 			species[t.species] = frappe.db.get_value("HR Species", t.species, ["kannada_name", "botanical_name", "description"],
@@ -95,7 +95,7 @@ def spot(site_id=None):
 		sp = species.get(t.species) or {}
 		trees.append({"id": t.name, "species": t.species or "Not known yet", "planted": str(t.date_planted or ""),
 		              "age": age_text(t.date_planted), "photo": t.photo_url or "", "condition": t.condition or "",
-		              "guard": t.tree_guard or "", "cared": bool(t.owner_volunteer_id),
+		              "guard": t.tree_guard or "", "cared": bool(t.owner_volunteer_id or t.caretaker_type),
 		              "last_watered": str(t.last_watered or ""), "planting_type": t.planting_type or "",
 		              "kannada": sp.get("kannada_name") or "", "botanical": sp.get("botanical_name") or "",
 		              "about": sp.get("description") or ""})

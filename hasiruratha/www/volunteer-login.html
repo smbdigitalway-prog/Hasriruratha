@@ -8,6 +8,8 @@
 		{% set card_title = _("Volunteer sign-in") %}
 		{% set card_sub = _("Hasiru Ratha volunteers and admins. Use your mobile number (admins can also use their email) and password.") %}
 		{% include "templates/includes/hr_card_head.html" %}
+		{% if next %}<div class="es-alert" data-theme="blue" id="need-signin"><span class="es-alert__title">{{ _("Please sign in to open that page. It is for registered volunteers: if you are new, register below.") }}</span></div>{% endif %}
+		{% if citizen_name %}<p class="text-base text-ink-gray-6 mb-0" id="citizen-note">{{ _("You are signed in as {0} (citizen). Signing in here switches to your volunteer account.").format(citizen_name) }}</p>{% endif %}
 
 		<form id="login-form" class="flex flex-col gap-4" novalidate>
 			<div class="form-group flex flex-col items-start gap-1.5 mb-0">
@@ -36,7 +38,7 @@
 {% include "templates/includes/hr_js.html" %}
 <script>
 (function () {
-	const DESK_HOME = "/desk/hasiruratha/hasiru_ratha_admin";
+	const DESK_HOME = "/desk/hasiruratha/hasiru_ratha_admin", NEXT = {{ (next or "") | tojson }};
 	HR.$("#login-form").onsubmit = async (e) => {
 		e.preventDefault();
 		const m = HR.$("#login-err"), b = HR.$("#login-btn"), raw = HR.$("#login-phone").value.trim(), pwd = HR.$("#login-pin").value;
@@ -48,7 +50,7 @@
 			const r = await HR.call("hasiruratha.volunteer_auth.login",
 				{ mobile: raw.includes("@") ? raw : raw.replace(/\D/g, ""), password: pwd }, true);
 			if (!r || !r.success) throw new Error((r && r.error) || "Could not sign in. Please try again.");
-			location.replace(r.is_admin ? DESK_HOME : "/hasiruratha");
+			location.replace(NEXT || (r.is_admin ? DESK_HOME : "/hasiruratha"));
 		} catch (err) { HR.msg(m, err.message); b.disabled = false; b.removeAttribute("aria-busy"); }
 	};
 })();
