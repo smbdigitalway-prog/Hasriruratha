@@ -32,14 +32,16 @@
    "in_list_view": 1,
    "label": "Volunteer ID",
    "reqd": 1,
-   "unique": 1
+   "unique": 1,
+   "in_standard_filter": 1
   },
   {
    "fieldname": "volunteer_name",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Name",
-   "reqd": 1
+   "reqd": 1,
+   "in_standard_filter": 1
   },
   {
    "fieldname": "phone",
@@ -48,20 +50,24 @@
    "label": "Phone",
    "reqd": 1,
    "search_index": 1,
-   "permlevel": 1
+   "permlevel": 1,
+   "in_standard_filter": 1
   },
   {
    "fieldname": "email",
    "fieldtype": "Data",
    "label": "Email",
    "options": "Email",
-   "permlevel": 1
+   "permlevel": 1,
+   "in_standard_filter": 1
   },
   {
    "fieldname": "area",
    "fieldtype": "Link",
    "label": "Area",
-   "options": "HR Area"
+   "options": "HR Area",
+   "in_standard_filter": 1,
+   "in_list_view": 1
   },
   {
    "fieldname": "column_break_1",
@@ -71,26 +77,31 @@
    "default": "GRP-001",
    "fieldname": "group_id",
    "fieldtype": "Data",
-   "label": "Group ID"
+   "label": "Group ID",
+   "in_standard_filter": 1
   },
   {
    "fieldname": "joined_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Joined Date"
+   "label": "Joined Date",
+   "in_standard_filter": 1
   },
   {
    "default": "1",
    "fieldname": "active",
    "fieldtype": "Check",
    "in_list_view": 1,
-   "label": "Active"
+   "label": "Active",
+   "in_standard_filter": 1
   },
   {
    "fieldname": "primary_zone_id",
    "fieldtype": "Link",
-   "label": "Primary Zone",
-   "options": "HR Zone"
+   "label": "Zone",
+   "options": "HR Zone",
+   "in_standard_filter": 1,
+   "in_list_view": 1
   },
   {
    "fieldname": "user",
@@ -98,7 +109,8 @@
    "label": "Login User",
    "options": "User",
    "read_only": 1,
-   "permlevel": 1
+   "permlevel": 1,
+   "in_standard_filter": 1
   },
   {
    "fieldname": "trees_owned",
@@ -115,13 +127,15 @@
    "fieldname": "road",
    "fieldtype": "Link",
    "label": "Road",
-   "options": "HR Road"
+   "options": "HR Road",
+   "in_standard_filter": 1
   },
   {
    "fieldname": "pincode",
    "fieldtype": "Data",
    "label": "Pin code",
-   "permlevel": 1
+   "permlevel": 1,
+   "in_standard_filter": 1
   },
   {
    "fieldname": "interests",
@@ -132,13 +146,15 @@
    "fieldname": "availability",
    "fieldtype": "Select",
    "label": "Availability",
-   "options": "\nWeekday mornings\nWeekend mornings\nWeekday evenings\nFlexible"
+   "options": "\nWeekday mornings\nWeekend mornings\nWeekday evenings\nFlexible",
+   "in_standard_filter": 1
   },
   {
    "fieldname": "consent_given",
    "fieldtype": "Check",
    "label": "Consent given",
-   "read_only": 1
+   "read_only": 1,
+   "in_standard_filter": 1
   }
  ],
  "links": [],

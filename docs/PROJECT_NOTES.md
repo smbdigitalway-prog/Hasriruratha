@@ -135,3 +135,7 @@ Citizens use Frappe Web Forms and website pages. Each submission is first saved 
 New: Kanban boards for every status doctype (`boards.py`) + Console Boards panel, bulk delete duplicates, HR Event / HR Event Subscription
 (`event_api.py`, `/events`), `stats_api.py` + `/impact` + 6 Number Cards, adopt a tree (`care_api.adopt_tree`), QR labels (`/spot-qr`),
 GPS locked once captured. Patches: `add_boards_and_console_to_workspace`, `add_events_impact_to_workspace`. See `docs/REQUIREMENTS_STATUS.md`.
+
+### 21 Nov 2026 (filters)
+HR Visit, HR Volunteer, HR Duplicate Report: every filterable field is now a standard list filter. HR Visit gained Area and Zone
+(copied from its site; patch `backfill_visit_area_zone` fills old visits). HR Volunteer Area / Zone relabelled and shown in the list.

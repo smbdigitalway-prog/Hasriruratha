@@ -11,3 +11,4 @@ hasiruratha.patches.add_gps_tagging_shortcut
 hasiruratha.patches.volunteers_use_desk
 hasiruratha.patches.add_boards_and_console_to_workspace
 hasiruratha.patches.add_events_impact_to_workspace
+hasiruratha.patches.backfill_visit_area_zone

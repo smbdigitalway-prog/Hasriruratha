@@ -7,6 +7,8 @@
  "field_order": [
   "visit_id",
   "site_id",
+  "area",
+  "zone",
   "tree_id",
   "status",
   "planned_date",
@@ -30,20 +32,43 @@
    "label": "Visit ID",
    "reqd": 1,
    "unique": 1,
-   "in_list_view": 1
+   "in_list_view": 1,
+   "in_standard_filter": 1
   },
   {
    "fieldname": "site_id",
    "fieldtype": "Link",
    "label": "Site",
    "options": "HR Site",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "area",
+   "fieldtype": "Link",
+   "label": "Area",
+   "options": "HR Area",
+   "fetch_from": "site_id.area",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "zone",
+   "fieldtype": "Link",
+   "label": "Zone",
+   "options": "HR Zone",
+   "fetch_from": "site_id.zone_id",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
   },
   {
    "fieldname": "tree_id",
    "fieldtype": "Link",
    "label": "Tree ID",
-   "options": "HR Tree"
+   "options": "HR Tree",
+   "in_standard_filter": 1
   },
   {
    "fieldname": "status",
@@ -57,31 +82,36 @@
    "fieldname": "planned_date",
    "fieldtype": "Date",
    "label": "Planned Date",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "in_standard_filter": 1
   },
   {
    "fieldname": "planned_time",
    "fieldtype": "Data",
-   "label": "Planned Time"
+   "label": "Planned Time",
+   "in_standard_filter": 1
   },
   {
    "fieldname": "service_type",
    "fieldtype": "Select",
    "label": "Service Type",
    "in_list_view": 1,
-   "options": "Watering / follow-up\nNew plantation\nMaintenance visit\nTree Guard Needed\nTree Guard Removal\nSupport pole needed\nPesticide needed\nDebris cleanup"
+   "options": "Watering / follow-up\nNew plantation\nMaintenance visit\nTree Guard Needed\nTree Guard Removal\nSupport pole needed\nPesticide needed\nDebris cleanup",
+   "in_standard_filter": 1
   },
   {
    "fieldname": "condition",
    "fieldtype": "Select",
    "label": "Tree Condition",
-   "options": "Healthy\nNeeds attention\nUnknown\nMonitored\nDead"
+   "options": "Healthy\nNeeds attention\nUnknown\nMonitored\nDead",
+   "in_standard_filter": 1
   },
   {
    "fieldname": "volunteers_needed",
    "fieldtype": "Int",
    "label": "Volunteers Needed",
-   "default": "2"
+   "default": "2",
+   "in_standard_filter": 1
   },
   {
    "fieldname": "column_break_1",
@@ -91,17 +121,20 @@
    "fieldname": "group_id",
    "fieldtype": "Data",
    "label": "Group ID",
-   "default": "GRP-001"
+   "default": "GRP-001",
+   "in_standard_filter": 1
   },
   {
    "fieldname": "planned_by",
    "fieldtype": "Data",
-   "label": "Planned By"
+   "label": "Planned By",
+   "in_standard_filter": 1
   },
   {
    "fieldname": "actual_date",
    "fieldtype": "Date",
-   "label": "Actual Date"
+   "label": "Actual Date",
+   "in_standard_filter": 1
   },
   {
    "fieldname": "team",
