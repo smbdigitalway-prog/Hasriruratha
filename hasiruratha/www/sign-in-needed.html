@@ -1,0 +1,61 @@
+{% extends "templates/web.html" %}
+{% block title %}{{ _("Sign in or register") }} · Hasiru Ratha{% endblock %}
+{% block style %}{{ include_style('login.bundle.css') }}{% include "templates/includes/hr_ui.html" %}{% endblock %}
+{% block page_content %}
+<section class="for-login">
+	<div class="login-content page-card flex flex-col gap-5">
+		{% if who == "guest" %}
+			{% set card_title = _("Please sign in first") %}
+			{% set card_sub = _("This part of Hasiru Ratha is for the admin team. Please sign in with your admin account.") if admin_area
+				else _("This page is for Hasiru Ratha volunteers. Sign in with your volunteer account, or register if you are new.") %}
+		{% elif who == "pending" %}
+			{% set card_title = _("Waiting for approval") %}
+			{% set card_sub = _("Thank you for registering as a volunteer, {0}. An admin still has to approve you. We will email you as soon as you can sign in.").format(full_name) %}
+		{% elif who == "volunteer" %}
+			{% set card_title = _("This area is for admins") %}
+			{% set card_sub = _("You are signed in as {0}. The admin area is only for the Hasiru Ratha admin team. Your volunteer tools are in the field app.").format(full_name) %}
+		{% else %}
+			{% set card_title = _("This area is for the Hasiru Ratha team") if admin_area else _("Please register as a volunteer") %}
+			{% set card_sub = (_("You are signed in as {0}. The admin area is only for the Hasiru Ratha team.") if admin_area
+				else _("You are signed in as {0}. This page is only for registered volunteers.")).format(full_name)
+				~ " " ~ _("With your citizen account you can raise requests and follow them up. To look after trees, register as a volunteer: an admin approves new volunteers.") %}
+		{% endif %}
+		{% include "templates/includes/hr_card_head.html" %}
+
+		<div class="flex flex-col gap-3" id="actions">
+		{% if who == "guest" %}
+			<a class="es-button w-full" data-variant="solid" href="{{ login_url }}">{{ _("Sign in") }}</a>
+			{% if not admin_area %}<a class="es-button w-full" href="/volunteer-signup">{{ _("New volunteer? Register") }}</a>{% endif %}
+		{% elif who == "volunteer" %}
+			<a class="es-button w-full" data-variant="solid" href="/hasiruratha">{{ _("Open the field app") }}</a>
+			<a class="es-button w-full" href="/my-trees">{{ _("My trees") }}</a>
+		{% elif who == "pending" %}
+			<a class="es-button w-full" data-variant="solid" href="/my-requests">{{ _("My requests") }}</a>
+		{% else %}
+			<a class="es-button w-full" data-variant="solid" href="/volunteer-signup">{{ _("Register as a volunteer") }}</a>
+			<a class="es-button w-full" href="/my-requests">{{ _("My requests") }}</a>
+		{% endif %}
+		{% if who != "guest" %}
+			<p class="text-base text-ink-gray-5 text-center mb-0">{{ _("Not {0}, or have another account?").format(full_name) }}
+				<a class="text-ink-gray-7" href="#" id="switch">{{ _("Sign out and sign in again") }}</a></p>
+		{% endif %}
+			<p class="text-base text-ink-gray-5 text-center mb-0">{{ _("Just want to report a spot or a tree that needs care?") }}
+				<a class="text-ink-gray-7" href="/request">{{ _("Raise a request") }}</a> · <a class="text-ink-gray-7" href="/trees">{{ _("See the map") }}</a></p>
+		</div>
+	</div>
+</section>
+{% endblock %}
+{% block script %}
+{{ super() }}
+{% include "templates/includes/hr_js.html" %}
+<script>
+(function () {
+	const s = document.getElementById("switch");
+	if (s) s.onclick = async (e) => {
+		e.preventDefault();
+		try { await HR.call("hasiruratha.citizen_auth.sign_out", {}, true); } catch (err) {}
+		location.href = {{ login_url | tojson }};
+	};
+})();
+</script>
+{% endblock %}

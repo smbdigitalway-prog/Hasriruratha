@@ -10,6 +10,7 @@ required_apps = []
 
 # Serve the volunteer app at  /hasiruratha  (full-screen, no website navbar)
 page_renderer = ["hasiruratha.renderer.HasirurathaRenderer"]
+before_request = ["hasiruratha.renderer.desk_guard"]
 
 # Create roles, settings and the starter zones on install and after every migrate (idempotent)
 after_install = "hasiruratha.install.after_install"

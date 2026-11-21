@@ -18,5 +18,6 @@ Run:
     node care.js <screenshot-folder>       # after seed_care.py: volunteer logs watering, adds GPS, public map shows it
     node site.js <screenshot-folder> <photo.jpg>   # new home page, phone menu, internship form, Green Diary approval
     node gps.js <screenshot-folder>        # after importing the watering sheet + seed_care.py: admin and volunteer GPS tagging
+    node access.js <screenshot-folder>     # after seed_care.py: sign-in / register messages for visitors and citizens
 
 Sign-in endpoints are rate limited; clear the local Redis cache between repeated runs.

@@ -37,7 +37,7 @@ def get_dashboard():
         frappe.throw(_("Please log in"), frappe.AuthenticationError)
 
     if not _is_member():
-        frappe.throw(_("You are not permitted to access Hasiru Ratha"), frappe.PermissionError)
+        frappe.throw(_("This is for registered Hasiru Ratha volunteers. Please register as a volunteer first: /volunteer-signup"), frappe.PermissionError)
 
     admin = _is_admin()
 
