@@ -56,6 +56,26 @@ Open `/app/hr-console`. Tiles: Plant a sapling (opens `/hasiruratha`), Report a 
 Citizens use Frappe Web Forms and website pages. Each submission is first saved as a record the admin can filter and map (HR Citizen Planting, HR Citizen Report, HR Volunteer Request), then processed into the real site / tree / report / volunteer application by `citizen_forms.py`. Status flows back to the citizen automatically. The earlier custom page (`templates/citizen.html`, route `/citizen`) is still in the repo and can be deleted. See `docs/FRAPPE_SETUP.md`.
 
 ## CHANGELOG
+### 21 Nov 2026: places hierarchy, care log, spreadsheet import (#5 and related)
+* Lists (dropdown or type a new name): **HR Area** (zone, part of), **HR Road**, **HR Landmark**,
+  **HR Route** (watering route = just a name for a group of spots), **HR Species** (Kannada and botanical
+  name, photo, about, care notes). Typed names that are new are added as *Unverified*; names matching an
+  existing name or one of its "Other spellings" are filed under it. Join duplicates with
+  Rename -> "Merge with existing" (updates every linked record).
+* HR Site: area/road/landmark/route are links; Door no/Cross/Main + pin code (typed) and "Address from GPS"
+  (automatic); companion plants (noted, not counted); GPS status. Zone comes from the area when empty.
+* HR Tree: species link, planting type (New / Replacement / Rescued / Existing), replaces tree, GPS status,
+  last watered / last maintenance.
+* **HR Care Log**: per tree per activity (watering, guard installed/removed, pruning, ...), volunteer, hours,
+  notes, photo. Volunteers log for their assigned trees at **/my-trees** and add GPS for imported trees.
+* Public map: "Watered X days ago", species details, landmark, companion plants.
+* **Import watering sheet** (Desk: Watering Routes list): each row -> spot/stretch + trees (GPS pending),
+  planting type from the text, "along with ..." -> companion plants, date columns -> past waterings.
+  Preview first; rows already imported are skipped.
+* Fix: volunteer app home was blank (script-order error with hrOpenTreeReport).
+* Workspace: "Places & care" section. Admin to-do after deploy: check the Unverified Areas / Roads /
+  Landmarks / Species, merge spelling variants, set zones on new areas.
+
 ### 22 Nov 2026: Duplicate Reports, Deleted Sites, re-plant
 * New DocType **HR Duplicate Report** (in code). `HR Site.after_insert` creates one Pending Review report for every flagged site, with the existing site, distance, nearest tree, zone/road/area, map point and both photos. The old UI Server Script is not needed (it never fired: `validate` had already set `possible_duplicate_of`).
 * Admin decisions on the report: Different site - keep it / Same place - merge / Delete duplicate / Re-plant. Each closes the report (Kept as New, Merged, Deleted, Restored).
