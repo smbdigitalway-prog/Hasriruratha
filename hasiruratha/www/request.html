@@ -65,8 +65,11 @@
 		<p class="text-base text-ink-gray-5">{{ _("Filled in from the map. Please check and correct it.") }}</p>
 		<div class="form-group"><label for="addr">{{ _("Door no / Cross / Main") }} <span class="opt">({{ _("optional") }})</span></label>
 			<input type="text" id="addr" maxlength="200" class="form-control" placeholder="e.g. #12, 4th Cross, 9th Main"></div>
-		<div class="form-group"><label for="road">{{ _("Road") }}</label><input type="text" id="road" maxlength="140" class="form-control"></div>
-		<div class="form-group"><label for="area">{{ _("Area") }}</label><input type="text" id="area" maxlength="140" class="form-control"></div>
+		<div class="form-group"><label for="landmark">{{ _("Landmark") }} <span class="opt">({{ _("optional: pick one or type, e.g. Opp Mangalam choultri") }})</span></label>
+			<input type="text" id="landmark" maxlength="140" class="form-control" list="dl-landmark" autocomplete="off"></div>
+		<div class="form-group"><label for="road">{{ _("Road") }}</label><input type="text" id="road" maxlength="140" class="form-control" list="dl-road" autocomplete="off"></div>
+		<div class="form-group"><label for="area">{{ _("Area") }}</label><input type="text" id="area" maxlength="140" class="form-control" list="dl-area" autocomplete="off"></div>
+		<datalist id="dl-area"></datalist><datalist id="dl-road"></datalist><datalist id="dl-landmark"></datalist>
 		<div class="hr-row">
 			<div class="form-group mb-0"><label for="pin">{{ _("Pin code") }}</label><input type="tel" id="pin" inputmode="numeric" maxlength="6" class="form-control"></div>
 			<div class="form-group mb-0"><label for="zone">{{ _("Zone") }}</label><select id="zone" class="form-control"><option value="">{{ _("Not sure") }}</option></select></div>
@@ -215,6 +218,13 @@
 		S.busy = false; HR.$("#send").disabled = false;
 	};
 
+	// pick-lists: suggestions while typing; a new name is fine (the team checks new ones)
+	const fillList = (kind, extra) => HR.call("hasiruratha.masters.options", Object.assign({ kind }, extra || {})).then(names => {
+		HR.$("#dl-" + kind).innerHTML = names.map(n => `<option value="${HR.esc(n)}"></option>`).join("");
+	}).catch(() => {});
+	fillList("area"); fillList("road"); fillList("landmark");
+	HR.$("#area").addEventListener("change", () => fillList("landmark", { area: HR.$("#area").value.trim() }));
+
 	// zones
 	HR.call("hasiruratha.public_api.zones").then(z => {
 		const sel = HR.$("#zone");
@@ -247,7 +257,7 @@
 		try {
 			const r = await HR.call("hasiruratha.request_api.submit", {
 				request_type: S.type, lat: S.lat, lng: S.lng, accuracy: S.acc, source: S.source, photo_url: S.photo,
-				issue_type: v("#issue"), description: v("#notes"), address_line: v("#addr"), road: v("#road"), area: v("#area"),
+				issue_type: v("#issue"), description: v("#notes"), address_line: v("#addr"), road: v("#road"), area: v("#area"), landmark: v("#landmark"),
 				pincode: v("#pin"), zone: v("#zone"), existing_site: S.site, tree: S.tree, different_spot: S.different ? 1 : 0 }, true);
 			HR.$("#dname").textContent = r.name;
 			HR.$("#dnote").textContent = r.possible_duplicate

@@ -18,6 +18,8 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt
 
+from hasiruratha import masters
+
 DUPLICATE_RADIUS_M = 25
 SAME_ROAD_RADIUS_M = 150
 NEAR_ME_RADIUS_M = 300
@@ -76,11 +78,15 @@ def find_duplicate(lat, lng, site_type, road, area, exclude=None):
 	return None
 
 
-class HRSite(Document):
+class HRSite(masters.AutoLinks, Document):
 	def validate(self):
 		self.flag_possible_duplicate()
-		if flt(self.gps_lat) and flt(self.gps_lng):
+		has_gps = bool(flt(self.gps_lat) and flt(self.gps_lng))
+		self.gps_status = "Captured" if has_gps else "Pending"
+		if has_gps:
 			self.latitude, self.longitude = flt(self.gps_lat), flt(self.gps_lng)
+		if self.area and not self.zone_id:
+			self.zone_id = frappe.db.get_value("HR Area", self.area, "zone")
 
 	def flag_possible_duplicate(self):
 		if not self.is_new() or self.flags.ignore_duplicate_check or self.possible_duplicate_of:

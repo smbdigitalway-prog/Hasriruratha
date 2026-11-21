@@ -1,0 +1,138 @@
+{% extends "templates/web.html" %}
+{% block title %}My trees · Hasiru Ratha{% endblock %}
+{% block style %}{% include "templates/includes/hr_ui.html" %}
+<style>
+.hr-tree{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--outline-gray-1)}
+.hr-tree:first-child{border-top:0}
+.hr-tree input[type=checkbox]{width:20px;height:20px;margin-top:4px;flex:none;accent-color:var(--ink-gray-9)}
+.hr-tree .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.hr-group{margin-top:18px}
+.hr-group h3{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-gray-5);margin:0 0 4px}
+#panel{position:sticky;bottom:0;background:var(--surface-base, #fff);border-top:1px solid var(--outline-gray-2);
+	padding:14px 0 18px;margin-top:20px;box-shadow:0 -6px 12px -10px rgba(0,0,0,.25)}
+</style>
+{% endblock %}
+{% block page_content %}
+<div class="hr-page">
+	<nav class="hr-subnav" aria-label="Volunteer">
+		<a class="es-button" data-variant="ghost" href="/hasiruratha">‹ {{ _("Field app") }}</a>
+		<a class="es-button" data-variant="subtle" href="/my-trees">{{ _("My trees") }}</a>
+		<a class="es-button" data-variant="ghost" href="/trees">{{ _("Map") }}</a>
+	</nav>
+	<h1 class="text-2xl-bold text-ink-gray-9 mb-1">{{ _("My trees") }}</h1>
+	<p class="text-p-base text-ink-gray-6" id="sub">{{ _("Loading…") }}</p>
+	<div class="flex gap-2" style="flex-wrap:wrap">
+		<button class="es-button" type="button" id="sel-thirsty">{{ _("Select not watered for 3+ days") }}</button>
+		<button class="es-button" data-variant="ghost" type="button" id="sel-none">{{ _("Clear") }}</button>
+	</div>
+	<div id="list"></div>
+
+	<section id="panel" class="hr-hidden" aria-label="Log care">
+		<h2 class="text-lg-semibold text-ink-gray-9 mb-2" id="panel-title"></h2>
+		<div class="hr-row">
+			<div class="form-group mb-2"><label for="act">{{ _("What did you do?") }}</label><select id="act" class="form-control"></select></div>
+			<div class="form-group mb-2"><label for="day">{{ _("Date") }}</label><input id="day" type="date" class="form-control"></div>
+		</div>
+		<div class="hr-row">
+			<div class="form-group mb-2"><label for="hrs">{{ _("Hours spent (all of them)") }} <span class="opt">({{ _("optional") }})</span></label>
+				<input id="hrs" type="number" min="0" step="0.25" inputmode="decimal" class="form-control"></div>
+			<div class="form-group mb-2"><label>{{ _("Photo") }} <span class="opt">({{ _("optional") }})</span></label>
+				<label for="photo" class="es-button w-full" style="margin:0" id="photobtn">📷 {{ _("Add photo") }}</label>
+				<input type="file" id="photo" accept="image/*" class="hr-file"></div>
+		</div>
+		<div class="form-group mb-2"><label for="notes">{{ _("Notes") }} <span class="opt">({{ _("optional") }})</span></label>
+			<textarea id="notes" class="form-control" maxlength="500" style="min-height:52px"></textarea></div>
+		<div id="m" class="es-alert hr-hidden"></div>
+		<button class="es-button" data-variant="solid" data-size="lg" id="save" type="button" style="margin-top:8px">{{ _("Save") }}</button>
+	</section>
+</div>
+{% endblock %}
+{% block script %}
+{{ super() }}
+{% include "templates/includes/hr_js.html" %}
+<script>
+(function () {
+	let TREES = [], photo = null;
+	const sel = new Set();
+	const ago = d => {
+		if (!d) return null;
+		const n = Math.round((new Date(new Date().toDateString()) - new Date(d + "T00:00:00")) / 86400000);
+		return n <= 0 ? "today" : n === 1 ? "yesterday" : n + " days ago";
+	};
+	const days = d => d ? Math.round((new Date(new Date().toDateString()) - new Date(d + "T00:00:00")) / 86400000) : 9999;
+	HR.$("#day").value = new Date().toISOString().slice(0, 10);
+	HR.$("#day").max = HR.$("#day").value;
+
+	function render() {
+		const groups = {};
+		TREES.forEach(t => (groups[t.route || t.area || "Other"] = groups[t.route || t.area || "Other"] || []).push(t));
+		HR.$("#list").innerHTML = TREES.length ? Object.entries(groups).map(([g, ts]) => `<div class="hr-group"><h3>${HR.esc(g)}</h3>${ts.map(t => {
+			const w = ago(t.last_watered), thirsty = days(t.last_watered) >= 3;
+			return `<label class="hr-tree" for="t-${HR.esc(t.name)}">
+				<input type="checkbox" id="t-${HR.esc(t.name)}" data-tree="${HR.esc(t.name)}" ${sel.has(t.name) ? "checked" : ""}>
+				<div style="min-width:0;flex:1">
+					<div class="text-base-semibold text-ink-gray-9">${HR.esc(t.species || "Tree")} <span class="text-sm text-ink-gray-5">${HR.esc(t.name)}</span></div>
+					<div class="text-base text-ink-gray-6">${HR.esc([t.landmark || t.place, t.road].filter(Boolean).join(" · "))}</div>
+					<div class="meta">
+						<span class="es-badge" data-theme="${thirsty ? "amber" : "green"}">${w ? "Watered " + w : "Not watered yet"}</span>
+						${t.age ? `<span class="es-badge">${HR.esc(t.age)} old</span>` : ""}
+						${t.gps_status === "Pending" ? `<button type="button" class="es-button" data-size="xs" data-gps="${HR.esc(t.name)}">📍 Add GPS here</button>` : ""}
+					</div>
+				</div></label>`;
+		}).join("")}</div>`).join("")
+			: '<p class="text-base text-ink-gray-5" style="margin-top:16px">No trees are assigned to you yet. An admin assigns trees, or you can adopt one from the map.</p>';
+		HR.$("#list").querySelectorAll("input[data-tree]").forEach(c => c.onchange = () => { c.checked ? sel.add(c.dataset.tree) : sel.delete(c.dataset.tree); panel(); });
+		HR.$("#list").querySelectorAll("[data-gps]").forEach(b => b.onclick = (e) => { e.preventDefault(); gps(b); });
+		panel();
+	}
+	function panel() {
+		HR.$("#panel").classList.toggle("hr-hidden", !sel.size);
+		HR.$("#panel-title").textContent = "Log care for " + sel.size + (sel.size === 1 ? " tree" : " trees");
+	}
+	function gps(b) {
+		const id = b.dataset.gps; b.disabled = true; b.textContent = "Finding you…";
+		let best = null, done = false;
+		const finish = async () => {
+			if (done) return; done = true; navigator.geolocation.clearWatch(w);
+			if (!best) { b.disabled = false; b.textContent = "📍 Try again"; return; }
+			try {
+				await HR.call("hasiruratha.care_api.set_gps", { tree: id, lat: best.latitude, lng: best.longitude, accuracy: Math.round(best.accuracy) }, true);
+				TREES.find(t => t.name === id).gps_status = "Captured"; render();
+			} catch (e) { alert(e.message); b.disabled = false; b.textContent = "📍 Try again"; }
+		};
+		const w = navigator.geolocation.watchPosition(p => {
+			if (!best || p.coords.accuracy < best.accuracy) best = p.coords;
+			if (best.accuracy <= 15) finish();
+		}, () => finish(), { enableHighAccuracy: true, maximumAge: 0, timeout: 12000 });
+		setTimeout(finish, 12000);
+	}
+	HR.$("#sel-thirsty").onclick = () => { TREES.filter(t => days(t.last_watered) >= 3).forEach(t => sel.add(t.name)); HR.$("#act").value = "Watering"; render(); };
+	HR.$("#sel-none").onclick = () => { sel.clear(); render(); };
+	HR.$("#photo").onchange = async function () {
+		const f = this.files[0]; photo = null; if (!f) return;
+		const m = HR.$("#m"); HR.msg(m, "Uploading photo…", "ok");
+		try { const up = await HR.uploadPhoto(f); photo = up.url; HR.$("#photobtn").textContent = "📷 Photo added"; HR.msg(m, ""); }
+		catch (e) { HR.msg(m, e.message); this.value = ""; }
+	};
+	HR.$("#save").onclick = async function () {
+		const m = HR.$("#m"); HR.msg(m, ""); this.disabled = true;
+		try {
+			const r = await HR.call("hasiruratha.care_api.log", { trees: JSON.stringify([...sel]), activity: HR.$("#act").value,
+				log_date: HR.$("#day").value, hours: HR.$("#hrs").value, notes: HR.$("#notes").value.trim(), photo_url: photo }, true);
+			HR.msg(m, "Saved for " + r.logged + (r.logged === 1 ? " tree. " : " trees. ") + "Thank you!", "ok");
+			sel.clear(); photo = null; HR.$("#notes").value = ""; HR.$("#hrs").value = ""; HR.$("#photobtn").textContent = "📷 Add photo";
+			await load(); HR.$("#panel").classList.remove("hr-hidden");
+		} catch (e) { HR.msg(m, e.message); }
+		this.disabled = false;
+	};
+	async function load() {
+		const r = await HR.call("hasiruratha.care_api.my_trees");
+		TREES = r.trees || [];
+		if (r.activities && !HR.$("#act").options.length) r.activities.forEach(a => HR.$("#act").insertAdjacentHTML("beforeend", `<option>${HR.esc(a)}</option>`));
+		HR.$("#sub").textContent = (r.volunteer ? r.volunteer + " · " : "") + TREES.length + (TREES.length === 1 ? " tree" : " trees") + " in your care. Tick the trees you worked on, then save.";
+		render();
+	}
+	load().catch(e => { HR.$("#sub").textContent = e.message; });
+})();
+</script>
+{% endblock %}

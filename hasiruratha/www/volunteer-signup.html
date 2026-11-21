@@ -22,8 +22,9 @@
 			{% if me_email %}<p class="text-base text-ink-gray-5 mb-0">{{ _("You are signed in, so your requests stay with your volunteer account.") }}</p>{% endif %}
 			<hr class="es-divider">
 			{{ field("addr", _("Door no / Cross / Main"), extra='maxlength="200" placeholder="e.g. #12, 4th Cross, 9th Main" autocomplete="address-line1"') }}
-			{{ field("road", _("Road"), extra='maxlength="140"') }}
-			{{ field("area", _("Area"), extra='maxlength="140" placeholder="e.g. Jayanagar 2nd Block"') }}
+			{{ field("road", _("Road"), extra='maxlength="140" list="dl-road" autocomplete="off"') }}
+			{{ field("area", _("Area"), extra='maxlength="140" placeholder="e.g. Jayanagar 2nd Block" list="dl-area" autocomplete="off"') }}
+			<datalist id="dl-area"></datalist><datalist id="dl-road"></datalist>
 			<div class="hr-row">
 				{{ field("pin", _("Pin code"), "tel", 'inputmode="numeric" maxlength="6" autocomplete="postal-code"') }}
 				<div class="form-group flex flex-col items-start gap-1.5 mb-0">
@@ -64,6 +65,9 @@
 <script>
 (function () {
 	const v = id => HR.$(id).value.trim();
+	["area", "road"].forEach(kind => HR.call("hasiruratha.masters.options", { kind }).then(names => {
+		HR.$("#dl-" + kind).innerHTML = names.map(n => `<option value="${HR.esc(n)}"></option>`).join("");
+	}).catch(() => {}));
 	HR.call("hasiruratha.public_api.zones").then(z => z.forEach(x =>
 		HR.$("#zone").insertAdjacentHTML("beforeend", `<option value="${HR.esc(x.id)}">${HR.esc(x.name)}</option>`))).catch(() => {});
 	HR.$("#send").onclick = async function () {

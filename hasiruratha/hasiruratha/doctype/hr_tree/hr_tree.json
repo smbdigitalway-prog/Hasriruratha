@@ -9,6 +9,8 @@
   "tree_id",
   "site_id",
   "species",
+  "planting_type",
+  "replaces_tree",
   "position",
   "condition",
   "status",
@@ -23,6 +25,9 @@
   "section_gps",
   "gps_lat",
   "gps_lng",
+  "gps_status",
+  "last_watered",
+  "last_maintenance",
   "section_more",
   "notes",
   "photo_url",
@@ -55,9 +60,25 @@
   },
   {
    "fieldname": "species",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Species"
+   "label": "Species",
+   "options": "HR Species"
+  },
+  {
+   "fieldname": "planting_type",
+   "fieldtype": "Select",
+   "label": "Planting type",
+   "options": "New\nReplacement\nRescued\nExisting",
+   "default": "New",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "replaces_tree",
+   "fieldtype": "Link",
+   "options": "HR Tree",
+   "label": "Replaces tree",
+   "depends_on": "eval:doc.planting_type=='Replacement'"
   },
   {
    "fieldname": "position",
@@ -145,6 +166,28 @@
    "precision": "9"
   },
   {
+   "fieldname": "gps_status",
+   "fieldtype": "Select",
+   "label": "GPS",
+   "options": "Captured\nPending",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "last_watered",
+   "fieldtype": "Date",
+   "label": "Last watered",
+   "read_only": 1,
+   "in_list_view": 0
+  },
+  {
+   "fieldname": "last_maintenance",
+   "fieldtype": "Date",
+   "label": "Last maintenance",
+   "read_only": 1,
+   "description": "Updated from the care log."
+  },
+  {
    "fieldname": "section_more",
    "fieldtype": "Section Break",
    "label": "Section More"
@@ -220,7 +263,7 @@
   }
  ],
  "links": [],
- "modified": "2026-11-15 10:00:00.000000",
+ "modified": "2026-11-21 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Hasiruratha",
  "name": "HR Tree",

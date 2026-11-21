@@ -3,6 +3,8 @@
 
 from frappe.model.document import Document
 
+from hasiruratha import masters
 
-class HRVolunteer(Document):
+
+class HRVolunteer(masters.AutoLinks, Document):
 	pass

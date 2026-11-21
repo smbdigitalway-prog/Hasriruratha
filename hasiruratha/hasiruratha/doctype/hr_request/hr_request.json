@@ -22,6 +22,7 @@
   "address_line",
   "road",
   "area",
+  "landmark",
   "pincode",
   "zone",
   "zone_note",
@@ -146,16 +147,24 @@
   },
   {
    "fieldname": "road",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "label": "Road",
-   "in_standard_filter": 1
+   "in_standard_filter": 1,
+   "options": "HR Road"
   },
   {
    "fieldname": "area",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "label": "Area",
    "in_list_view": 1,
-   "in_standard_filter": 1
+   "in_standard_filter": 1,
+   "options": "HR Area"
+  },
+  {
+   "fieldname": "landmark",
+   "fieldtype": "Link",
+   "options": "HR Landmark",
+   "label": "Landmark"
   },
   {
    "fieldname": "pincode",
@@ -302,7 +311,7 @@
   }
  ],
  "links": [],
- "modified": "2026-11-21 11:30:00.000000",
+ "modified": "2026-11-21 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Hasiruratha",
  "name": "HR Request",
