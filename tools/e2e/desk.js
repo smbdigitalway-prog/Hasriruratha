@@ -66,6 +66,9 @@ const call = (p, m, args) => p.evaluate(([m, a]) => frappe.xcall(m, a), [m, args
 	const m = await b.newContext({ ...devices['iPhone 13'] }), mp = await m.newPage();
 	await mp.goto(B + '/hasiruratha', { waitUntil: 'networkidle' });
 	await mp.fill('#login-phone', 'boss@example.com'); await mp.fill('#login-pin', 'Admin2026pass'); await mp.click('#login-btn');
+	await mp.waitForURL(/\/desk\//, { timeout: 15000 }).catch(() => {});
+	ok(mp.url().includes('/desk/'), 'Admin sign-in at /hasiruratha lands in the Desk workspace', mp.url());
+	await mp.goto(B + '/hasiruratha', { waitUntil: 'networkidle' });   // Field App shortcut
 	await mp.waitForSelector('.hx-req', { timeout: 15000 }).catch(() => {});
 	await mp.waitForTimeout(1500);
 	const link = await mp.locator('.hx-req').innerText().catch(() => '');
