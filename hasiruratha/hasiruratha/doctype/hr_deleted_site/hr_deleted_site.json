@@ -11,6 +11,11 @@
   "possible_duplicate_of",
   "moved_to",
   "trees_moved",
+  "sec_restore",
+  "restored_site",
+  "col_r",
+  "restored_on",
+  "restored_by",
   "col1",
   "deleted_by",
   "deleted_on",
@@ -162,6 +167,36 @@
    "fieldtype": "Code",
    "label": "Snapshot (JSON)",
    "options": "JSON",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sec_restore",
+   "fieldtype": "Section Break",
+   "label": "Re-planting"
+  },
+  {
+   "fieldname": "restored_site",
+   "fieldtype": "Link",
+   "label": "Re-planted as",
+   "options": "HR Site",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "col_r",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "restored_on",
+   "fieldtype": "Datetime",
+   "label": "Re-planted on",
+   "read_only": 1
+  },
+  {
+   "fieldname": "restored_by",
+   "fieldtype": "Link",
+   "label": "Re-planted by",
+   "options": "User",
    "read_only": 1
   }
  ],

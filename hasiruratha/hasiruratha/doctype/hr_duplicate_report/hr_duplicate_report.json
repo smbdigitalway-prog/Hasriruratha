@@ -1,0 +1,244 @@
+{
+ "actions": [],
+ "autoname": "format:HRDR-{#####}",
+ "creation": "2026-11-22 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "sec_cmp",
+  "site",
+  "possible_duplicate_of_site",
+  "possible_duplicate_of_tree_id",
+  "distance_between_records",
+  "col_a",
+  "status",
+  "reported_by",
+  "report_date",
+  "sec_photo",
+  "picture_of_tree",
+  "col_b",
+  "original_photo",
+  "sec_cmp_html",
+  "comparison_html",
+  "sec_loc",
+  "zone",
+  "area",
+  "road",
+  "col_c",
+  "geolocation_vris",
+  "sec_admin",
+  "admin_remarks",
+  "col_d",
+  "resolved_by",
+  "resolved_on",
+  "deleted_site",
+  "restored_site"
+ ],
+ "fields": [
+  {
+   "fieldname": "sec_cmp",
+   "fieldtype": "Section Break",
+   "label": "Duplicate comparison"
+  },
+  {
+   "fieldname": "site",
+   "fieldtype": "Data",
+   "label": "Duplicate site",
+   "reqd": 1,
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "description": "The newly registered site that looks like a duplicate"
+  },
+  {
+   "fieldname": "possible_duplicate_of_site",
+   "fieldtype": "Link",
+   "label": "Looks like existing site",
+   "options": "HR Site",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "possible_duplicate_of_tree_id",
+   "fieldtype": "Link",
+   "label": "A tree at the existing site",
+   "options": "HR Tree",
+   "read_only": 1
+  },
+  {
+   "fieldname": "distance_between_records",
+   "fieldtype": "Float",
+   "label": "Distance between the two (m)",
+   "read_only": 1,
+   "precision": "1",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "col_a",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Pending Review\nKept as New\nMerged\nDeleted\nRestored",
+   "default": "Pending Review",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "reported_by",
+   "fieldtype": "Link",
+   "label": "Registered by",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "report_date",
+   "fieldtype": "Datetime",
+   "label": "Reported on",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sec_photo",
+   "fieldtype": "Section Break",
+   "label": "Photos"
+  },
+  {
+   "fieldname": "picture_of_tree",
+   "fieldtype": "Attach Image",
+   "label": "Picture of the new site",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_b",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "original_photo",
+   "fieldtype": "Attach Image",
+   "label": "Picture of the existing site",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sec_cmp_html",
+   "fieldtype": "Section Break",
+   "label": "Side by side"
+  },
+  {
+   "fieldname": "comparison_html",
+   "fieldtype": "HTML"
+  },
+  {
+   "fieldname": "sec_loc",
+   "fieldtype": "Section Break",
+   "label": "Location"
+  },
+  {
+   "fieldname": "zone",
+   "fieldtype": "Link",
+   "label": "Zone",
+   "options": "HR Zone",
+   "read_only": 1
+  },
+  {
+   "fieldname": "area",
+   "fieldtype": "Data",
+   "label": "Area",
+   "read_only": 1
+  },
+  {
+   "fieldname": "road",
+   "fieldtype": "Data",
+   "label": "Road",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_c",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "geolocation_vris",
+   "fieldtype": "Geolocation",
+   "label": "Location of the new site",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sec_admin",
+   "fieldtype": "Section Break",
+   "label": "Admin"
+  },
+  {
+   "fieldname": "admin_remarks",
+   "fieldtype": "Small Text",
+   "label": "Admin remarks"
+  },
+  {
+   "fieldname": "col_d",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "resolved_by",
+   "fieldtype": "Link",
+   "label": "Resolved by",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "resolved_on",
+   "fieldtype": "Datetime",
+   "label": "Resolved on",
+   "read_only": 1
+  },
+  {
+   "fieldname": "deleted_site",
+   "fieldtype": "Link",
+   "label": "Archive in Deleted Sites",
+   "options": "HR Deleted Site",
+   "read_only": 1
+  },
+  {
+   "fieldname": "restored_site",
+   "fieldtype": "Link",
+   "label": "Re-planted as",
+   "options": "HR Site",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-11-22 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Hasiruratha",
+ "name": "HR Duplicate Report",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "HR Admin",
+   "read": 1,
+   "write": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1
+  },
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "site,possible_duplicate_of_site,area,road",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "site",
+ "track_changes": 1,
+ "image_field": "picture_of_tree"
+}

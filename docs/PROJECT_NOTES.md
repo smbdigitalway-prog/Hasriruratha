@@ -56,6 +56,11 @@ Open `/app/hr-console`. Tiles: Plant a sapling (opens `/hasiruratha`), Report a 
 Citizens use Frappe Web Forms and website pages. Each submission is first saved as a record the admin can filter and map (HR Citizen Planting, HR Citizen Report, HR Volunteer Request), then processed into the real site / tree / report / volunteer application by `citizen_forms.py`. Status flows back to the citizen automatically. The earlier custom page (`templates/citizen.html`, route `/citizen`) is still in the repo and can be deleted. See `docs/FRAPPE_SETUP.md`.
 
 ## CHANGELOG
+### 22 Nov 2026: Duplicate Reports, Deleted Sites, re-plant
+* New DocType **HR Duplicate Report** (in code). `HR Site.after_insert` creates one Pending Review report for every flagged site, with the existing site, distance, nearest tree, zone/road/area, map point and both photos. The old UI Server Script is not needed (it never fired: `validate` had already set `possible_duplicate_of`).
+* Admin decisions on the report: Different site - keep it / Same place - merge / Delete duplicate / Re-plant. Each closes the report (Kept as New, Merged, Deleted, Restored).
+* Every deleted site, by any route (button or Desk Delete), is copied to **HR Deleted Site**. `hr_deleted_site.restore_site` re-plants it with the same id, place and photo, and can move the trees back.
+* `HR Site.photo_url` is now an Attach Image field. Number cards Open Duplicate Reports and Deleted Sites added. Patch `create_duplicate_reports` backfills reports for sites already in Needs Review and adds the cards and shortcuts under the workspace heading "Duplicate detection & review".
 ### 20 Nov 2026 (later): citizen and volunteer sign-in rebuilt
 * Public map `/trees` (no sign-in): spots in view load as the map moves; a spot shows photo, tree type, date
   planted, age and whether it has a caretaker. No volunteer names/phones/emails. `/trees?spot=<id>` opens one spot.
