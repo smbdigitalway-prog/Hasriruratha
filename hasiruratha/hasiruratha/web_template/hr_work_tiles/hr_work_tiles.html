@@ -1,0 +1,14 @@
+{%- set v = values or {} -%}
+{%- set D = [["Plant", "Choose appropriate locations, mindful of pathways and utilities.", "/assets/hasiruratha/images/site/photo04.jpg", "/request?type=new"], ["Nurture", "Regular watering and maintenance for young saplings.", "/assets/hasiruratha/images/site/photo02.jpg", "/trees"], ["Protect", "Install, repair and maintain tree guards.", "/assets/hasiruratha/images/site/photo06.jpg", "/trees"], ["Reuse", "Free mature trees from guards and reuse them for new saplings.", "/assets/hasiruratha/images/site/photo08.jpg", "/green-diary"]] -%}
+<div class="hrw hrw-wrap">
+	<div class="hrw-sectionhead"><h2>{{ v.title or "Our work, every week." }}</h2><p class="hrw-muted">{{ v.subtitle or "Plant. Nurture. Protect. Reuse." }}</p></div>
+	<div class="hrw-grid4">
+		{%- for d in D -%}{%- set i = loop.index|string -%}
+		<article><a href="{{ v.get('tile_' ~ i ~ '_url') or d[3] }}">
+			<img src="{{ v.get('tile_' ~ i ~ '_image') or d[2] }}" alt="" loading="lazy">
+			<h3>{{ v.get('tile_' ~ i ~ '_title') or d[0] }}</h3></a>
+			<p>{{ v.get('tile_' ~ i ~ '_text') or d[1] }}</p>
+		</article>
+		{%- endfor -%}
+	</div>
+</div>

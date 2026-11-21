@@ -1,5 +1,5 @@
 from frappe.model.document import Document
 
 
-class HrGalleryImage(Document):
+class HRGalleryImage(Document):
 	pass

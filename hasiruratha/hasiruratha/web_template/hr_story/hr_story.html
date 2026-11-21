@@ -1,0 +1,11 @@
+{%- set v = values or {} -%}
+{%- set text = v.text or "Hasiru means green. Ratha means chariot. Our Maruti Omni, contributed by founder Dr Nagaraj Manya from his retirement funds, helps volunteers carry tools, materials and recovered tree guards to neighbourhood sites.\n\nThe van is a practical symbol of a community that shows up, again and again." -%}
+<div class="hrw hrw-wrap hrw-story {{ 'image-right' if v.image_side == 'Right' }}">
+	<img src="{{ v.image or '/assets/hasiruratha/images/site/photo07.jpg' }}" alt="{{ v.image_alt or '' }}" loading="lazy">
+	<div>
+		<div class="hrw-eyebrow">{{ v.eyebrow or "Our story" }}</div>
+		<h2>{{ v.title or "The Green Chariot" }}</h2>
+		{%- for para in text.split("\n\n") if para.strip() -%}<p>{{ para }}</p>{%- endfor -%}
+		{%- if v.button_label != "-" -%}<a class="hrw-btn outline" href="{{ v.button_url or '/green-diary' }}">{{ v.button_label or "See our work" }}</a>{%- endif -%}
+	</div>
+</div>

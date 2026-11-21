@@ -20,7 +20,10 @@
   "active",
   "primary_zone_id",
   "user",
-  "trees_owned"
+  "trees_owned",
+  "interests",
+  "availability",
+  "consent_given"
  ],
  "fields": [
   {
@@ -115,10 +118,27 @@
    "fieldname": "pincode",
    "fieldtype": "Data",
    "label": "Pin code"
+  },
+  {
+   "fieldname": "interests",
+   "fieldtype": "Small Text",
+   "label": "Interests"
+  },
+  {
+   "fieldname": "availability",
+   "fieldtype": "Select",
+   "label": "Availability",
+   "options": "\nWeekday mornings\nWeekend mornings\nWeekday evenings\nFlexible"
+  },
+  {
+   "fieldname": "consent_given",
+   "fieldtype": "Check",
+   "label": "Consent given",
+   "read_only": 1
   }
  ],
  "links": [],
- "modified": "2026-11-21 12:00:00.000000",
+ "modified": "2026-11-21 15:30:00.000000",
  "modified_by": "Administrator",
  "module": "Hasiruratha",
  "name": "HR Volunteer",

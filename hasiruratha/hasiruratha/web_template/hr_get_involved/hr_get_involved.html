@@ -1,0 +1,13 @@
+{%- set v = values or {} -%}
+{%- set D = {"left": ["People make this possible", "Age is just a number.", "Retirees, students and working professionals contribute their time, skills and energy. There is a place for everyone who cares about our neighbourhood trees.", "Become a volunteer", "/volunteer-signup", ""],
+             "right": ["1–3 months · Documentation and storytelling", "Intern with Hasiru Ratha", "Help record field activities, edit photographs and videos, write stories and maintain our Green Diary. A certificate may be issued after successful completion of agreed work.", "Apply for internship", "/internship", "outline"]} -%}
+<div class="hrw hrw-wrap hrw-duo">
+	{%- for side in ["left", "right"] -%}{%- set d = D[side] -%}
+	<div class="hrw-panel" id="{{ 'volunteer' if side == 'left' else 'intern' }}">
+		<div class="hrw-eyebrow">{{ v.get(side ~ '_eyebrow') or d[0] }}</div>
+		<h2>{{ v.get(side ~ '_title') or d[1] }}</h2>
+		<p>{{ v.get(side ~ '_text') or d[2] }}</p>
+		<a class="hrw-btn {{ d[5] }}" href="{{ v.get(side ~ '_button_url') or d[4] }}">{{ v.get(side ~ '_button_label') or d[3] }}</a>
+	</div>
+	{%- endfor -%}
+</div>

@@ -1,5 +1,5 @@
 from frappe.model.document import Document
 
 
-class HrMilestone(Document):
+class HRMilestone(Document):
 	pass

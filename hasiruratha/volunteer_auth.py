@@ -23,6 +23,7 @@ from frappe.utils.password import update_password
 from hasiruratha import api, citizen_api, citizen_auth, otp
 
 MIN_PASSWORD = 8
+AVAILABILITY = ("Weekday mornings", "Weekend mornings", "Weekday evenings", "Flexible")
 PLACEHOLDER_EMAIL = re.compile(r"@volunteer\.hasiruratha\.local$")
 
 
@@ -62,7 +63,7 @@ def _account_for(mobile10):
 @frappe.whitelist(allow_guest=True, methods=["POST"])
 @rate_limit(limit=10, seconds=3600)
 def signup_start(full_name=None, mobile=None, email=None, address=None, road=None, area=None, pincode=None,
-                 zone=None, reason=None):
+                 zone=None, reason=None, interests=None, availability=None, consent=0):
 	me = frappe.session.user
 	if me != "Guest":
 		if api.PRIVILEGED & set(frappe.get_roles(me)):
@@ -72,7 +73,10 @@ def signup_start(full_name=None, mobile=None, email=None, address=None, road=Non
 	mobile10, email = citizen_auth._clean(mobile, email)
 	p = frappe._dict(full_name=(full_name or "").strip()[:60], address=(address or "").strip()[:200],
 	                 road=(road or "").strip()[:140], area=(area or "").strip()[:140], pincode=api._digits(pincode),
-	                 zone=zone, reason=(reason or "").strip()[:500], mobile=mobile10, email=email)
+	                 zone=zone, reason=(reason or "").strip()[:500], mobile=mobile10, email=email,
+	                 interests=(interests or "").strip()[:300], availability=availability if availability in AVAILABILITY else None)
+	if not cint(consent):
+		frappe.throw(_("Please agree to how we use your details"))
 	missing = [label for label, v in (("name", p.full_name), ("Door no / Cross / Main", p.address), ("road", p.road),
 	                                  ("area", p.area), ("zone", p.zone)) if not v]
 	if missing:
@@ -128,7 +132,9 @@ def signup_verify(email=None, code=None, password=None):
 	vol_name = res.get("volunteer") or frappe.db.get_value("HR Volunteer", {"user": user}, "name")
 	if vol_name:
 		frappe.db.set_value("HR Volunteer", vol_name, {"address": p.address, "road": p.road, "area": p.area,
-		                                               "pincode": p.pincode, "primary_zone_id": p.zone})
+		                                               "pincode": p.pincode, "primary_zone_id": p.zone,
+		                                               "interests": p.get("interests"), "availability": p.get("availability"),
+		                                               "consent_given": 1})
 	if frappe.session.user == "Guest":
 		frappe.local.login_manager.login_as(user)
 	return {"success": True, "approved": bool(res.get("already")), "pending": not res.get("already")}

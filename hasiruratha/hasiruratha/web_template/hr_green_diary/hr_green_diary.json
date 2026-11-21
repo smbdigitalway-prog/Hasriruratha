@@ -1,0 +1,44 @@
+{
+ "creation": "2026-11-21 15:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Web Template",
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "reqd": 0,
+   "default": "From the Green Diary"
+  },
+  {
+   "fieldname": "subtitle",
+   "fieldtype": "Small Text",
+   "label": "Subtitle",
+   "reqd": 0,
+   "default": "Real photographs from everyday work, dated and tagged by area."
+  },
+  {
+   "fieldname": "count",
+   "fieldtype": "Select",
+   "label": "How many photos",
+   "reqd": 0,
+   "options": "5\n10",
+   "default": "5"
+  },
+  {
+   "fieldname": "link_label",
+   "fieldtype": "Data",
+   "label": "Link label",
+   "reqd": 0,
+   "default": "See the whole diary \u2192"
+  }
+ ],
+ "idx": 0,
+ "modified": "2026-11-21 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Hasiruratha",
+ "name": "HR Green Diary",
+ "owner": "Administrator",
+ "standard": 1,
+ "type": "Section"
+}

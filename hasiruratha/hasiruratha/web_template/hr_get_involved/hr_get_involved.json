@@ -1,0 +1,97 @@
+{
+ "creation": "2026-11-21 15:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Web Template",
+ "fields": [
+  {
+   "fieldname": "left",
+   "fieldtype": "Section Break",
+   "label": "Left: volunteers",
+   "reqd": 0
+  },
+  {
+   "fieldname": "left_eyebrow",
+   "fieldtype": "Data",
+   "label": "Left eyebrow",
+   "reqd": 0,
+   "default": "People make this possible"
+  },
+  {
+   "fieldname": "left_title",
+   "fieldtype": "Data",
+   "label": "Left title",
+   "reqd": 0,
+   "default": "Age is just a number."
+  },
+  {
+   "fieldname": "left_text",
+   "fieldtype": "Small Text",
+   "label": "Left text",
+   "reqd": 0,
+   "default": "Retirees, students and working professionals contribute their time, skills and energy. There is a place for everyone who cares about our neighbourhood trees."
+  },
+  {
+   "fieldname": "left_button_label",
+   "fieldtype": "Data",
+   "label": "Left button label",
+   "reqd": 0,
+   "default": "Become a volunteer"
+  },
+  {
+   "fieldname": "left_button_url",
+   "fieldtype": "Data",
+   "label": "Left button url",
+   "reqd": 0,
+   "default": "/volunteer-signup"
+  },
+  {
+   "fieldname": "right",
+   "fieldtype": "Section Break",
+   "label": "Right: internships",
+   "reqd": 0
+  },
+  {
+   "fieldname": "right_eyebrow",
+   "fieldtype": "Data",
+   "label": "Right eyebrow",
+   "reqd": 0,
+   "default": "1\u20133 months \u00b7 Documentation and storytelling"
+  },
+  {
+   "fieldname": "right_title",
+   "fieldtype": "Data",
+   "label": "Right title",
+   "reqd": 0,
+   "default": "Intern with Hasiru Ratha"
+  },
+  {
+   "fieldname": "right_text",
+   "fieldtype": "Small Text",
+   "label": "Right text",
+   "reqd": 0,
+   "default": "Help record field activities, edit photographs and videos, write stories and maintain our Green Diary. A certificate may be issued after successful completion of agreed work."
+  },
+  {
+   "fieldname": "right_button_label",
+   "fieldtype": "Data",
+   "label": "Right button label",
+   "reqd": 0,
+   "default": "Apply for internship"
+  },
+  {
+   "fieldname": "right_button_url",
+   "fieldtype": "Data",
+   "label": "Right button url",
+   "reqd": 0,
+   "default": "/internship"
+  }
+ ],
+ "idx": 0,
+ "modified": "2026-11-21 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Hasiruratha",
+ "name": "HR Get Involved",
+ "owner": "Administrator",
+ "standard": 1,
+ "type": "Section"
+}

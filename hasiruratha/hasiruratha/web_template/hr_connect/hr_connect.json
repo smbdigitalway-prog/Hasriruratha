@@ -1,0 +1,29 @@
+{
+ "creation": "2026-11-21 15:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Web Template",
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "reqd": 0,
+   "default": "Stay connected."
+  },
+  {
+   "fieldname": "text",
+   "fieldtype": "Small Text",
+   "label": "Text",
+   "reqd": 0,
+   "default": "Follow field updates, join the community and share locations where saplings need attention."
+  }
+ ],
+ "idx": 0,
+ "modified": "2026-11-21 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Hasiruratha",
+ "name": "HR Connect",
+ "owner": "Administrator",
+ "standard": 1,
+ "type": "Section"
+}

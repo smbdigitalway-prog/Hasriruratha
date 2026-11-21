@@ -16,5 +16,6 @@ Run:
     node admin.js <screenshot-folder>      # after running seed_admin.py with the bench Python
     node desk.js <screenshot-folder>       # Desk: workspace, request list, form actions, Kanban (laptop size)
     node care.js <screenshot-folder>       # after seed_care.py: volunteer logs watering, adds GPS, public map shows it
+    node site.js <screenshot-folder> <photo.jpg>   # new home page, phone menu, internship form, Green Diary approval
 
 Sign-in endpoints are rate limited; clear the local Redis cache between repeated runs.

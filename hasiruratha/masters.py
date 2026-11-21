@@ -27,6 +27,7 @@ LINKS = {
 	"HR Tree": {"species": "HR Species"},
 	"HR Request": {"area": "HR Area", "road": "HR Road", "landmark": "HR Landmark"},
 	"HR Volunteer": {"area": "HR Area", "road": "HR Road"},
+	"HR Diary Entry": {"area": "HR Area"},
 }
 
 

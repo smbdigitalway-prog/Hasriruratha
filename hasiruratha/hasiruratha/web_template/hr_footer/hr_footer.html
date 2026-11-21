@@ -1,0 +1,33 @@
+{#- Hasiru Ratha site footer (Website Settings -> Footer Template = "HR Footer"). -#}
+{%- set L = hr_links() -%}
+<footer class="hrw hrw-footer">
+	<div class="hrw-wrap">
+		<div class="hrw-foot">
+			<div>
+				<strong>Hasiru Ratha</strong><br>In Service of Nature<br>South Bengaluru, Karnataka
+				<p style="margin-top:10px"><a href="mailto:{{ L.contact_email }}">{{ L.contact_email }}</a></p>
+			</div>
+			<div>
+				<h4>Get involved</h4>
+				<ul>
+					<li><a href="/request?type=new">Suggest a planting spot</a></li>
+					<li><a href="/request?type=maintenance">Report a sapling issue</a></li>
+					<li><a href="/volunteer-signup">Volunteer with us</a></li>
+					<li><a href="/internship">Internships</a></li>
+					<li><a href="/trees">Trees map</a></li>
+				</ul>
+			</div>
+			<div>
+				<h4>Follow</h4>
+				<ul>
+					<li><a href="{{ L.instagram_url }}" target="_blank" rel="noopener">Instagram ↗</a></li>
+					<li><a href="{{ L.whatsapp_url }}" target="_blank" rel="noopener">WhatsApp community ↗</a></li>
+					<li><a href="{{ L.facebook_url }}" target="_blank" rel="noopener">Facebook ↗</a></li>
+					<li><a href="{{ L.x_url }}" target="_blank" rel="noopener">X ↗</a></li>
+					<li><a href="{{ L.linktree_url }}" target="_blank" rel="noopener">Linktree ↗</a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="hrw-foot-bottom">© {{ frappe.utils.nowdate()[:4] }} Hasiru Ratha · Citizen-led since {{ L.since }} · <a href="/volunteer-login">Volunteer sign-in</a></div>
+	</div>
+</footer>

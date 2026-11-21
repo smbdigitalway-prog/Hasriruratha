@@ -92,7 +92,7 @@ def _open_requests_near(lat, lng, radius, exclude=None):
 @rate_limit(limit=30, seconds=3600)
 def submit(request_type=None, lat=None, lng=None, accuracy=None, source=None, photo_url=None, issue_type=None,
            description=None, address_line=None, road=None, area=None, pincode=None, zone=None,
-           existing_site=None, tree=None, different_spot=0, landmark=None):
+           existing_site=None, tree=None, different_spot=0, landmark=None, consent=0):
 	user = _user()
 	if request_type not in TYPES:
 		frappe.throw(_("Please choose what you are asking for"))
@@ -103,6 +103,8 @@ def submit(request_type=None, lat=None, lng=None, accuracy=None, source=None, ph
 		frappe.throw(_("Please fill in the road and the area"))
 	if len(pin) != 6:
 		frappe.throw(_("Please enter the 6-digit pin code"))
+	if not cint(consent):
+		frappe.throw(_("Please agree to how we use your details"))
 	if zone and not frappe.db.exists("HR Zone", zone):
 		zone = None
 	auto = _address(lat, lng)
@@ -139,7 +141,7 @@ def submit(request_type=None, lat=None, lng=None, accuracy=None, source=None, ph
 		"nearest_site": nearest.name if nearest else None,
 		"nearest_distance_m": nearest.distance_m if nearest else None,
 		"related_tree": tree, "citizen_says_new": 0 if is_maint else cint(different_spot), "possible_duplicate": cint(dup),
-		"citizen_user": user, "citizen_name": get_fullname(user),
+		"citizen_user": user, "citizen_name": get_fullname(user), "consent": 1,
 		"mobile": frappe.db.get_value("User", user, "mobile_no") or "", "email": frappe.db.get_value("User", user, "email") or user,
 	}).insert(ignore_permissions=True)
 	what = ("%s: %s" % (request_type, issue_type)) if is_maint else request_type

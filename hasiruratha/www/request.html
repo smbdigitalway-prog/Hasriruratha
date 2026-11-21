@@ -76,6 +76,7 @@
 		</div>
 	</section>
 
+	<label class="hr-check"><input type="checkbox" id="consent"> {{ _("I agree that Hasiru Ratha keeps my name, mobile and email to handle this request and contact me about it. My contact details are never shown publicly.") }}</label>
 	<div id="m" class="es-alert hr-hidden"></div>
 	<button class="es-button" data-variant="solid" data-size="lg" id="send" type="button" style="margin-top:16px">{{ _("Send request") }}</button>
 </div>
@@ -253,12 +254,13 @@
 		if (maint && !S.photo) return fail("Please add a photo of the tree.");
 		if (!v("#road") || !v("#area")) return fail("Please fill in the road and the area.");
 		if (!/^\d{6}$/.test(v("#pin"))) return fail("Please enter the 6-digit pin code.");
+		if (!HR.$("#consent").checked) return fail("Please tick the box to agree to how we use your details.");
 		this.disabled = true; HR.msg(m, "Sending…", "ok");
 		try {
 			const r = await HR.call("hasiruratha.request_api.submit", {
 				request_type: S.type, lat: S.lat, lng: S.lng, accuracy: S.acc, source: S.source, photo_url: S.photo,
 				issue_type: v("#issue"), description: v("#notes"), address_line: v("#addr"), road: v("#road"), area: v("#area"), landmark: v("#landmark"),
-				pincode: v("#pin"), zone: v("#zone"), existing_site: S.site, tree: S.tree, different_spot: S.different ? 1 : 0 }, true);
+				pincode: v("#pin"), zone: v("#zone"), existing_site: S.site, tree: S.tree, different_spot: S.different ? 1 : 0, consent: 1 }, true);
 			HR.$("#dname").textContent = r.name;
 			HR.$("#dnote").textContent = r.possible_duplicate
 				? "There is already a registered spot or request very close to this one, so the team will check it first."

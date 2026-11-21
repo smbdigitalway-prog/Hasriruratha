@@ -17,6 +17,11 @@
   "about_text",
   "facebook_url",
   "x_url",
+  "instagram_url",
+  "whatsapp_url",
+  "linktree_url",
+  "contact_email",
+  "website_since",
   "section_ms",
   "milestones",
   "section_gal",
@@ -84,13 +89,45 @@
    "fieldname": "facebook_url",
    "fieldtype": "Data",
    "label": "Facebook page",
-   "default": "https://www.facebook.com/rathahasiru/"
+   "default": "https://www.facebook.com/rathahasiru/",
+   "options": "URL"
   },
   {
    "fieldname": "x_url",
    "fieldtype": "Data",
    "label": "X (Twitter) page",
-   "default": "https://x.com/RathaHasiru"
+   "default": "https://x.com/RathaHasiru",
+   "options": "URL"
+  },
+  {
+   "fieldname": "instagram_url",
+   "fieldtype": "Data",
+   "label": "Instagram",
+   "options": "URL"
+  },
+  {
+   "fieldname": "whatsapp_url",
+   "fieldtype": "Data",
+   "label": "WhatsApp community invite",
+   "options": "URL"
+  },
+  {
+   "fieldname": "linktree_url",
+   "fieldtype": "Data",
+   "label": "Linktree",
+   "options": "URL"
+  },
+  {
+   "fieldname": "contact_email",
+   "fieldtype": "Data",
+   "label": "Contact email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "website_since",
+   "fieldtype": "Int",
+   "label": "Started in (year)",
+   "default": "2017"
   },
   {
    "fieldname": "section_ms",
@@ -118,7 +155,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-17 10:00:00.000000",
+ "modified": "2026-11-21 14:00:00.000000",
  "modified_by": "Administrator",
  "module": "Hasiruratha",
  "name": "Hasiruratha Settings",

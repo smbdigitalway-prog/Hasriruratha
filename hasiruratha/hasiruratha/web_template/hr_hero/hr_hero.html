@@ -1,0 +1,15 @@
+{%- set v = values or {} -%}
+<div class="hrw hrw-hero">
+	<div class="hrw-hero-copy">
+		<div class="hrw-eyebrow">{{ v.eyebrow or "Citizen-led since 2017" }}</div>
+		<h1>{{ v.title or "We don't just plant trees." }}<br><span class="hrw-accent">{{ v.title_accent or "We help them grow." }}</span></h1>
+		<p>{{ v.text or "Early mornings, neighbourhood streets and a shared commitment to caring for Bengaluru's trees." }}</p>
+		<div>
+			{%- for i, d_label, d_url, cls in [("1", "Volunteer with us", "/volunteer-signup", ""), ("2", "Report a sapling issue", "/request?type=maintenance", "outline"), ("3", "Suggest a planting spot", "/request?type=new", "outline")] -%}
+			{%- set label = v.get("button_" ~ i ~ "_label") or d_label -%}
+			{%- if label != "-" -%}<a class="hrw-btn {{ cls }}" href="{{ v.get('button_' ~ i ~ '_url') or d_url }}">{{ label }}</a>{%- endif -%}
+			{%- endfor -%}
+		</div>
+	</div>
+	<img src="{{ v.image or '/assets/hasiruratha/images/site/photo03.jpg' }}" alt="{{ v.image_alt or 'Hasiru Ratha volunteers caring for a sapling' }}">
+</div>

@@ -39,6 +39,7 @@
   "column_break_d",
   "mobile",
   "email",
+  "consent",
   "section_admin",
   "assigned_volunteer",
   "site",
@@ -262,6 +263,12 @@
    "options": "Email"
   },
   {
+   "fieldname": "consent",
+   "fieldtype": "Check",
+   "label": "Agreed to the privacy note",
+   "read_only": 1
+  },
+  {
    "fieldname": "section_admin",
    "fieldtype": "Section Break",
    "label": "Team"
@@ -311,7 +318,7 @@
   }
  ],
  "links": [],
- "modified": "2026-11-21 12:00:00.000000",
+ "modified": "2026-11-21 15:30:00.000000",
  "modified_by": "Administrator",
  "module": "Hasiruratha",
  "name": "HR Request",

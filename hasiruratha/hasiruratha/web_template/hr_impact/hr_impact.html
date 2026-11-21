@@ -1,0 +1,10 @@
+{%- set v = values or {} -%}{%- set n = hr_impact() -%}
+<div class="hrw hrw-wrap">
+	<div class="hrw-stats">
+		<div class="hrw-stat"><strong>{{ "{:,}".format(n.trees) }}</strong><span>{{ v.trees_label or "Trees on our map" }}</span></div>
+		<div class="hrw-stat"><strong>{{ "{:,}".format(n.cared) }}</strong><span>{{ v.cared_label or "Trees cared for in the last 12 months" }}</span></div>
+		<div class="hrw-stat"><strong>{{ "{:,}".format(n.waterings) }}</strong><span>{{ v.waterings_label or "Waterings logged this year" }}</span></div>
+		<div class="hrw-stat"><strong>{{ "{:,}".format(n.volunteers) }}</strong><span>{{ v.volunteers_label or "Active volunteers" }} · since {{ n.since }}</span></div>
+	</div>
+	{%- if v.note != "-" -%}<p class="hrw-stats-note">{{ v.note or "Live counts from the Hasiru Ratha tree records. Older work is still being added." }}</p>{%- endif -%}
+</div>

@@ -21,3 +21,13 @@ doc_events = {
 	"HR Tree Report": {"on_update": "hasiruratha.citizen_forms.sync_report_status"},
 	"HR Application": {"on_update": "hasiruratha.citizen_forms.sync_application_status"},
 }
+
+# Website (design handoff v1): the HR … Web Templates share one stylesheet and a few data helpers
+web_include_css = ["/assets/hasiruratha/css/hr_website.css"]
+jinja = {"methods": [
+	"hasiruratha.website.hr_impact",
+	"hasiruratha.website.hr_diary",
+	"hasiruratha.website.hr_blog_posts",
+	"hasiruratha.website.hr_links",
+	"hasiruratha.website.hr_account",
+]}
