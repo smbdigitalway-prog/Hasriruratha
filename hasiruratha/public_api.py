@@ -104,6 +104,7 @@ def spot(site_id=None):
 	       "lat": flt(r.gps_lat), "lng": flt(r.gps_lng), "photo": r.photo_url or "", "trees": trees,
 	       "landmark": r.landmark or "", "companions": r.companion_plants or ""}
 	if frappe.session.user != "Guest" and api._is_member():
+		out["can_adopt"] = bool(frappe.db.exists("HR Volunteer", {"user": frappe.session.user, "active": 1}))
 		out["visits"] = frappe.get_all("HR Visit", {"site_id": r.name},
 		                               ["planned_date", "actual_date", "service_type", "status", "notes"],
 		                               order_by="planned_date desc", limit_page_length=20)

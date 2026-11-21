@@ -18,7 +18,11 @@ PENDING = "Pending Review"
 
 
 class HRDuplicateReport(Document):
-	pass
+	def validate(self):
+		# Status is changed by the decision buttons (approve / merge / delete / re-plant), never by hand or by
+		# dragging a Kanban card: those would skip moving the trees and closing the trail.
+		if not self.is_new() and self.has_value_changed("status") and not self.flags.from_decision:
+			frappe.throw(_("Use the Decide buttons (Different site / Merge / Delete duplicate) to close a duplicate report."))
 
 
 def _geojson(lat, lng):
@@ -82,3 +86,29 @@ def comparison(name):
 	other = _site_card(r.possible_duplicate_of_site) or frappe._dict(name=r.possible_duplicate_of_site)
 	other["photo"] = other.get("photo") or r.original_photo
 	return {"this": this, "other": other, "distance_m": r.distance_between_records}
+
+
+@frappe.whitelist(methods=["POST"])
+def bulk_delete_duplicates(names, reason):
+	"""Admin: delete the duplicate site of every selected Pending Review report in one go (workspace list / Console).
+
+	Each site's trees and records move to the site it duplicates; a copy goes to HR Deleted Site and the report is
+	closed as Deleted. Reports that are not pending, or whose site has records but no original, are skipped and listed.
+	"""
+	from hasiruratha.hasiruratha.doctype.hr_site.hr_site import _require_admin, delete_duplicate
+
+	_require_admin()
+	names = frappe.parse_json(names) if isinstance(names, str) else names
+	done, skipped = [], []
+	for n in names or []:
+		site, st = frappe.db.get_value("HR Duplicate Report", n, ["site", "status"]) or (None, None)
+		if st != PENDING or not site or not frappe.db.exists("HR Site", site):
+			skipped.append({"report": n, "why": _("Not pending, or the site is already gone")})
+			continue
+		try:
+			delete_duplicate(site, reason)
+			done.append(n)
+		except Exception as e:
+			frappe.db.rollback()
+			skipped.append({"report": n, "why": str(e)})
+	return {"deleted": done, "skipped": skipped}

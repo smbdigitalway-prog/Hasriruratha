@@ -9,3 +9,5 @@ hasiruratha.patches.add_places_and_care_section
 hasiruratha.patches.create_new_home_page
 hasiruratha.patches.add_gps_tagging_shortcut
 hasiruratha.patches.volunteers_use_desk
+hasiruratha.patches.add_boards_and_console_to_workspace
+hasiruratha.patches.add_events_impact_to_workspace

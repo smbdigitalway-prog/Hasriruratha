@@ -1,0 +1,30 @@
+{% extends "templates/web.html" %}
+{% block title %}Our impact · Hasiru Ratha{% endblock %}
+{% block style %}{% include "templates/includes/hr_ui.html" %}
+<style>.hr-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
+.hr-stat{display:block;border:1px solid var(--outline-gray-2);border-radius:12px;padding:16px;text-decoration:none}
+.hr-stat b{display:block;font-size:30px;color:#0b4a34}.hr-stat span{color:var(--ink-gray-6)}a.hr-stat:hover{box-shadow:0 4px 14px -8px rgba(0,0,0,.3)}</style>
+{% endblock %}
+{% block page_content %}
+<div class="hr-page">
+	<nav class="hr-subnav"><a class="es-button" data-variant="ghost" href="/hasiruratha">‹ {{ _("Field app") }}</a>
+		<a class="es-button" data-variant="ghost" href="/my-trees">{{ _("My trees") }}</a>
+		<a class="es-button" data-variant="ghost" href="/events">{{ _("Events") }}</a></nav>
+	<h1 class="text-2xl-bold text-ink-gray-9 mb-1">{{ _("Our impact so far") }}</h1>
+	<div class="hr-stats" id="stats"><p>{{ _("Loading…") }}</p></div>
+</div>
+{% endblock %}
+{% block script %}{% include "templates/includes/hr_js.html" %}
+<script>
+(async function () {
+	const T = [["trees", "Saplings planted"], ["requests_done", "Requests attended / completed"], ["hours", "Volunteer hours"],
+		["guards_installed", "Tree guards installed"], ["guards_removed", "Tree guards removed"], ["volunteers", "Active volunteers"]];
+	try {
+		const r = await HR.call("hasiruratha.stats_api.impact", {});
+		if (!r.admin) T.pop();
+		HR.$("#stats").innerHTML = T.map(([k, l]) => { const h = r.links[k];
+			return `<${h ? `a href="${h}"` : "div"} class="hr-stat"><b>${HR.esc(r.numbers[k])}</b><span>${l}</span></${h ? "a" : "div"}>`; }).join("");
+	} catch (e) { HR.$("#stats").textContent = e.message; }
+})();
+</script>
+{% endblock %}

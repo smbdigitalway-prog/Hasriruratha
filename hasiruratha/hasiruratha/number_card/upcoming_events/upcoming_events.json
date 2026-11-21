@@ -1,0 +1,20 @@
+{
+ "doctype": "Number Card",
+ "type": "Document Type",
+ "function": "Count",
+ "dynamic_filters_json": "[]",
+ "is_public": 1,
+ "is_standard": 1,
+ "module": "Hasiruratha",
+ "show_percentage_stats": 1,
+ "stats_time_interval": "Daily",
+ "creation": "2026-11-21 18:00:00.000000",
+ "modified": "2026-11-21 18:00:00.000000",
+ "owner": "Administrator",
+ "modified_by": "Administrator",
+ "docstatus": 0,
+ "name": "Upcoming Events",
+ "label": "Upcoming Events",
+ "document_type": "HR Event",
+ "filters_json": "[[\"HR Event\", \"status\", \"in\", [\"Planned\", \"Open\"], false]]"
+}

@@ -138,3 +138,35 @@ def set_gps(tree=None, lat=None, lng=None, accuracy=None, photo_url=None):
 		s.save(ignore_permissions=True)
 	return {"success": True, "gps_status": "Captured",
 	        "near": [{"site": n.name, "name": n.site_name or n.name, "distance_m": n.distance_m} for n in near[:3]]}
+
+
+
+@frappe.whitelist(methods=["POST"])
+@rate_limit(limit=30, seconds=3600)
+def adopt_tree(tree=None):
+	"""A volunteer adopts a sapling in their neighbourhood (same area or zone as the volunteer).
+	No caretaker yet -> they become it at once. Already has one -> an admin is asked (several volunteers can share a tree)."""
+	vol, admin = _me()
+	if not vol:
+		frappe.throw(_("Only registered volunteers can adopt a sapling. Please register as a volunteer first."))
+	v = frappe.db.get_value("HR Volunteer", vol.name, ["active", "area", "primary_zone_id"], as_dict=True)
+	if not cint(v.active):
+		frappe.throw(_("Your volunteer registration is not approved yet"))
+	t = frappe.db.get_value("HR Tree", tree, ["name", "site_id", "owner_volunteer_id", "status"], as_dict=True)
+	if not t or t.status == "Merged":
+		frappe.throw(_("Tree not found"))
+	if t.owner_volunteer_id == vol.name:
+		return {"success": True, "already": True}
+	s = frappe.db.get_value("HR Site", t.site_id, ["area", "zone_id"], as_dict=True) or frappe._dict()
+	near = (v.primary_zone_id and v.primary_zone_id == s.zone_id) or (v.area and s.area and v.area.strip().lower() == s.area.strip().lower())
+	if (v.primary_zone_id or v.area) and not near and not admin:
+		frappe.throw(_("You can adopt saplings in your own neighbourhood. This one is in another area or zone."))
+	app = {"doctype": "HR Application", "application_type": "Volunteer Application", "volunteer": vol.name, "tree": tree,
+	       "application_date": getdate(today()), "reason": _("Adopted from the map"), "email_verified": 1}
+	if not t.owner_volunteer_id:
+		frappe.db.set_value("HR Tree", tree, "owner_volunteer_id", vol.name)
+		frappe.get_doc({**app, "status": "Assigned"}).insert(ignore_permissions=True)
+		return {"success": True, "adopted": True}
+	a = frappe.get_doc({**app, "status": "Pending", "reason": _("Wants to share the care of this tree")}).insert(ignore_permissions=True)
+	citizen_api._todo_admins("HR Application", a.name, _("{0} would like to help with tree {1}, which already has a caretaker.").format(vol.volunteer_name, tree))
+	return {"success": True, "pending": True}

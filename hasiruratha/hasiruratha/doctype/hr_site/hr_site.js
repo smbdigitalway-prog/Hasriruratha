@@ -39,6 +39,7 @@ function hr_dup_panel(frm) {
 
 frappe.ui.form.on("HR Site", {
 	refresh(frm) {
+		if (!frm.is_new()) frm.add_custom_button(__("QR label"), () => window.open(`/spot-qr?sites=${encodeURIComponent(frm.doc.name)}`, "_blank"), __("Open"));
 		if (frm.is_new() || !frm.doc.possible_duplicate_of) return;
 		hr_dup_panel(frm);
 		if (frm.doc.status !== "Needs Review") return;

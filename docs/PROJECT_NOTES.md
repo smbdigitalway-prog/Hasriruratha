@@ -130,3 +130,8 @@ Citizens use Frappe Web Forms and website pages. Each submission is first saved 
 ## Open items
 * test on the cloud site: create two sites 10 m apart, confirm Needs Review, ToDo, approve, merge
 * decide whether to rebuild the user app with Frappe UI (Vue) later
+
+### 21 Nov 2026 (requirements pass, applied on top of the main branch)
+New: Kanban boards for every status doctype (`boards.py`) + Console Boards panel, bulk delete duplicates, HR Event / HR Event Subscription
+(`event_api.py`, `/events`), `stats_api.py` + `/impact` + 6 Number Cards, adopt a tree (`care_api.adopt_tree`), QR labels (`/spot-qr`),
+GPS locked once captured. Patches: `add_boards_and_console_to_workspace`, `add_events_impact_to_workspace`. See `docs/REQUIREMENTS_STATUS.md`.

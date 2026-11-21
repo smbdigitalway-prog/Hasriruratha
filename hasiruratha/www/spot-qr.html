@@ -1,0 +1,23 @@
+{% extends "templates/web.html" %}
+{% block title %}QR labels · Hasiru Ratha{% endblock %}
+{% block style %}
+<style>.ql{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+.q{border:1px dashed #999;border-radius:10px;padding:12px;text-align:center;break-inside:avoid}.q .c{display:flex;justify-content:center;margin-bottom:6px}
+.q b{display:block;font-size:14px}.q small{color:#555}@media print{.nop,.web-footer,.navbar{display:none!important}}</style>
+{% endblock %}
+{% block page_content %}
+<div class="hr-page">
+	<h1 class="nop">{{ _("QR labels") }}</h1>
+	<p class="nop"><button class="btn btn-primary" onclick="window.print()">{{ _("Print") }}</button> {{ _("Stick one label on each spot. Scanning opens the spot page with its photo, trees and care status.") }}</p>
+	<div class="ql">
+	{% for s in labels %}
+		<div class="q"><div class="c" data-url="{{ base_url }}/trees?spot={{ s.name | urlencode }}"></div>
+			<b>{{ s.site_name or s.name }}</b><small>{{ s.name }}{% if s.road or s.area %} · {{ s.road or s.area }}{% endif %}</small></div>
+	{% else %}<p>{{ _("No spots chosen. Select spots in the HR Site list, then Actions → Print QR labels.") }}</p>{% endfor %}
+	</div>
+</div>
+{% endblock %}
+{% block script %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>document.querySelectorAll(".c[data-url]").forEach(el => new QRCode(el, { text: el.dataset.url, width: 150, height: 150, correctLevel: QRCode.CorrectLevel.M }));</script>
+{% endblock %}

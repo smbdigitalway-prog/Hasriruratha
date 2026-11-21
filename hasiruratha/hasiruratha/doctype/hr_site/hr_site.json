@@ -193,13 +193,15 @@
    "fieldname": "gps_lat",
    "fieldtype": "Float",
    "label": "Latitude",
-   "precision": "9"
+   "precision": "9",
+   "read_only_depends_on": "eval:doc.gps_status=='Captured'"
   },
   {
    "fieldname": "gps_lng",
    "fieldtype": "Float",
    "label": "Longitude",
-   "precision": "9"
+   "precision": "9",
+   "read_only_depends_on": "eval:doc.gps_status=='Captured'"
   },
   {
    "fieldname": "gps_status",
@@ -218,13 +220,15 @@
    "fieldname": "gps_lat2",
    "fieldtype": "Float",
    "label": "Latitude (end)",
-   "precision": "9"
+   "precision": "9",
+   "read_only_depends_on": "eval:doc.gps_lat2 && doc.gps_lng2"
   },
   {
    "fieldname": "gps_lng2",
    "fieldtype": "Float",
    "label": "Longitude (end)",
-   "precision": "9"
+   "precision": "9",
+   "read_only_depends_on": "eval:doc.gps_lat2 && doc.gps_lng2"
   },
   {
    "fieldname": "section_more",

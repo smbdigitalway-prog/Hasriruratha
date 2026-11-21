@@ -99,6 +99,9 @@
 							${t.planting_type && t.planting_type !== "New" ? `<dt>Planted as</dt><dd>${HR.esc(t.planting_type)}</dd>` : ""}
 							<dt>Caretaker</dt><dd>${t.cared ? "A volunteer looks after it" : '<span class="es-badge" data-theme="amber">Looking for a volunteer</span>'}</dd>
 						</dl>
+						${s.can_adopt ? `<button class="es-button" data-variant="subtle" type="button" data-adopt="${HR.esc(t.id)}">🌱 ${t.cared ? "Help look after this tree" : "Adopt this tree"}</button>` : ""}
+						<dl class="kv" style="display:none">
+						</dl>
 					</div>
 				</div>`).join("");
 			const visits = (s.visits || []).map(v => `<li>${HR.esc(v.actual_date || v.planned_date || "")} · ${HR.esc(v.service_type || "")} · ${HR.esc(v.status || "")}</li>`).join("");
@@ -116,6 +119,14 @@
 			map.panTo([s.lat, s.lng]);
 		} catch (e) { body.innerHTML = `<div class="es-alert" data-theme="red"><span class="es-alert__title">${HR.esc(e.message)}</span></div>`; }
 	}
+	body.addEventListener("click", async ev => {
+		const b = ev.target.closest("[data-adopt]"); if (!b) return;
+		b.disabled = true;
+		try {
+			const r = await HR.call("hasiruratha.care_api.adopt_tree", { tree: b.dataset.adopt }, true);
+			b.outerHTML = `<span class="es-badge" data-theme="green">${r.pending ? "Sent to the admin" : "You adopted this tree 🌳 (see My trees)"}</span>`;
+		} catch (e) { alert(e.message); b.disabled = false; }
+	});
 	HR.$("#sheet .close").onclick = () => { sheet.classList.remove("open"); history.replaceState(null, "", "/trees"); };
 
 	function nearMe(quiet) {

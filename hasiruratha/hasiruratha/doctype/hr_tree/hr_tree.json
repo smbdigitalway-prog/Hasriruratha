@@ -172,13 +172,15 @@
    "fieldname": "gps_lat",
    "fieldtype": "Float",
    "label": "Latitude",
-   "precision": "9"
+   "precision": "9",
+   "read_only_depends_on": "eval:doc.gps_status=='Captured'"
   },
   {
    "fieldname": "gps_lng",
    "fieldtype": "Float",
    "label": "Longitude",
-   "precision": "9"
+   "precision": "9",
+   "read_only_depends_on": "eval:doc.gps_status=='Captured'"
   },
   {
    "fieldname": "gps_status",

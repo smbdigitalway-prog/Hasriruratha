@@ -80,6 +80,7 @@ def find_duplicate(lat, lng, site_type, road, area, exclude=None):
 
 class HRSite(masters.AutoLinks, Document):
 	def validate(self):
+		self.guard_review_status()
 		self.flag_possible_duplicate()
 		has_gps = bool(flt(self.gps_lat) and flt(self.gps_lng))
 		self.gps_status = "Captured" if has_gps else "Pending"
@@ -87,6 +88,16 @@ class HRSite(masters.AutoLinks, Document):
 			self.latitude, self.longitude = flt(self.gps_lat), flt(self.gps_lng)
 		if self.area and not self.zone_id:
 			self.zone_id = frappe.db.get_value("HR Area", self.area, "zone")
+
+	def guard_review_status(self):
+		"""Needs Review / Merged are decided with the Review buttons (they move trees and close the duplicate report).
+		A Kanban drag or a hand edit of the status field must not skip that."""
+		if self.is_new() or not self.has_value_changed("status") or self.flags.ignore_duplicate_check:
+			return
+		before = self.get_doc_before_save()
+		old = before.status if before else None
+		if old == "Needs Review" or self.status == "Merged":
+			frappe.throw(_("Use Review -> Different site / Same place - merge / Delete duplicate to change this status."))
 
 	def flag_possible_duplicate(self):
 		if not self.is_new() or self.flags.ignore_duplicate_check or self.possible_duplicate_of:

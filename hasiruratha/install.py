@@ -27,8 +27,16 @@ def after_install():
 		frappe.db.sql("update `tab%s` set latitude=gps_lat, longitude=gps_lng where latitude is null and gps_lat is not null" % dt)
 	frappe.db.sql("update `tabHR Tree Report` r join `tabHR Site` s on s.name=r.site_id set r.area=s.area, r.road=s.road where r.area is null")
 	ensure_request_kanban()
+	ensure_all_boards()
 	_fill_request_titles()
 	frappe.db.commit()
+
+
+def ensure_all_boards():
+	"""A Kanban board for every DocType in the admin workspace that has a status (see hasiruratha/boards.py)."""
+	from hasiruratha.boards import ensure_boards
+
+	ensure_boards()
 
 
 def _fill_request_titles():

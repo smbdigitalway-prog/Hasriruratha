@@ -1,0 +1,184 @@
+{
+ "actions": [],
+ "creation": "2026-11-21 18:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "event_type",
+  "status",
+  "cb1",
+  "event_date",
+  "start_time",
+  "end_time",
+  "sec_place",
+  "zone",
+  "area",
+  "location",
+  "cb2",
+  "gps_lat",
+  "gps_lng",
+  "sec_more",
+  "description",
+  "photo",
+  "cb3",
+  "volunteers_needed",
+  "subscribers"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Event title",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "event_type",
+   "fieldtype": "Select",
+   "label": "Type",
+   "options": "Planting drive\nMaintenance drive\nAwareness\nOther",
+   "default": "Planting drive",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Planned\nOpen\nCompleted\nCancelled",
+   "default": "Planned",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "event_date",
+   "fieldtype": "Date",
+   "label": "Date",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "start_time",
+   "fieldtype": "Time",
+   "label": "Start time"
+  },
+  {
+   "fieldname": "end_time",
+   "fieldtype": "Time",
+   "label": "End time"
+  },
+  {
+   "fieldname": "sec_place",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "zone",
+   "fieldtype": "Link",
+   "label": "Zone",
+   "options": "HR Zone"
+  },
+  {
+   "fieldname": "area",
+   "fieldtype": "Link",
+   "label": "Area",
+   "options": "HR Area"
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Data",
+   "label": "Meeting point"
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "gps_lat",
+   "fieldtype": "Float",
+   "label": "Latitude",
+   "precision": "9"
+  },
+  {
+   "fieldname": "gps_lng",
+   "fieldtype": "Float",
+   "label": "Longitude",
+   "precision": "9"
+  },
+  {
+   "fieldname": "sec_more",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "What we will do"
+  },
+  {
+   "fieldname": "photo",
+   "fieldtype": "Attach Image",
+   "label": "Photo"
+  },
+  {
+   "fieldname": "cb3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "volunteers_needed",
+   "fieldtype": "Int",
+   "label": "Volunteers needed"
+  },
+  {
+   "fieldname": "subscribers",
+   "fieldtype": "Int",
+   "label": "Subscribed",
+   "read_only": 1,
+   "default": "0"
+  }
+ ],
+ "links": [],
+ "modified": "2026-11-21 18:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Hasiruratha",
+ "name": "HR Event",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "HR Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "autoname": "format:EVT-{#####}",
+ "title_field": "title",
+ "image_field": "photo",
+ "search_fields": "title,area,zone",
+ "description": "An upcoming planting or care event citizens and volunteers can subscribe to (/events)."
+}

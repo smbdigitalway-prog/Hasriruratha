@@ -1,6 +1,7 @@
 // Hasiru Ratha Console: admin actions, live map and duplicate review in one Desk page.
 const HRC = "hasiruratha.hasiruratha.page.hr_console.hr_console";
 const HR_SITE = "hasiruratha.hasiruratha.doctype.hr_site.hr_site";
+const BRD = "hasiruratha.boards";
 const LEAFLET = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/";
 const COLORS = { "Needs Review": "#f97316", Urgent: "#dc2626", Completed: "#16a34a", Healthy: "#16a34a",
 	Monitoring: "#7c3aed", Planned: "#2563eb", Identified: "#eab308", Hold: "#6b7280" };
@@ -32,6 +33,13 @@ class HRConsole {
 		.hrc-c img{width:84px;height:84px;object-fit:cover;border-radius:8px;flex:none;background:#eee}
 		.hrc-c .body{flex:1;min-width:0}.hrc-c select{max-width:200px;display:inline-block}.hrc-tag{font-size:11px;border-radius:6px;padding:1px 6px;margin-right:6px;color:#fff}
 		@media(max-width:600px){.hrc-c{flex-direction:column}.hrc-c img{width:100%;height:160px}}
+		.hrc-bh{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}.hrc-bh h5{margin:0 8px 0 0}.hrc-bh select{max-width:240px}.hrc-bh input{max-width:220px}
+		.hrc-board{display:flex;gap:12px;overflow-x:auto;align-items:flex-start;padding-bottom:8px}
+		.hrc-col{flex:0 0 270px;background:var(--control-bg);border-radius:10px;padding:8px;min-height:110px}.hrc-col.over{outline:2px dashed var(--primary)}
+		.hrc-col h6{display:flex;justify-content:space-between;margin:2px 4px 8px;font-size:13px}.hrc-col h6 i{font-style:normal;color:var(--text-muted)}
+		.hrc-k{background:var(--card-bg);border:1px solid var(--border-color);border-radius:10px;padding:8px;margin-bottom:8px;cursor:grab}.hrc-k.lock{cursor:default}
+		.hrc-k img{width:100%;height:92px;object-fit:cover;border-radius:6px;margin-bottom:6px;background:#eee}.hrc-k .btn{margin:4px 4px 0 0}
+		.hrc-k .t{font-weight:600;font-size:13px;word-break:break-word}.hrc-k .s{font-size:12px;color:var(--text-muted)}.hrc-k.drag{opacity:.4}
 		.hrc-q .btn{margin:6px 6px 0 0}.hrc-empty{color:var(--text-muted);padding:12px 0}
 		@media(max-width:900px){.hrc-main{grid-template-columns:1fr}#hrc-map{height:55vh}}
 		</style>
@@ -42,8 +50,16 @@ class HRConsole {
 		  <div class="hrc-tile" data-act="visit"><span class="hrc-ico">📅</span><b>${__("Plan a visit")}</b><small>${__("Schedule a care visit")}</small></div>
 		  <div class="hrc-tile" data-act="assign"><span class="hrc-ico">🤝</span><b>${__("Assign a volunteer")}</b><small>${__("To a tree or a report")}</small></div>
 		  <div class="hrc-tile" data-act="citizen"><span class="hrc-ico">🧑‍🌾</span><b>${__("Citizen submissions")}<span class="hrc-badge" id="hrc-cbadge" style="display:none"></span></b><small>${__("New plantings and reports")}</small></div>
+		  <div class="hrc-tile" data-act="boards"><span class="hrc-ico">🗂️</span><b>${__("Boards")}</b><small>${__("Every list as columns by status")}</small></div>
 		  <div class="hrc-tile" data-act="dups"><span class="hrc-ico">🔎</span><b>${__("Review duplicates")}<span class="hrc-badge" id="hrc-badge" style="display:none"></span></b><small>${__("Same spot entered twice?")}</small></div>
 		 </div>
+		 <div class="hrc-card" id="hrc-boards" style="margin-bottom:16px">
+		  <div class="hrc-bh"><h5>${__("Boards")}</h5><select class="form-control input-sm" id="hrc-bsel"></select>
+		   <input class="form-control input-sm" id="hrc-bq" placeholder="${__("Search this board")}">
+		   <button class="btn btn-xs btn-default" id="hrc-bref">${__("Refresh")}</button>
+		   <a class="btn btn-xs btn-default" id="hrc-bdesk" href="#">${__("Open in Desk")}</a>
+		   <button class="btn btn-xs btn-danger" id="hrc-bdel" style="display:none">${__("Delete selected duplicates")}</button></div>
+		  <div class="hrc-board" id="hrc-bwrap"><div class="hrc-empty">${__("Loading…")}</div></div></div>
 		 <div class="hrc-main">
 		  <div class="hrc-card">
 		   <div class="hrc-filters"><input class="form-control" id="hrc-q" placeholder="${__("Search area or road, e.g. Electronic City")}">
@@ -78,11 +94,13 @@ class HRConsole {
 			if (this.map && c.lat) { this.map.setView([c.lat, c.lng], 18); $("#hrc-map")[0].scrollIntoView({ behavior: "smooth" }); }
 		});
 		$b.on("click", "[data-q]", (e) => this.review($(e.currentTarget).data("q"), $(e.currentTarget).data("name"), $(e.currentTarget).data("other")));
+		this.bind_boards($b);
 		frappe.require([LEAFLET + "leaflet.css", LEAFLET + "leaflet.js"], () => { this.leafletReady = true; this.draw(); });
 	}
 
 	load() {
 		frappe.xcall(`${HRC}.get_console_data`).then((d) => { this.data = d; this.render(); this.draw(); });
+		this.load_boards();
 	}
 
 	render() {
@@ -176,6 +194,7 @@ class HRConsole {
 	act(a, site, rep) {
 		if (a === "plant") return frappe.set_route("Form", "HR Site", "new");
 		if (a === "citizen") return $("#hrc-cit")[0].scrollIntoView({ behavior: "smooth" });
+		if (a === "boards") return $("#hrc-boards")[0].scrollIntoView({ behavior: "smooth" });
 		if (a === "dups") return $("#hrc-dups")[0].scrollIntoView({ behavior: "smooth" });
 		if (!this.data) return frappe.show_alert(__("Still loading, try again in a moment"));
 		if (a === "report") return this.reportDialog();
@@ -240,14 +259,96 @@ class HRConsole {
 		d.show();
 	}
 
-	review(kind, name, other) {
+
+	bind_boards($b) {
+		this.bdt = null; this.bq = "";
+		let tm;
+		$b.on("change", "#hrc-bsel", (e) => { this.bdt = e.target.value; this.draw_board(); });
+		$b.on("click", "#hrc-bref", () => this.draw_board());
+		$b.on("input", "#hrc-bq", (e) => { this.bq = e.target.value; clearTimeout(tm); tm = setTimeout(() => this.draw_board(), 300); });
+		$b.on("dragstart", ".hrc-k[draggable=true]", (e) => { this.drag = { name: $(e.currentTarget).data("name"), dt: this.bdt }; $(e.currentTarget).addClass("drag"); e.originalEvent.dataTransfer.setData("text/plain", this.drag.name); });
+		$b.on("dragend", ".hrc-k", (e) => { $(e.currentTarget).removeClass("drag"); $(".hrc-col").removeClass("over"); });
+		$b.on("dragover", ".hrc-col[data-lock=0]", (e) => { e.preventDefault(); $(e.currentTarget).addClass("over"); });
+		$b.on("dragleave", ".hrc-col", (e) => $(e.currentTarget).removeClass("over"));
+		$b.on("drop", ".hrc-col[data-lock=0]", (e) => {
+			e.preventDefault(); const st = $(e.currentTarget).data("status"); $(e.currentTarget).removeClass("over");
+			if (!this.drag) return;
+			frappe.xcall(`${BRD}.move_card`, { doctype: this.drag.dt, name: this.drag.name, status: st })
+				.then(() => { frappe.show_alert({ message: __("Moved to {0}", [__(st)]), indicator: "green" }); this.draw_board(); this.load_counts(); })
+				.catch(() => this.draw_board());
+		});
+		$b.on("click", "[data-bk]", (e) => {
+			const $e = $(e.currentTarget), k = $e.data("bk"), site = $e.data("site"), other = $e.data("other") || "";
+			this.review(k === "keep" ? "approve" : k, site, other, () => { this.draw_board(); this.load_counts(); });
+		});
+		$b.on("click", "#hrc-bdel", () => {
+			const names = $(".hrc-sel:checked").map((i, x) => $(x).data("name")).get();
+			if (!names.length) return frappe.show_alert({ message: __("Tick the duplicates to delete first"), indicator: "orange" });
+			frappe.prompt({ fieldname: "reason", fieldtype: "Small Text", reqd: 1, label: __("Why are these duplicates?"),
+				description: __("Trees and records move to the original site of each. A copy of every site is kept in Deleted Sites.") },
+			(v) => frappe.xcall("hasiruratha.hasiruratha.doctype.hr_duplicate_report.hr_duplicate_report.bulk_delete_duplicates", { names, reason: v.reason }).then((r) => {
+				frappe.show_alert({ message: __("{0} deleted, {1} skipped", [r.deleted.length, r.skipped.length]), indicator: r.skipped.length ? "orange" : "green" });
+				this.load();
+			}), __("Delete {0} duplicate(s)", [names.length]), __("Delete"));
+		});
+	}
+
+	load_boards() {
+		frappe.xcall(`${BRD}.console_boards`).then((b) => {
+			this.boards = b;
+			const keep = this.bdt || (b[0] && b[0].doctype);
+			this.bdt = keep;
+			$("#hrc-bsel").html(b.map((x) => `<option value="${x.doctype}" ${x.doctype === keep ? "selected" : ""}>${frappe.utils.escape_html(x.label)} (${x.total})</option>`).join(""));
+			this.draw_board();
+		});
+	}
+
+	load_counts() {
+		frappe.xcall(`${BRD}.console_boards`).then((b) => {
+			this.boards = b;
+			$("#hrc-bsel").html(b.map((x) => `<option value="${x.doctype}" ${x.doctype === this.bdt ? "selected" : ""}>${frappe.utils.escape_html(x.label)} (${x.total})</option>`).join(""));
+		});
+	}
+
+	draw_board() {
+		if (!this.bdt) return;
+		const e = frappe.utils.escape_html, dt = this.bdt, isDup = dt === "HR Duplicate Report", isSite = dt === "HR Site";
+		$("#hrc-bdesk").attr("href", `/app/${frappe.router.slug(dt)}/view/kanban`);
+		$("#hrc-bdel").toggle(isDup);
+		frappe.xcall(`${BRD}.console_board`, { doctype: dt, q: this.bq }).then((r) => {
+			if (dt !== this.bdt) return;
+			$("#hrc-bwrap").html(r.columns.map((c) => `
+				<div class="hrc-col" data-status="${e(c.status)}" data-lock="${c.locked ? 1 : 0}">
+				 <h6><span>${e(__(c.status))}</span><i>${c.count}</i></h6>
+				 ${c.cards.map((k) => this.card_html(dt, k, c, isDup, isSite)).join("") || `<div class="hrc-empty small">${__("Nothing here")}</div>`}
+				 ${c.count > c.cards.length ? `<div class="small text-muted">${__("{0} more in Desk", [c.count - c.cards.length])}</div>` : ""}
+				</div>`).join(""));
+		});
+	}
+
+	card_html(dt, k, c, isDup, isSite) {
+		const e = frappe.utils.escape_html, slug = frappe.router.slug(dt);
+		const pend = (isDup && c.status === "Pending Review") || (isSite && c.status === "Needs Review");
+		const site = isDup ? k.title : k.name, other = isDup ? (k.sub[0] || "") : "";
+		return `<div class="hrc-k ${c.locked ? "lock" : ""}" ${c.locked ? "" : 'draggable="true"'} data-name="${e(k.name)}">
+			${k.image ? `<img src="${e(k.image)}" loading="lazy">` : ""}
+			${isDup && pend ? `<label class="small"><input type="checkbox" class="hrc-sel" data-name="${e(k.name)}"> ${__("Select")}</label>` : ""}
+			<div class="t"><a href="/app/${slug}/${encodeURIComponent(k.name)}">${e(k.title)}</a></div>
+			<div class="s">${k.sub.map(e).join(" · ")}</div><div class="s">${k.age ? __("{0} d ago", [k.age]) : __("Today")}</div>
+			${pend ? `<div><button class="btn btn-xs btn-default" data-bk="keep" data-site="${e(site)}">${__("Different site")}</button>
+			 <button class="btn btn-xs btn-primary" data-bk="merge" data-site="${e(site)}" data-other="${e(other)}">${__("Merge")}</button>
+			 <button class="btn btn-xs btn-danger" data-bk="delete" data-site="${e(site)}" data-other="${e(other)}">${__("Delete duplicate")}</button></div>` : ""}
+		</div>`;
+	}
+
+	review(kind, name, other, after) {
 		if (kind === "delete") return frappe.prompt({ fieldname: "reason", fieldtype: "Small Text", reqd: 1, label: __("Why is this a duplicate?"),
-			description: __("Trees and records of this site move to {0}. A full copy is kept in HR Deleted Site.", [other]) },
-			(v) => frappe.xcall(`${HR_SITE}.delete_duplicate`, { name, reason: v.reason }).then(() => { frappe.show_alert({ message: __("Deleted. A copy is in HR Deleted Site."), indicator: "green" }); this.load(); }),
+			description: __("Trees and records of this site move to {0}. A full copy is kept in HR Deleted Site.", [other || __("the original site")]) },
+			(v) => frappe.xcall(`${HR_SITE}.delete_duplicate`, { name, reason: v.reason }).then(() => { frappe.show_alert({ message: __("Deleted. A copy is in HR Deleted Site."), indicator: "green" }); this.load(); after && after(); }),
 			__("Delete duplicate site {0}", [name]), __("Delete"));
-		const go = () => frappe.xcall(`${HR_SITE}.${kind === "merge" ? "merge_site" : "approve_site"}`, { name }).then(() => this.load());
+		const go = () => frappe.xcall(`${HR_SITE}.${kind === "merge" ? "merge_site" : "approve_site"}`, { name }).then(() => { this.load(); after && after(); });
 		kind === "merge"
-			? frappe.confirm(__("Move all trees, visits and reports of {0} to {1} and mark it Merged?", [name, other]), go)
+			? frappe.confirm(__("Move all trees, visits and reports of {0} to {1} and mark it Merged?", [name, other || __("the original site")]), go)
 			: go();
 	}
 }
