@@ -16,8 +16,11 @@ function hr_import_sheet(list) {
 			<tr><td>${__("Spots / stretches")}</td><td><b>${r.sites}</b></td></tr>
 			<tr><td>${__("Trees (GPS pending)")}</td><td><b>${r.trees}</b></td></tr>
 			<tr><td>${__("Past waterings for the care log")}</td><td><b>${r.waterings}</b></td></tr>
+			<tr><td>${__("Trees with a caretaker (adopted)")}</td><td><b>${r.adopted_trees || 0}</b></td></tr>
 			<tr><td>${__("Already imported, skipped")}</td><td>${r.skipped}</td></tr>
+			${Object.entries(r.sheets || {}).map(([n, x]) => `<tr><td class="text-muted">${__("Sheet")} “${e(n)}”</td><td class="text-muted">${x.rows} ${__("rows")}, ${x.trees} ${__("trees")}</td></tr>`).join("")}
 		</tbody></table>
+		${Object.keys(r.volunteers || {}).length ? `<p class="small mb-1"><b>${__("Linked to registered volunteers")}:</b> ${Object.entries(r.volunteers).map(([a, b]) => e(a) + " → " + e(b)).join(", ")}</p>` : ""}
 		${Object.entries(r.new || {}).map(([dt, names]) => `<p class="text-muted small mb-1"><b>${__("New")} ${e(dt.replace("HR ", ""))}:</b> ${names.map(e).join(", ")}</p>`).join("")}
 		${(r.warnings || []).map(w => `<p class="text-danger small mb-1">${e(w)}</p>`).join("")}
 		${Object.keys(r.new || {}).length ? `<p class="small text-muted">${__("New names are added as Unverified. Check them in the Areas / Roads / Landmarks / Species lists afterwards.")}</p>` : ""}`;
@@ -25,7 +28,7 @@ function hr_import_sheet(list) {
 	const d = new frappe.ui.Dialog({
 		title: __("Import watering sheet"),
 		fields: [
-			{ fieldtype: "HTML", options: `<p class="text-muted small">${__("Excel (.xlsx) or CSV with the columns # Plants, Area, Watering Route, Location, Plant, and one column per date (a filled cell = watered that day). Rows already imported are skipped.")}</p>` },
+			{ fieldtype: "HTML", options: `<p class="text-muted small">${__("Excel (.xlsx) or CSV. All sheets are read. Columns: Ownership (optional), # Plants, Area, Watering Route, Location, Plant, and one column per date (a filled cell = watered that day). Trees come in with GPS pending. Rows already imported are skipped.")}</p>` },
 			{ fieldname: "file", fieldtype: "Attach", label: __("Spreadsheet"), reqd: 1 },
 			{ fieldname: "result", fieldtype: "HTML" },
 		],

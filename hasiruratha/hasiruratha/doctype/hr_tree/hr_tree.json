@@ -19,6 +19,8 @@
   "tree_guard",
   "support_pole",
   "owner_volunteer_id",
+  "caretaker_type",
+  "caretaker_name",
   "planted_by",
   "date_planted",
   "last_reported",
@@ -132,6 +134,20 @@
    "fieldtype": "Link",
    "label": "Owner",
    "options": "HR Volunteer"
+  },
+  {
+   "fieldname": "caretaker_type",
+   "fieldtype": "Select",
+   "label": "Looked after by",
+   "options": "\nVolunteer\nResident\nShop owner\nSecurity guard\nInstitution\nOther",
+   "in_standard_filter": 1,
+   "description": "Empty = nobody looks after it yet (shown as 'Looking for a volunteer')."
+  },
+  {
+   "fieldname": "caretaker_name",
+   "fieldtype": "Data",
+   "label": "Caretaker name",
+   "description": "As written by the team. Not shown publicly."
   },
   {
    "fieldname": "planted_by",
@@ -263,7 +279,7 @@
   }
  ],
  "links": [],
- "modified": "2026-11-21 12:00:00.000000",
+ "modified": "2026-11-21 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Hasiruratha",
  "name": "HR Tree",
