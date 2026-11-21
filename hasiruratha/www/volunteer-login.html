@@ -1,0 +1,56 @@
+{% extends "templates/web.html" %}
+{% block title %}Volunteer sign-in · Hasiru Ratha{% endblock %}
+{% block style %}{{ include_style('login.bundle.css') }}{% include "templates/includes/hr_ui.html" %}{% endblock %}
+{% block navbar %}{% endblock %}
+{% block page_content %}
+<section class="for-login">
+	<div class="login-content page-card flex flex-col gap-5">
+		{% set card_title = _("Volunteer sign-in") %}
+		{% set card_sub = _("Hasiru Ratha volunteers and admins. Use your mobile number (admins can also use their email) and password.") %}
+		{% include "templates/includes/hr_card_head.html" %}
+
+		<form id="login-form" class="flex flex-col gap-4" novalidate>
+			<div class="form-group flex flex-col items-start gap-1.5 mb-0">
+				<label class="text-base text-ink-gray-5 w-full mb-0" for="login-phone">{{ _("Mobile number or email") }}</label>
+				<input id="login-phone" type="text" class="form-control" placeholder="9845012345" autocomplete="username" autocapitalize="off" required>
+			</div>
+			<div class="form-group flex flex-col items-start gap-1.5 mb-0">
+				<label class="text-base text-ink-gray-5 w-full mb-0" for="login-pin">{{ _("Password") }}</label>
+				<input id="login-pin" type="password" class="form-control" placeholder="••••••••" autocomplete="current-password" required>
+				<p class="text-right w-full mb-0"><a href="/volunteer-reset" class="text-base text-ink-gray-5">{{ _("Forgot or set password?") }}</a></p>
+			</div>
+			<div id="login-err" class="es-alert hr-hidden"></div>
+			<button class="es-button w-full" data-variant="solid" type="submit" id="login-btn">{{ _("Sign in") }}</button>
+		</form>
+
+		<div class="flex flex-col gap-3">
+			<a class="es-button w-full" href="/volunteer-signup">{{ _("New volunteer? Register") }}</a>
+			<p class="text-base text-ink-gray-5 text-center mb-0">{{ _("Not a volunteer?") }}
+				<a class="text-ink-gray-7" href="/trees">{{ _("See the map or raise a request") }}</a></p>
+		</div>
+	</div>
+</section>
+{% endblock %}
+{% block script %}
+{{ super() }}
+{% include "templates/includes/hr_js.html" %}
+<script>
+(function () {
+	const DESK_HOME = "/desk/hasiruratha/hasiru_ratha_admin";
+	HR.$("#login-form").onsubmit = async (e) => {
+		e.preventDefault();
+		const m = HR.$("#login-err"), b = HR.$("#login-btn"), raw = HR.$("#login-phone").value.trim(), pwd = HR.$("#login-pin").value;
+		HR.msg(m, "");
+		if (!raw.includes("@") && raw.replace(/\D/g, "").length < 10) return HR.msg(m, "Enter your 10-digit mobile number or your email.");
+		if (!pwd) return HR.msg(m, "Enter your password.");
+		b.disabled = true; b.setAttribute("aria-busy", "true");
+		try {
+			const r = await HR.call("hasiruratha.volunteer_auth.login",
+				{ mobile: raw.includes("@") ? raw : raw.replace(/\D/g, ""), password: pwd }, true);
+			if (!r || !r.success) throw new Error((r && r.error) || "Could not sign in. Please try again.");
+			location.replace(r.is_admin ? DESK_HOME : "/hasiruratha");
+		} catch (err) { HR.msg(m, err.message); b.disabled = false; b.removeAttribute("aria-busy"); }
+	};
+})();
+</script>
+{% endblock %}

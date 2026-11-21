@@ -8,8 +8,11 @@ const ok = (c, w, d) => { if (!c) fails++; console.log(c ? 'PASS' : 'FAIL', '|',
   await p.fill('#login-phone', 'boss@example.com'); await p.fill('#login-pin', 'wrongpass1'); await p.click('#login-btn'); await p.waitForTimeout(1200);
   ok((await p.locator('#login-err').innerText()).includes('not correct'), 'Admin by email: wrong password refused');
   await p.fill('#login-pin', 'Admin2026pass'); await p.click('#login-btn');
-  await p.waitForSelector('#s-app.on', { timeout: 15000 }).catch(() => {});
-  ok(await p.locator('#s-app.on').count() === 1, 'Admin with no mobile number signs in with email + password', p.url());
+  await p.waitForURL(/\/desk\//, { timeout: 15000 }).catch(() => {});
+  await p.waitForTimeout(3000);
+  const body = await p.locator('body').innerText().catch(() => '');
+  ok(p.url().includes('/desk/hasiruratha/hasiru_ratha_admin') && body.includes('Citizen requests') && body.includes('Field App'),
+     'Admin (no mobile number) signs in with email + password and lands in the Desk workspace', p.url());
   await p.waitForTimeout(1500); await p.screenshot({ path: process.argv[2] + '/ADM-app.png' });
   await ctx.close();
   ctx = await b.newContext({ ...devices['iPhone 13'] }); p = await ctx.newPage();

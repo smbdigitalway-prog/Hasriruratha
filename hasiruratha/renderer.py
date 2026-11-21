@@ -43,6 +43,12 @@ class HasirurathaRenderer(BaseRenderer):
 				boot["user"] = {"name": frappe.utils.get_fullname(u), "email": u}
 		else:
 			boot = build_boot()
+			if not boot.get("logged_in"):
+				# signing in happens on the Frappe-styled page /volunteer-login
+				resp = Response(status=302)
+				resp.headers["Location"] = "/volunteer-login"
+				resp.headers["Cache-Control"] = "no-store"
+				return resp
 		try:
 			boot["csrf_token"] = frappe.sessions.get_csrf_token() if frappe.session.user != "Guest" else ""
 		except Exception:

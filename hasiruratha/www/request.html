@@ -1,92 +1,94 @@
-{% extends "templates/base.html" %}
+{% extends "templates/web.html" %}
 {% block title %}Raise a request · Hasiru Ratha{% endblock %}
 {% block style %}{% include "templates/includes/hr_ui.html" %}
 <style>
-.gpsline{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:14px}
-.dot{width:10px;height:10px;border-radius:50%;background:var(--hr-line);flex:none}
-.dot.good{background:#1f9d63}.dot.ok{background:#e0a100}.dot.bad{background:#d92d20}
-#done h2{font-size:22px}
+.gpsline{display:flex;align-items:center;gap:8px;margin-top:10px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--outline-gray-3);flex:none}
+.dot.good{background:var(--ink-green-6, #278f5e)}.dot.ok{background:var(--ink-amber-6, #d97706)}.dot.bad{background:var(--ink-red-6, #e03636)}
 </style>
 {% endblock %}
-{% block navbar %}{% include "templates/includes/hr_top.html" %}{% endblock %}
-{% block footer %}{% endblock %}
-{% block content %}
-<script>document.body.classList.add("hr")</script>
-<main class="hr-wrap" id="form">
-	<h1>Raise a request</h1>
-	<p class="hr-muted">Hello {{ user_name }}. Tell us where, and our volunteers will take it from there.</p>
+{% block page_content %}
+<div class="hr-page">
+{% include "templates/includes/hr_top.html" %}
+<div id="form">
+	<h1 class="text-2xl-bold text-ink-gray-9 mt-0 mb-1">{{ _("Raise a request") }}</h1>
+	<p class="text-p-base text-ink-gray-6">{{ _("Hello {0}. Tell us where, and our volunteers will take it from there.").format(user_name|e) }}</p>
 
-	<section class="hr-card">
-		<h2><span class="hr-step">1</span>What do you need?</h2>
+	<section class="hr-section">
+		<h2 class="text-lg-semibold text-ink-gray-9 flex items-center mb-3"><span class="hr-step">1</span>{{ _("What do you need?") }}</h2>
 		<div class="hr-choice" role="radiogroup" aria-label="Request type">
-			<button type="button" data-type="New location" role="radio" aria-checked="false"><span class="ico">🌱</span><b>Plant a sapling</b><span>At a new spot</span></button>
-			<button type="button" data-type="Maintenance" role="radio" aria-checked="false"><span class="ico">🛠</span><b>Tree needs care</b><span>An existing tree or sapling</span></button>
+			<button type="button" data-type="New location" role="radio" aria-checked="false"><span class="ico">🌱</span><b>{{ _("Plant a sapling") }}</b><span>{{ _("At a new spot") }}</span></button>
+			<button type="button" data-type="Maintenance" role="radio" aria-checked="false"><span class="ico">🛠</span><b>{{ _("Tree needs care") }}</b><span>{{ _("An existing tree or sapling") }}</span></button>
 		</div>
 	</section>
 
-	<section class="hr-card">
-		<h2><span class="hr-step">2</span>Where is it?</h2>
-		<p class="sub">At the spot now? Use your location. Somewhere else? Drag the pin or tap the map.</p>
-		<button class="hr-btn ghost" type="button" id="gps">📍 Use my current location</button>
-		<div class="gpsline"><span class="dot" id="gdot"></span><span id="gtext">Location not set yet</span></div>
+	<section class="hr-section">
+		<h2 class="text-lg-semibold text-ink-gray-9 flex items-center mb-1"><span class="hr-step">2</span>{{ _("Where is it?") }}</h2>
+		<p class="text-base text-ink-gray-5">{{ _("At the spot now? Use your location. Somewhere else? Drag the pin or tap the map.") }}</p>
+		<button class="es-button w-full" data-size="md" type="button" id="gps">📍 {{ _("Use my current location") }}</button>
+		<div class="gpsline text-base text-ink-gray-6"><span class="dot" id="gdot"></span><span id="gtext">{{ _("Location not set yet") }}</span></div>
 		<div class="hr-map" id="map" style="margin-top:10px" aria-label="Map: drag the pin to the exact spot"></div>
-		<div id="locmsg" class="hr-msg"></div>
+		<div id="locmsg" class="es-alert hr-hidden"></div>
 	</section>
 
-	<section class="hr-card hr-hidden" id="nearcard">
-		<h2><span class="hr-step">3</span><span id="neartitle">Already registered nearby</span></h2>
-		<p class="sub" id="nearsub"></p>
+	<section class="hr-section hr-hidden" id="nearcard">
+		<h2 class="text-lg-semibold text-ink-gray-9 flex items-center mb-1"><span class="hr-step">3</span><span id="neartitle">{{ _("Already registered nearby") }}</span></h2>
+		<p class="text-base text-ink-gray-5 mb-1" id="nearsub"></p>
 		<div id="nearlist"></div>
-		<button type="button" class="hr-item" id="notlisted"><div class="hr-thumb">➕</div><div><div class="t" id="notlisted-t">My spot is not in this list</div><div class="s" id="notlisted-s">It is a different place</div></div></button>
+		<button type="button" class="hr-item" id="notlisted"><div class="hr-thumb">➕</div><div><div class="t" id="notlisted-t">{{ _("My spot is not in this list") }}</div><div class="s" id="notlisted-s">{{ _("It is a different place") }}</div></div></button>
 	</section>
 
-	<section class="hr-card">
-		<h2><span class="hr-step" id="n4">3</span>Details</h2>
-		<div id="issuewrap" class="hr-hidden">
-			<label for="issue">What does the tree need?</label>
-			<select id="issue">
-				<option value="">Choose…</option>
+	<section class="hr-section">
+		<h2 class="text-lg-semibold text-ink-gray-9 flex items-center mb-3"><span class="hr-step" id="n4">3</span>{{ _("Details") }}</h2>
+		<div id="issuewrap" class="form-group hr-hidden">
+			<label for="issue">{{ _("What does the tree need?") }}</label>
+			<select id="issue" class="form-control">
+				<option value="">{{ _("Choose…") }}</option>
 				<option>Watering</option><option>Tree guard</option><option>Support pole</option><option>Leaning</option>
 				<option>Damage</option><option>Pest / Disease</option><option>Dead tree</option><option>Debris / garbage</option><option>Other</option>
 			</select>
 		</div>
-		<label>Photo <span class="opt" id="photoopt">(helps the team)</span></label>
-		<label for="photo" class="hr-btn ghost" style="margin:0;font-weight:600" id="photobtn">📷 Take or choose a photo</label>
-		<input type="file" id="photo" accept="image/*" class="hr-file">
-		<img id="preview" class="hr-hidden" alt="Your photo" style="width:100%;max-height:220px;object-fit:cover;border-radius:12px;margin-top:10px">
-		<label for="notes">Notes <span class="opt">(optional)</span></label>
-		<textarea id="notes" maxlength="1000" placeholder="Anything that helps, e.g. near the bus stop, left side of the road"></textarea>
-	</section>
-
-	<section class="hr-card">
-		<h2><span class="hr-step" id="n5">4</span>Address</h2>
-		<p class="sub">Filled in from the map. Please check and correct it.</p>
-		<label for="addr">Door no / Cross / Main <span class="opt">(optional)</span></label>
-		<input type="text" id="addr" maxlength="200" placeholder="e.g. #12, 4th Cross, 9th Main">
-		<label for="road">Road</label><input type="text" id="road" maxlength="140">
-		<label for="area">Area</label><input type="text" id="area" maxlength="140">
-		<div class="hr-row">
-			<div><label for="pin">Pin code</label><input type="tel" id="pin" inputmode="numeric" maxlength="6"></div>
-			<div><label for="zone">Zone</label><select id="zone"><option value="">Not sure</option></select></div>
+		<div class="form-group">
+			<label>{{ _("Photo") }} <span class="opt" id="photoopt">({{ _("helps the team") }})</span></label>
+			<label for="photo" class="es-button w-full" data-size="md" style="margin:0" id="photobtn">📷 {{ _("Take or choose a photo") }}</label>
+			<input type="file" id="photo" accept="image/*" class="hr-file">
+			<img id="preview" class="hr-hidden" alt="Your photo" style="width:100%;max-height:220px;object-fit:cover;border-radius:var(--radius-lg, 10px);margin-top:10px">
+		</div>
+		<div class="form-group mb-0">
+			<label for="notes">{{ _("Notes") }} <span class="opt">({{ _("optional") }})</span></label>
+			<textarea id="notes" maxlength="1000" class="form-control" placeholder="{{ _('Anything that helps, e.g. near the bus stop, left side of the road') }}"></textarea>
 		</div>
 	</section>
 
-	<div id="m" class="hr-msg"></div>
-	<button class="hr-btn" id="send" type="button" style="margin:6px 0 30px">Send request</button>
-</main>
-
-<main class="hr-wrap hr-hidden" id="done">
-	<section class="hr-card" style="text-align:center">
-		<div style="font-size:48px">🌿</div>
-		<h2>Thank you!</h2>
-		<p>Your request <b id="dname"></b> has been sent to the Hasiru Ratha team.</p>
-		<p class="hr-muted" id="dnote"></p>
-		<a class="hr-btn" href="/my-requests" style="margin-top:8px">See my requests</a>
-		<a class="hr-btn ghost" href="/request" style="margin-top:10px">Raise another request</a>
+	<section class="hr-section">
+		<h2 class="text-lg-semibold text-ink-gray-9 flex items-center mb-1"><span class="hr-step" id="n5">4</span>{{ _("Address") }}</h2>
+		<p class="text-base text-ink-gray-5">{{ _("Filled in from the map. Please check and correct it.") }}</p>
+		<div class="form-group"><label for="addr">{{ _("Door no / Cross / Main") }} <span class="opt">({{ _("optional") }})</span></label>
+			<input type="text" id="addr" maxlength="200" class="form-control" placeholder="e.g. #12, 4th Cross, 9th Main"></div>
+		<div class="form-group"><label for="road">{{ _("Road") }}</label><input type="text" id="road" maxlength="140" class="form-control"></div>
+		<div class="form-group"><label for="area">{{ _("Area") }}</label><input type="text" id="area" maxlength="140" class="form-control"></div>
+		<div class="hr-row">
+			<div class="form-group mb-0"><label for="pin">{{ _("Pin code") }}</label><input type="tel" id="pin" inputmode="numeric" maxlength="6" class="form-control"></div>
+			<div class="form-group mb-0"><label for="zone">{{ _("Zone") }}</label><select id="zone" class="form-control"><option value="">{{ _("Not sure") }}</option></select></div>
+		</div>
 	</section>
-</main>
+
+	<div id="m" class="es-alert hr-hidden"></div>
+	<button class="es-button" data-variant="solid" data-size="lg" id="send" type="button" style="margin-top:16px">{{ _("Send request") }}</button>
+</div>
+
+<div id="done" class="hr-hidden flex flex-col items-start gap-3" style="padding-top:12px">
+	<div style="font-size:40px">🌿</div>
+	<h1 class="text-2xl-bold text-ink-gray-9 m-0">{{ _("Thank you!") }}</h1>
+	<p class="text-p-base text-ink-gray-7 mb-0">{{ _("Your request") }} <b id="dname"></b> {{ _("has been sent to the Hasiru Ratha team.") }}</p>
+	<p class="text-p-base text-ink-gray-5 mb-0" id="dnote"></p>
+	<a class="es-button" data-variant="solid" data-size="lg" href="/my-requests">{{ _("See my requests") }}</a>
+	<a class="es-button" data-size="lg" href="/request">{{ _("Raise another request") }}</a>
+</div>
+</div>
 {% endblock %}
 {% block script %}
+{{ super() }}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 {% include "templates/includes/hr_js.html" %}
 <script>
