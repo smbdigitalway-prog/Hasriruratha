@@ -19,5 +19,6 @@ Run:
     node site.js <screenshot-folder> <photo.jpg>   # new home page, phone menu, internship form, Green Diary approval
     node gps.js <screenshot-folder>        # after importing the watering sheet + seed_care.py: admin and volunteer GPS tagging
     node access.js <screenshot-folder>     # after seed_care.py: sign-in / register messages for visitors and citizens
+    node vdesk.js <screenshot-folder>      # after seed_care.py: volunteer in the Desk (read-only, own trees, no contact details)
 
 Sign-in endpoints are rate limited; clear the local Redis cache between repeated runs.

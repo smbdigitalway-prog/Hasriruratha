@@ -174,7 +174,7 @@ class HRConsole {
 	}
 
 	act(a, site, rep) {
-		if (a === "plant") return window.open("/hasiruratha", "_blank");
+		if (a === "plant") return frappe.set_route("Form", "HR Site", "new");
 		if (a === "citizen") return $("#hrc-cit")[0].scrollIntoView({ behavior: "smooth" });
 		if (a === "dups") return $("#hrc-dups")[0].scrollIntoView({ behavior: "smooth" });
 		if (!this.data) return frappe.show_alert(__("Still loading, try again in a moment"));

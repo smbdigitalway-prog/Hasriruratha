@@ -50,7 +50,7 @@
 			const r = await HR.call("hasiruratha.volunteer_auth.login",
 				{ mobile: raw.includes("@") ? raw : raw.replace(/\D/g, ""), password: pwd }, true);
 			if (!r || !r.success) throw new Error((r && r.error) || "Could not sign in. Please try again.");
-			location.replace(NEXT || (r.is_admin ? DESK_HOME : "/hasiruratha"));
+			location.replace(NEXT || (r.is_admin ? DESK_HOME : "/desk/hasiruratha/hasiru_ratha"));
 		} catch (err) { HR.msg(m, err.message); b.disabled = false; b.removeAttribute("aria-busy"); }
 	};
 })();

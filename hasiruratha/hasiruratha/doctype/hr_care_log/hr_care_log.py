@@ -5,11 +5,14 @@ and tree-guard state up to date."""
 import frappe
 from frappe.model.document import Document
 
+from hasiruratha import permissions
+
 GUARD = {"Guard installed": "Yes", "Guard removed": "No"}
 
 
 class HRCareLog(Document):
 	def validate(self):
+		permissions.check_care_log(self)
 		t = frappe.db.get_value("HR Tree", self.tree, ["site_id", "species"], as_dict=True) or {}
 		self.site = t.get("site_id")
 		self.species = t.get("species")

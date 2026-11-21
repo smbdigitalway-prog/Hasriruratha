@@ -465,7 +465,7 @@ def _email_volunteer_decision(app):
 		subject = _("Welcome to Hasiru Ratha, you are now a volunteer")
 		body = _("<p>Hello {0},</p><p>Your volunteer registration is approved. Sign in with your mobile number and "
 		         "password at <a href='{1}'>{1}</a>.</p>").format(frappe.utils.escape_html(vol.get("volunteer_name") or ""),
-		                                                         frappe.utils.get_url("/hasiruratha"))
+		                                                         frappe.utils.get_url("/volunteer-login"))
 	elif app.status == "Rejected":
 		subject = _("About your Hasiru Ratha volunteer registration")
 		body = _("<p>Hello {0},</p><p>We could not approve your volunteer registration right now.</p>{1}").format(

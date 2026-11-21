@@ -10,10 +10,13 @@ update_password(email, "Water2026x")
 if not frappe.db.exists("HR Volunteer", "VOL-CARE1"):
     frappe.get_doc({"doctype": "HR Volunteer", "volunteer_id": "VOL-CARE1", "volunteer_name": "Care Volunteer", "phone": mob,
                     "email": email, "user": email, "active": 1, "group_id": "GRP-001"}).insert(ignore_permissions=True)
-trees = frappe.get_all("HR Tree", {"site_id": "S-JAY-001"}, pluck="name")
+trees = frappe.get_all("HR Tree", {"site_id": "S-JAY-001"}, pluck="name", order_by="name")
+site_gps = frappe.db.get_value("HR Site", "S-JAY-001", ["gps_lat", "gps_lng"])
 for t in trees:
     frappe.db.set_value("HR Tree", t, {"owner_volunteer_id": "VOL-CARE1", "last_watered": None, "last_maintenance": None})
 frappe.db.sql("delete from `tabHR Care Log` where tree in %s", (tuple(trees),))
+for t in trees[:-1]:      # every tree but the last has GPS (earlier runs may have cleared it)
+    frappe.db.set_value("HR Tree", t, {"gps_lat": site_gps[0], "gps_lng": site_gps[1], "gps_status": "Captured"})
 frappe.db.set_value("HR Tree", trees[-1], {"gps_lat": 0, "gps_lng": 0, "gps_status": "Pending"})
 frappe.db.commit(); print(trees)
 # a plain citizen account for access.js (no volunteer role)

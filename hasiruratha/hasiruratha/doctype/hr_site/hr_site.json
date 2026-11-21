@@ -121,8 +121,7 @@
   },
   {
    "fieldname": "column_break_1",
-   "fieldtype": "Column Break",
-   "label": "Column Break 1"
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "road",
@@ -213,8 +212,7 @@
   },
   {
    "fieldname": "column_break_2",
-   "fieldtype": "Column Break",
-   "label": "Column Break 2"
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "gps_lat2",
@@ -304,7 +302,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-21 12:00:00.000000",
+ "modified": "2026-11-22 10:05:00.000000",
  "modified_by": "Administrator",
  "module": "Hasiruratha",
  "name": "HR Site",
@@ -331,6 +329,12 @@
    "report": 1,
    "import": 1,
    "share": 1
+  },
+  {
+   "role": "HR Volunteer",
+   "read": 1,
+   "report": 1,
+   "print": 1
   }
  ],
  "sort_field": "modified",

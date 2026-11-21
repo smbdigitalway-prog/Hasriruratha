@@ -77,8 +77,8 @@ const now = () => Date.now() * 1e6;
 	await page.fill('#login-pin', 'WrongPass99'); await page.click('#login-btn'); await page.waitForTimeout(1200);
 	ok((await page.locator('#login-err').innerText()).includes('not correct'), 'Sign-in: wrong password refused');
 	await page.fill('#login-pin', pw); await page.click('#login-btn');
-	await page.waitForSelector('#s-app.on', { timeout: 15000 }).catch(() => {});
-	ok(await page.locator('#s-app.on').count() === 1, 'Sign-in: approved volunteer enters the app with mobile + password');
+	await page.waitForURL(/\/desk\/hasiruratha\/hasiru_ratha$/, { timeout: 20000 }).catch(() => {});
+	ok(/\/desk\/hasiruratha\/hasiru_ratha$/.test(page.url()), 'Sign-in: approved volunteer lands on the volunteer workspace in the Desk', page.url());
 	await page.waitForTimeout(1500);
 	await shot(page, 'V4-volunteer-app');
 	await ctx.close();
@@ -102,8 +102,8 @@ const now = () => Date.now() * 1e6;
 	await shot(page, 'V5-reset-done');
 	await page.goto(B + '/hasiruratha', { waitUntil: 'networkidle' });
 	await page.fill('#login-phone', vMob); await page.fill('#login-pin', 'Neem2026tree'); await page.click('#login-btn');
-	await page.waitForSelector('#s-app.on', { timeout: 15000 }).catch(() => {});
-	ok(await page.locator('#s-app.on').count() === 1, 'Reset: admin-added volunteer can now sign in');
+	await page.waitForURL(/\/desk\/hasiruratha\/hasiru_ratha$/, { timeout: 20000 }).catch(() => {});
+	ok(/\/desk\/hasiruratha\/hasiru_ratha$/.test(page.url()), 'Reset: admin-added volunteer can now sign in (lands in the Desk)', page.url());
 	await ctx.close();
 
 	// ---------- citizen upgrades to volunteer ----------
