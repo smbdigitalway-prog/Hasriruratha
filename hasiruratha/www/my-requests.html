@@ -1,57 +1,59 @@
-{% extends "templates/base.html" %}
+{% extends "templates/web.html" %}
 {% block title %}My requests · Hasiru Ratha{% endblock %}
 {% block style %}{% include "templates/includes/hr_ui.html" %}
 <style>
-.steps{display:flex;gap:4px;margin:10px 0 4px}.steps i{flex:1;height:6px;border-radius:3px;background:var(--hr-line)}
-.steps i.on{background:#1f9d63}
+.hr-card{padding:16px 0;border-top:1px solid var(--outline-gray-1)}
+.hr-card:first-child{border-top:0}
+.steps{display:flex;gap:4px;margin:10px 0 4px}.steps i{flex:1;height:4px;border-radius:2px;background:var(--surface-gray-3)}
+.steps i.on{background:var(--ink-gray-8)}
 </style>
 {% endblock %}
-{% block navbar %}{% include "templates/includes/hr_top.html" %}{% endblock %}
-{% block footer %}{% endblock %}
-{% block content %}
-<script>document.body.classList.add("hr")</script>
-<main class="hr-wrap">
-	<h1>My requests</h1>
-	<p class="hr-muted">Signed in as {{ user_name }}. We also email you when a request moves forward.</p>
-	<div id="list"><p class="hr-muted">Loading…</p></div>
-	<a class="hr-btn" href="/request" style="margin:6px 0 16px">+ Raise a request</a>
-	<section class="hr-card">
-		<h2>Want to help more?</h2>
-		<p class="sub">Volunteers adopt saplings near home and join planting and care drives.</p>
-		<a class="hr-btn ghost" href="/volunteer-signup">🤝 Become a volunteer</a>
+{% block page_content %}
+<div class="hr-page">
+	{% include "templates/includes/hr_top.html" %}
+	<h1 class="text-2xl-bold text-ink-gray-9 mt-0 mb-1">{{ _("My requests") }}</h1>
+	<p class="text-p-base text-ink-gray-6">{{ _("Signed in as {0}. We also email you when a request moves forward.").format(user_name|e) }}</p>
+	<div id="list"><p class="text-base text-ink-gray-5">{{ _("Loading…") }}</p></div>
+	<a class="es-button" data-variant="solid" data-size="lg" href="/request" style="margin:12px 0 28px">+ {{ _("Raise a request") }}</a>
+	<section class="hr-section">
+		<h2 class="text-lg-semibold text-ink-gray-9 mb-1">{{ _("Want to help more?") }}</h2>
+		<p class="text-base text-ink-gray-5">{{ _("Volunteers adopt saplings near home and join planting and care drives.") }}</p>
+		<a class="es-button" data-size="lg" href="/volunteer-signup">🤝 {{ _("Become a volunteer") }}</a>
 	</section>
-</main>
+</div>
 {% endblock %}
 {% block script %}
+{{ super() }}
 {% include "templates/includes/hr_js.html" %}
 <script>
 (function () {
 	const FLOW = ["Received", "Under review", "Accepted", "Scheduled", "Completed"];
-	const chip = s => s === "Completed" ? "" : s === "Rejected" || s === "Duplicate" ? "bad" : s === "Under review" ? "warn" : "grey";
+	const theme = s => ({ Received: "blue", "Under review": "amber", Accepted: "blue", Scheduled: "violet",
+		Completed: "green", Duplicate: "gray", Rejected: "red" }[s] || "gray");
 	HR.call("hasiruratha.request_api.my_requests").then(rows => {
 		const el = HR.$("#list");
-		if (!rows.length) { el.innerHTML = '<section class="hr-card"><p class="hr-muted" style="margin:0">You have not raised any requests yet.</p></section>'; return; }
+		if (!rows.length) { el.innerHTML = '<p class="text-base text-ink-gray-5">You have not raised any requests yet.</p>'; return; }
 		el.innerHTML = rows.map(r => {
 			const step = FLOW.indexOf(r.status);
-			return `<section class="hr-card">
+			return `<div class="hr-card">
 				<div style="display:flex;gap:12px">
 					${r.photo ? `<img class="hr-thumb" src="${HR.esc(r.photo)}" alt="" loading="lazy">` : `<div class="hr-thumb">${r.request_type === "Maintenance" ? "🛠" : "🌱"}</div>`}
 					<div style="min-width:0;flex:1">
 						<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
-							<b>${r.request_type === "Maintenance" ? "Care: " + HR.esc(r.issue_type || "") : "New sapling"}</b>
-							<span class="hr-chip ${chip(r.status)}">${HR.esc(r.status)}</span>
+							<span class="text-base-semibold text-ink-gray-9">${r.request_type === "Maintenance" ? "Care: " + HR.esc(r.issue_type || "") : "New sapling"}</span>
+							<span class="es-badge" data-theme="${theme(r.status)}">${HR.esc(r.status)}</span>
 						</div>
-						<div class="hr-muted">${HR.esc([r.road, r.area].filter(Boolean).join(", "))}</div>
-						<div class="hr-muted" style="font-size:12px">${HR.esc(r.name)} · ${HR.esc(r.creation)}</div>
+						<div class="text-base text-ink-gray-6">${HR.esc([r.road, r.area].filter(Boolean).join(", "))}</div>
+						<div class="text-sm text-ink-gray-5">${HR.esc(r.name)} · ${HR.esc(r.creation)}</div>
 					</div>
 				</div>
-				${step >= 0 ? `<div class="steps" aria-label="Progress: ${HR.esc(r.status)}">${FLOW.map((_, i) => `<i class="${i <= step ? "on" : ""}"></i>`).join("")}</div>` : ""}
-				${r.has_volunteer ? '<div class="hr-muted">A volunteer has been assigned.</div>' : ""}
-				${r.admin_notes ? `<div class="hr-msg ok">${HR.esc(r.admin_notes)}</div>` : ""}
-				${r.completed_on ? `<div class="hr-muted">Completed on ${HR.esc(r.completed_on)}</div>` : ""}
-			</section>`;
+				${step >= 0 ? `<div class="steps" role="img" aria-label="Progress: ${HR.esc(r.status)}">${FLOW.map((_, i) => `<i class="${i <= step ? "on" : ""}"></i>`).join("")}</div>` : ""}
+				${r.has_volunteer ? '<div class="text-base text-ink-gray-6">A volunteer has been assigned.</div>' : ""}
+				${r.admin_notes ? `<div class="es-alert" data-theme="green" style="margin-top:8px"><span class="es-alert__title">${HR.esc(r.admin_notes)}</span></div>` : ""}
+				${r.completed_on ? `<div class="text-base text-ink-gray-6">Completed on ${HR.esc(r.completed_on)}</div>` : ""}
+			</div>`;
 		}).join("");
-	}).catch(e => { HR.$("#list").innerHTML = `<p class="hr-msg err">${HR.esc(e.message)}</p>`; });
+	}).catch(e => { HR.$("#list").innerHTML = `<div class="es-alert" data-theme="red"><span class="es-alert__title">${HR.esc(e.message)}</span></div>`; });
 })();
 </script>
 {% endblock %}

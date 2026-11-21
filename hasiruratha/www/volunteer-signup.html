@@ -1,62 +1,65 @@
-{% extends "templates/base.html" %}
+{% extends "templates/web.html" %}
 {% block title %}Become a volunteer · Hasiru Ratha{% endblock %}
-{% block style %}{% include "templates/includes/hr_ui.html" %}{% endblock %}
-{% block navbar %}{% include "templates/includes/hr_top.html" %}{% endblock %}
-{% block footer %}{% endblock %}
-{% block content %}
-<script>document.body.classList.add("hr")</script>
-<main class="hr-wrap">
-	<h1>Become a volunteer</h1>
-	<p class="hr-muted">Adopt saplings near your home and join planting and care drives. All fields are needed so we can place you in the right zone.</p>
+{% block style %}{{ include_style('login.bundle.css') }}{% include "templates/includes/hr_ui.html" %}{% endblock %}
+{% block navbar %}{% endblock %}
+{% macro field(id, label, type="text", extra="", value="", opt=False) -%}
+<div class="form-group flex flex-col items-start gap-1.5 mb-0">
+	<label class="text-base text-ink-gray-5 w-full mb-0" for="{{ id }}">{{ label }}{% if opt %} <span class="opt">({{ _("optional") }})</span>{% endif %}</label>
+	<input id="{{ id }}" type="{{ type }}" class="form-control" value="{{ (value or '')|e }}" {{ extra }}>
+</div>
+{%- endmacro %}
+{% block page_content %}
+<section class="for-login">
+	<div class="login-content page-card flex flex-col gap-5">
+		{% set card_title = _("Become a volunteer") %}
+		{% set card_sub = _("Adopt saplings near your home and join planting and care drives. All details are needed so we can place you in the right zone.") %}
+		{% include "templates/includes/hr_card_head.html" %}
 
-	<section class="hr-card" id="step1">
-		<h2><span class="hr-step">1</span>About you</h2>
-		<label for="nm">Full name</label>
-		<input id="nm" type="text" maxlength="60" autocomplete="name" value="{{ me_name or '' }}">
-		<label for="mob">Mobile number <span class="opt">(you sign in with it)</span></label>
-		<input id="mob" type="tel" inputmode="numeric" maxlength="14" autocomplete="tel" value="{{ me_mobile or '' }}" {{ 'readonly' if me_email }}>
-		<label for="eml">Email</label>
-		<input id="eml" type="email" autocomplete="email" value="{{ me_email or '' }}" {{ 'readonly' if me_email }}>
-		{% if me_email %}<p class="hr-muted" style="margin:6px 0 0">You are signed in, so your requests stay with your volunteer account.</p>{% endif %}
-
-		<h2 style="margin-top:20px"><span class="hr-step">2</span>Where you live</h2>
-		<label for="addr">Door no / Cross / Main</label>
-		<input id="addr" type="text" maxlength="200" placeholder="e.g. #12, 4th Cross, 9th Main" autocomplete="address-line1">
-		<label for="road">Road</label><input id="road" type="text" maxlength="140">
-		<label for="area">Area</label><input id="area" type="text" maxlength="140" placeholder="e.g. Jayanagar 2nd Block">
-		<div class="hr-row">
-			<div><label for="pin">Pin code</label><input id="pin" type="tel" inputmode="numeric" maxlength="6" autocomplete="postal-code"></div>
-			<div><label for="zone">Zone</label><select id="zone"><option value="">Choose…</option></select></div>
+		<div id="step1" class="flex flex-col gap-4">
+			{{ field("nm", _("Full name"), extra='maxlength="60" autocomplete="name"', value=me_name) }}
+			{{ field("mob", _("Mobile number (you sign in with it)"), "tel", 'inputmode="numeric" maxlength="14" autocomplete="tel"' ~ (' readonly' if me_email else ''), me_mobile) }}
+			{{ field("eml", _("Email"), "email", 'autocomplete="email"' ~ (' readonly' if me_email else ''), me_email) }}
+			{% if me_email %}<p class="text-base text-ink-gray-5 mb-0">{{ _("You are signed in, so your requests stay with your volunteer account.") }}</p>{% endif %}
+			<hr class="es-divider">
+			{{ field("addr", _("Door no / Cross / Main"), extra='maxlength="200" placeholder="e.g. #12, 4th Cross, 9th Main" autocomplete="address-line1"') }}
+			{{ field("road", _("Road"), extra='maxlength="140"') }}
+			{{ field("area", _("Area"), extra='maxlength="140" placeholder="e.g. Jayanagar 2nd Block"') }}
+			<div class="hr-row">
+				{{ field("pin", _("Pin code"), "tel", 'inputmode="numeric" maxlength="6" autocomplete="postal-code"') }}
+				<div class="form-group flex flex-col items-start gap-1.5 mb-0">
+					<label class="text-base text-ink-gray-5 w-full mb-0" for="zone">{{ _("Zone") }}</label>
+					<select id="zone" class="form-control"><option value="">{{ _("Choose…") }}</option></select>
+				</div>
+			</div>
+			<div class="form-group flex flex-col items-start gap-1.5 mb-0">
+				<label class="text-base text-ink-gray-5 w-full mb-0" for="why">{{ _("Why do you want to volunteer?") }} <span class="opt">({{ _("optional") }})</span></label>
+				<textarea id="why" maxlength="500" class="form-control"></textarea>
+			</div>
+			<div id="m1" class="es-alert hr-hidden"></div>
+			<button class="es-button w-full" data-variant="solid" id="send">{{ _("Email me a code") }}</button>
 		</div>
-		<label for="why">Why do you want to volunteer? <span class="opt">(optional)</span></label>
-		<textarea id="why" maxlength="500"></textarea>
-		<div id="m1" class="hr-msg"></div>
-		<button class="hr-btn" id="send" style="margin-top:14px">Email me a code</button>
-	</section>
 
-	<section class="hr-card hr-hidden" id="step2">
-		<h2><span class="hr-step">3</span>Confirm and choose a password</h2>
-		<p class="sub" id="sentto"></p>
-		<label for="code">Code from the email</label>
-		<input id="code" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="font-size:22px;letter-spacing:5px;text-align:center">
-		<label for="pw">Password <span class="opt">(at least 8 characters, letters and numbers)</span></label>
-		<input id="pw" type="password" autocomplete="new-password">
-		<label for="pw2">Password again</label>
-		<input id="pw2" type="password" autocomplete="new-password">
-		<div id="m2" class="hr-msg"></div>
-		<button class="hr-btn" id="verify" style="margin-top:14px">Register</button>
-	</section>
+		<div id="step2" class="flex flex-col gap-4 hr-hidden">
+			<p class="text-p-base text-ink-gray-6 mb-0" id="sentto"></p>
+			{{ field("code", _("Code from the email"), extra='inputmode="numeric" maxlength="6" autocomplete="one-time-code"') }}
+			{{ field("pw", _("Choose a password (at least 8 characters, letters and numbers)"), "password", 'autocomplete="new-password"') }}
+			{{ field("pw2", _("Password again"), "password", 'autocomplete="new-password"') }}
+			<div id="m2" class="es-alert hr-hidden"></div>
+			<button class="es-button w-full" data-variant="solid" id="verify">{{ _("Register") }}</button>
+		</div>
 
-	<section class="hr-card hr-hidden" id="done" style="text-align:center">
-		<div style="font-size:44px">🤝</div>
-		<h2>Thank you for signing up!</h2>
-		<p>An admin will check and approve your registration. We will email you, then you can sign in with your mobile number and password.</p>
-		<a class="hr-btn ghost" href="/trees">Back to the map</a>
-	</section>
-	<p class="hr-muted" style="text-align:center">Already a volunteer? <a class="link" href="/hasiruratha">Sign in</a></p>
-</main>
+		<div id="done" class="flex flex-col gap-4 hr-hidden">
+			<div class="es-alert" data-theme="green" role="status"><span class="es-alert__title">{{ _("Thank you for signing up!") }}</span></div>
+			<p class="text-p-base text-ink-gray-6 mb-0">{{ _("An admin will check and approve your registration. We will email you, then you can sign in with your mobile number and password.") }}</p>
+			<a class="es-button w-full" href="/trees">{{ _("Back to the map") }}</a>
+		</div>
+
+		<p class="text-base text-ink-gray-5 text-center mb-0">{{ _("Already a volunteer?") }} <a class="text-ink-gray-7" href="/volunteer-login">{{ _("Sign in") }}</a></p>
+	</div>
+</section>
 {% endblock %}
 {% block script %}
+{{ super() }}
 {% include "templates/includes/hr_js.html" %}
 <script>
 (function () {

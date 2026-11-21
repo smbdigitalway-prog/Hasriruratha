@@ -1,6 +1,7 @@
+from hasiruratha import web_context
+
 no_cache = 1
 
 
 def get_context(context):
-	context.no_breadcrumbs = True
-	context.hr_page = "volunteer"
+	web_context.base(context, "volunteer", "Set your password")

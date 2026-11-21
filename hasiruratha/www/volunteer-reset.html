@@ -1,38 +1,52 @@
-{% extends "templates/base.html" %}
+{% extends "templates/web.html" %}
 {% block title %}Set your password · Hasiru Ratha{% endblock %}
-{% block style %}{% include "templates/includes/hr_ui.html" %}{% endblock %}
-{% block navbar %}{% include "templates/includes/hr_top.html" %}{% endblock %}
-{% block footer %}{% endblock %}
-{% block content %}
-<script>document.body.classList.add("hr")</script>
-<main class="hr-wrap">
-	<h1>Forgot or set your password</h1>
-	<p class="hr-muted">For volunteers. We email a code to the address on your volunteer record.</p>
-	<section class="hr-card" id="step1">
-		<label for="mob">Your mobile number</label>
-		<input id="mob" type="tel" inputmode="numeric" maxlength="14" autocomplete="username">
-		<div id="m1" class="hr-msg"></div>
-		<button class="hr-btn" id="send" style="margin-top:14px">Email me a code</button>
-	</section>
-	<section class="hr-card hr-hidden" id="step2">
-		<p class="sub" id="sentto"></p>
-		<label for="code">Code from the email</label>
-		<input id="code" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="font-size:22px;letter-spacing:5px;text-align:center">
-		<label for="pw">New password <span class="opt">(at least 8 characters, letters and numbers)</span></label>
-		<input id="pw" type="password" autocomplete="new-password">
-		<label for="pw2">New password again</label>
-		<input id="pw2" type="password" autocomplete="new-password">
-		<div id="m2" class="hr-msg"></div>
-		<button class="hr-btn" id="save" style="margin-top:14px">Save password</button>
-	</section>
-	<section class="hr-card hr-hidden" id="done" style="text-align:center">
-		<div style="font-size:44px">🔑</div>
-		<h2>Password saved</h2>
-		<a class="hr-btn" href="/hasiruratha" style="margin-top:8px">Sign in</a>
-	</section>
-</main>
+{% block style %}{{ include_style('login.bundle.css') }}{% include "templates/includes/hr_ui.html" %}{% endblock %}
+{% block navbar %}{% endblock %}
+{% block page_content %}
+<section class="for-login">
+	<div class="login-content page-card flex flex-col gap-5">
+		{% set card_title = _("Forgot or set your password") %}
+		{% set card_sub = _("For volunteers. We email a code to the address on your volunteer record.") %}
+		{% include "templates/includes/hr_card_head.html" %}
+
+		<div id="step1" class="flex flex-col gap-4">
+			<div class="form-group flex flex-col items-start gap-1.5 mb-0">
+				<label class="text-base text-ink-gray-5 w-full mb-0" for="mob">{{ _("Your mobile number") }}</label>
+				<input id="mob" type="tel" inputmode="numeric" maxlength="14" class="form-control" autocomplete="username">
+			</div>
+			<div id="m1" class="es-alert hr-hidden"></div>
+			<button class="es-button w-full" data-variant="solid" id="send">{{ _("Email me a code") }}</button>
+		</div>
+
+		<div id="step2" class="flex flex-col gap-4 hr-hidden">
+			<p class="text-p-base text-ink-gray-6 mb-0" id="sentto"></p>
+			<div class="form-group flex flex-col items-start gap-1.5 mb-0">
+				<label class="text-base text-ink-gray-5 w-full mb-0" for="code">{{ _("Code from the email") }}</label>
+				<input id="code" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" class="form-control">
+			</div>
+			<div class="form-group flex flex-col items-start gap-1.5 mb-0">
+				<label class="text-base text-ink-gray-5 w-full mb-0" for="pw">{{ _("New password (at least 8 characters, letters and numbers)") }}</label>
+				<input id="pw" type="password" autocomplete="new-password" class="form-control">
+			</div>
+			<div class="form-group flex flex-col items-start gap-1.5 mb-0">
+				<label class="text-base text-ink-gray-5 w-full mb-0" for="pw2">{{ _("New password again") }}</label>
+				<input id="pw2" type="password" autocomplete="new-password" class="form-control">
+			</div>
+			<div id="m2" class="es-alert hr-hidden"></div>
+			<button class="es-button w-full" data-variant="solid" id="save">{{ _("Save password") }}</button>
+		</div>
+
+		<div id="done" class="flex flex-col gap-4 hr-hidden">
+			<div class="es-alert" data-theme="green" role="status"><span class="es-alert__title">{{ _("Password saved") }}</span></div>
+			<a class="es-button w-full" data-variant="solid" href="/volunteer-login">{{ _("Sign in") }}</a>
+		</div>
+
+		<p class="text-base text-center mb-0"><a class="text-ink-gray-5" href="/volunteer-login">{{ _("Back to sign in") }}</a></p>
+	</div>
+</section>
 {% endblock %}
 {% block script %}
+{{ super() }}
 {% include "templates/includes/hr_js.html" %}
 <script>
 (function () {

@@ -30,7 +30,13 @@ window.HR = {
 		return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 	},
 	$(sel) { return document.querySelector(sel); },
-	msg(el, text, kind) { el.className = "hr-msg " + (kind || "err"); el.textContent = text || ""; },
+	/** Show a message in a Frappe (Espresso) alert; empty text hides it. kind: err | warn | ok */
+	msg(el, text, kind) {
+		el.className = "es-alert" + (text ? "" : " hr-hidden");
+		el.setAttribute("role", "alert");
+		el.dataset.theme = { err: "red", warn: "yellow", ok: "green" }[kind || "err"];
+		el.innerHTML = text ? `<span class="es-alert__title">${HR.esc(text)}</span>` : "";
+	},
 	/** Shrink a phone photo to max 1280 px JPEG (about 150-300 KB) and upload it as a public file. */
 	async uploadPhoto(file) {
 		const blob = await HR.shrink(file, 1280, 0.72);
