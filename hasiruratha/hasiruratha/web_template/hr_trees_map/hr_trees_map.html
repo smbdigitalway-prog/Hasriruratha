@@ -1,0 +1,7 @@
+{%- set v = values or {} -%}
+<div class="hrw hrw-wrap">
+	<div class="hrw-sectionhead"><h2>{{ v.title or "Our trees, on the map" }}</h2>
+		<a class="hrw-link" href="/trees">{{ v.button_label or "Open the full map" }} →</a></div>
+	<p class="hrw-muted">{{ v.text or "Every spot Hasiru Ratha looks after. Tap a pin to see the spot, a photo and its care status. Move the map to see saplings around any place in the city." }}</p>
+	<iframe class="hrw-mapframe" src="/trees?embed=1" title="Hasiru Ratha trees map" loading="lazy" style="height:{{ v.map_height or 440 }}px"></iframe>
+</div>

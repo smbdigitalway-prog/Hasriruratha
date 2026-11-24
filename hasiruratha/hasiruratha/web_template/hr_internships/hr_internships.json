@@ -1,0 +1,64 @@
+{
+ "creation": "2026-11-21 20:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Web Template",
+ "fields": [
+  {
+   "fieldname": "eyebrow",
+   "fieldtype": "Data",
+   "label": "Eyebrow",
+   "reqd": 0,
+   "default": "1\u20133 months \u00b7 Documentation and storytelling"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "reqd": 0,
+   "default": "Intern with Hasiru Ratha"
+  },
+  {
+   "fieldname": "text",
+   "fieldtype": "Small Text",
+   "label": "Text",
+   "reqd": 0,
+   "default": "Help record field activities, edit photographs and videos, write stories and maintain our Green Diary. A certificate may be issued after successful completion of agreed work."
+  },
+  {
+   "fieldname": "points",
+   "fieldtype": "Small Text",
+   "label": "Points (one per line)",
+   "reqd": 0,
+   "default": "Document field activity with photos and short write-ups\nHelp keep the Green Diary and social posts up to date\nWork with volunteers across South Bengaluru zones\nChoose 1, 2 or 3 months"
+  },
+  {
+   "fieldname": "button_label",
+   "fieldtype": "Data",
+   "label": "Button label",
+   "reqd": 0,
+   "default": "Apply for internship"
+  },
+  {
+   "fieldname": "button_url",
+   "fieldtype": "Data",
+   "label": "Button url",
+   "reqd": 0,
+   "default": "/internship"
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "label": "Image",
+   "reqd": 0,
+   "default": "/assets/hasiruratha/images/site/photo10.jpg"
+  }
+ ],
+ "idx": 0,
+ "modified": "2026-11-21 20:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Hasiruratha",
+ "name": "HR Internships",
+ "owner": "Administrator",
+ "standard": 1,
+ "type": "Section"
+}

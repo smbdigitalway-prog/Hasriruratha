@@ -12,6 +12,8 @@ Data for the website blocks (Web Templates "HR …"), available in templates thr
 import frappe
 from frappe.utils import add_days, cint, getdate, today
 
+ONE_PAGE_ROUTE = "hasiru-ratha"
+
 DEFAULT_LINKS = {
 	"instagram_url": "https://www.instagram.com/hasiruratha_blr/",
 	"whatsapp_url": "https://chat.whatsapp.com/FivfJpNwrBK0NYr0PuU5ks",
@@ -29,6 +31,13 @@ def _cache():
 def hr_links():
 	s = frappe.get_cached_doc("Hasiruratha Settings")
 	return frappe._dict({k: (s.get(k) or v) for k, v in DEFAULT_LINKS.items()} | {"since": cint(s.get("website_since")) or 2017})
+
+
+def hr_home_route():
+	"""Address of the one-page site that the header links jump into ("/hasiru-ratha"), or "/" if that page is not there."""
+	if frappe.db.exists("Web Page", {"route": ONE_PAGE_ROUTE, "published": 1}):
+		return "/" + ONE_PAGE_ROUTE
+	return "/"
 
 
 def hr_account():

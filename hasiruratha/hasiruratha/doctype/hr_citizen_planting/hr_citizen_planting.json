@@ -6,7 +6,8 @@
  "engine": "InnoDB",
  "field_order": [
   "photo",
-  "tree_type",
+  "spot_or_stretch",
+  "number_of_trees",
   "location",
   "latitude",
   "longitude",
@@ -31,10 +32,23 @@
    "reqd": 1
   },
   {
-   "fieldname": "tree_type",
-   "fieldtype": "Data",
-   "label": "Tree type",
-   "description": "For example Neem. Leave empty if you are not sure."
+   "fieldname": "spot_or_stretch",
+   "fieldtype": "Select",
+   "label": "Spot or stretch?",
+   "options": "Spot\nStretch",
+   "default": "Spot",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "description": "Spot = one tree. Stretch = more than one tree along a road."
+  },
+  {
+   "fieldname": "number_of_trees",
+   "fieldtype": "Int",
+   "label": "How many trees?",
+   "default": "1",
+   "depends_on": "eval:doc.spot_or_stretch=='Stretch'",
+   "mandatory_depends_on": "eval:doc.spot_or_stretch=='Stretch'",
+   "description": "Roughly how many trees are in the stretch."
   },
   {
    "fieldname": "location",
@@ -171,10 +185,10 @@
   }
  ],
  "row_format": "Dynamic",
- "search_fields": "tree_type,area,road",
+ "search_fields": "road,area,spot_or_stretch",
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
- "title_field": "tree_type",
+ "title_field": "road",
  "track_changes": 1
 }

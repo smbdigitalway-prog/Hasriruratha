@@ -43,6 +43,7 @@
 </section>
 {% endblock %}
 {% block script %}
+<script>if (/[?&]embed=1/.test(location.search)) document.documentElement.classList.add("hr-embed");</script>
 {{ super() }}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 {% include "templates/includes/hr_js.html" %}

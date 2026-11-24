@@ -1,0 +1,73 @@
+{
+ "doctype": "Dashboard",
+ "name": "Hasiru Ratha",
+ "dashboard_name": "Hasiru Ratha",
+ "docstatus": 0,
+ "idx": 0,
+ "is_default": 0,
+ "is_standard": 1,
+ "module": "Hasiruratha",
+ "owner": "Administrator",
+ "modified_by": "Administrator",
+ "creation": "2026-11-23 10:00:00.000000",
+ "modified": "2026-11-23 10:00:00.000000",
+ "cards": [
+  {
+   "card": "Trees Planted"
+  },
+  {
+   "card": "Active Volunteers"
+  },
+  {
+   "card": "Open Citizen Requests"
+  },
+  {
+   "card": "Volunteer Hours"
+  },
+  {
+   "card": "Tree Guards Installed"
+  },
+  {
+   "card": "Tree Guards Removed"
+  },
+  {
+   "card": "Requests Completed"
+  },
+  {
+   "card": "Open Duplicate Reports"
+  },
+  {
+   "card": "Upcoming Events"
+  }
+ ],
+ "charts": [
+  {
+   "chart": "Trees by Status",
+   "width": "Half"
+  },
+  {
+   "chart": "Requests by Status",
+   "width": "Half"
+  },
+  {
+   "chart": "Citizen Reports by Issue",
+   "width": "Half"
+  },
+  {
+   "chart": "Care Activity",
+   "width": "Half"
+  },
+  {
+   "chart": "Duplicate Reports by Status",
+   "width": "Half"
+  },
+  {
+   "chart": "Spots and Stretches by Zone",
+   "width": "Half"
+  },
+  {
+   "chart": "Requests per Month",
+   "width": "Half"
+  }
+ ]
+}

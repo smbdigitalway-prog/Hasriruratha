@@ -12,3 +12,6 @@ hasiruratha.patches.volunteers_use_desk
 hasiruratha.patches.add_boards_and_console_to_workspace
 hasiruratha.patches.add_events_impact_to_workspace
 hasiruratha.patches.backfill_visit_area_zone
+hasiruratha.patches.build_one_page_site
+hasiruratha.patches.rebuild_one_page_site_all_fields
+hasiruratha.patches.merge_admin_into_main_workspace

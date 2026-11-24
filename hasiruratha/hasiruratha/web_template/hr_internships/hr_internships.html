@@ -1,0 +1,12 @@
+{%- set v = values or {} -%}
+{%- set pts = v.points or "Document field activity with photos and short write-ups\nHelp keep the Green Diary and social posts up to date\nWork with volunteers across South Bengaluru zones\nChoose 1, 2 or 3 months" -%}
+<div class="hrw hrw-wrap hrw-story">
+	<div>
+		<div class="hrw-eyebrow">{{ v.eyebrow or "1–3 months · Documentation and storytelling" }}</div>
+		<h2>{{ v.title or "Intern with Hasiru Ratha" }}</h2>
+		<p>{{ v.text or "Help record field activities, edit photographs and videos, write stories and maintain our Green Diary. A certificate may be issued after successful completion of agreed work." }}</p>
+		<ul class="hrw-points">{%- for p in pts.split("\n") if p.strip() -%}<li>{{ p }}</li>{%- endfor -%}</ul>
+		<a class="hrw-btn" href="{{ v.button_url or '/internship' }}">{{ v.button_label or "Apply for internship" }}</a>
+	</div>
+	<img src="{{ v.image or '/assets/hasiruratha/images/site/photo10.jpg' }}" alt="" loading="lazy">
+</div>

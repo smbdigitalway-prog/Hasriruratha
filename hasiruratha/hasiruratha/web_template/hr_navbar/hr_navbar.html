@@ -1,6 +1,7 @@
 {#- Hasiru Ratha site header (Website Settings -> Navbar Template = "HR Navbar"). -#}
 {%- set L = hr_links() -%}
 {%- set A = hr_account() -%}
+{%- set H = hr_home_route() -%}
 {%- set is_admin, is_vol = A.is_admin, A.is_volunteer -%}
 {%- macro account_links() -%}
 	{%- if not A.signed_in -%}
@@ -15,17 +16,17 @@
 	{%- endif -%}
 {%- endmacro -%}
 <header class="hrw hrw-header" role="banner">
-	<a class="hrw-brand" href="/">
+	<a class="hrw-brand" href="{{ H }}">
 		<img src="/assets/hasiruratha/images/site/logo.jpg" alt="Hasiru Ratha logo" width="60" height="60">
 		<span><strong>Hasiru Ratha</strong><small>In Service of Nature · South Bengaluru</small></span>
 	</a>
 	<nav class="hrw-nav" aria-label="Main">
-		<a href="/#story">About</a>
-		<a href="/#work">Our Work</a>
-		<a href="/#impact">Impact</a>
-		<a href="/green-diary">Green Diary</a>
-		<a href="/internship">Internships</a>
-		<a href="/trees">Trees map</a>
+		<a href="{{ H }}#about">About</a>
+		<a href="{{ H }}#work">Our Work</a>
+		<a href="{{ H }}#impact">Impact</a>
+		<a href="{{ H }}#diary">Green Diary</a>
+		<a href="{{ H }}#internships">Internships</a>
+		<a href="{{ H }}#map">Trees map</a>
 		<a href="/request" class="hrw-btn" style="margin:0;padding:8px 14px">Raise a request</a>
 		<details>
 			<summary>{{ "My account ▾" if A.signed_in else "Sign in ▾" }}</summary>
@@ -35,9 +36,9 @@
 	<details class="hrw-mobile">
 		<summary aria-label="Menu">☰ Menu</summary>
 		<div class="hrw-menu">
-			<a href="/#story">About</a><a href="/#work">Our Work</a><a href="/#impact">Impact</a>
-			<a href="/green-diary">Green Diary</a><a href="/internship">Internships</a><a href="/blog">Learn &amp; stories</a>
-			<a href="/trees">Trees map</a><a href="/request">Raise a request</a>
+			<a href="{{ H }}#about">About</a><a href="{{ H }}#work">Our Work</a><a href="{{ H }}#impact">Impact</a>
+			<a href="{{ H }}#diary">Green Diary</a><a href="{{ H }}#internships">Internships</a><a href="{{ H }}#map">Trees map</a>
+			<a href="/blog">Learn &amp; stories</a><a href="/request">Raise a request</a>
 			<h4>{{ "My account" if A.signed_in else "Sign in" }}</h4>
 			{{ account_links() }}
 		</div>

@@ -43,11 +43,14 @@ def before_plant(doc):
 
 def after_plant(doc):
 	site = None if doc.different_spot else (doc.existing_site or None)
-	r = ca.plant_core(doc.owner, doc.photo, doc.latitude, doc.longitude, doc.tree_type, doc.road, doc.area,
+	r = ca.plant_core(doc.owner, doc.photo, doc.latitude, doc.longitude, None, doc.road, doc.area,
 	                  doc.address, existing_site=site, confirm_new=1 if doc.different_spot else 0)
 	if r.get("duplicate"):                # a registered spot is within 30 m and the citizen did not say "different"
-		r = ca.plant_core(doc.owner, doc.photo, doc.latitude, doc.longitude, doc.tree_type, doc.road, doc.area,
+		r = ca.plant_core(doc.owner, doc.photo, doc.latitude, doc.longitude, None, doc.road, doc.area,
 		                  doc.address, existing_site=r["spots"][0]["site_id"])
+	if doc.spot_or_stretch == "Stretch" and r.get("site_id") and not (site or r.get("duplicate")):
+		# a stretch is more than one tree: the new site is marked as a stretch with the number the citizen gave
+		frappe.db.set_value("HR Site", r["site_id"], {"site_type": "stretch", "notes": _("Stretch of about {0} trees, planted by a citizen").format(doc.number_of_trees or 2)})
 	doc.db_set({"site": r["site_id"], "tree": r["tree_id"], "zone": r.get("zone_id"), "zone_note": r.get("zone_note"),
 	            "status": "On the map" if r.get("zone_id") else "Needs a check"}, update_modified=False)
 
@@ -59,7 +62,8 @@ def before_report(doc):
 
 def after_report(doc):
 	near = ca.nearest_tree(doc.latitude, doc.longitude, 100)
-	r = ca.report_core(doc.owner, doc.photo, doc.latitude, doc.longitude, doc.issue_type, doc.notes,
+	r = ca.report_core(doc.owner, doc.photo, doc.latitude, doc.longitude, doc.issue_type,
+	                   ((doc.notes or "") + ((" [" + _("Stretch of about {0} trees").format(doc.number_of_trees or 2) + "]") if doc.spot_or_stretch == "Stretch" else "")).strip(),
 	                   near["tree_id"] if near else None, doc.road, doc.area, doc.address)
 	doc.db_set({"tree": r["tree_id"], "report": r["report_name"], "untracked": 1 if r["untracked"] else 0,
 	            "zone": r.get("zone_id"), "zone_note": r.get("zone_note")}, update_modified=False)

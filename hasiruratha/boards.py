@@ -18,8 +18,8 @@ from frappe.utils import date_diff, getdate, nowdate
 BOARDS = {
 	"HR Request": dict(board="HR Requests", field="status", title="title", image="photo",
 	                   sub=["request_type", "area"], label="Citizen requests"),
-	"HR Citizen Planting": dict(board="HR Citizen Plantings", field="status", title="tree_type", image="photo",
-	                            sub=["area", "road"], label="Citizen plantings"),
+	"HR Citizen Planting": dict(board="HR Citizen Plantings", field="status", title="road", image="photo",
+	                            sub=["spot_or_stretch", "area"], label="Citizen plantings"),
 	"HR Citizen Report": dict(board="HR Citizen Reports", field="status", title="issue_type", image="photo",
 	                          sub=["area", "assigned_volunteer"], label="Citizen reports"),
 	"HR Tree Report": dict(board="HR Tree Reports", field="status", title="report_id", image="photo_url",

@@ -1,0 +1,127 @@
+{
+ "creation": "2026-11-21 20:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Web Template",
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "reqd": 0,
+   "default": "Be part of it"
+  },
+  {
+   "fieldname": "plant_title",
+   "fieldtype": "Data",
+   "label": "Plant title",
+   "reqd": 0,
+   "default": "Plant a new tree"
+  },
+  {
+   "fieldname": "plant_text",
+   "fieldtype": "Small Text",
+   "label": "Plant text",
+   "reqd": 0,
+   "default": "Suggest a spot where a sapling should go. We check it against trees already on our map before anyone plants."
+  },
+  {
+   "fieldname": "plant_url",
+   "fieldtype": "Data",
+   "label": "Plant button url",
+   "reqd": 0,
+   "default": "/plant-a-tree"
+  },
+  {
+   "fieldname": "plant_image",
+   "fieldtype": "Attach Image",
+   "label": "Plant image",
+   "reqd": 0,
+   "default": "/assets/hasiruratha/images/site/photo04.jpg"
+  },
+  {
+   "fieldname": "plant_button",
+   "fieldtype": "Data",
+   "label": "Plant button label",
+   "reqd": 0,
+   "default": "Plant a tree"
+  },
+  {
+   "fieldname": "volunteer_title",
+   "fieldtype": "Data",
+   "label": "Volunteer title",
+   "reqd": 0,
+   "default": "Volunteer with us"
+  },
+  {
+   "fieldname": "volunteer_text",
+   "fieldtype": "Small Text",
+   "label": "Volunteer text",
+   "reqd": 0,
+   "default": "Retirees, students and working professionals all have a place. Register once and help look after saplings near you."
+  },
+  {
+   "fieldname": "volunteer_url",
+   "fieldtype": "Data",
+   "label": "Volunteer button url",
+   "reqd": 0,
+   "default": "/become-a-volunteer"
+  },
+  {
+   "fieldname": "volunteer_image",
+   "fieldtype": "Attach Image",
+   "label": "Volunteer image",
+   "reqd": 0,
+   "default": "/assets/hasiruratha/images/site/photo09.jpg"
+  },
+  {
+   "fieldname": "volunteer_button",
+   "fieldtype": "Data",
+   "label": "Volunteer button label",
+   "reqd": 0,
+   "default": "Become a volunteer"
+  },
+  {
+   "fieldname": "report_title",
+   "fieldtype": "Data",
+   "label": "Report title",
+   "reqd": 0,
+   "default": "Report a tree"
+  },
+  {
+   "fieldname": "report_text",
+   "fieldtype": "Small Text",
+   "label": "Report text",
+   "reqd": 0,
+   "default": "A sapling that is dry, broken or missing its guard? Tell us where it is and a volunteer will follow up."
+  },
+  {
+   "fieldname": "report_url",
+   "fieldtype": "Data",
+   "label": "Report button url",
+   "reqd": 0,
+   "default": "/report-a-tree"
+  },
+  {
+   "fieldname": "report_image",
+   "fieldtype": "Attach Image",
+   "label": "Report image",
+   "reqd": 0,
+   "default": "/assets/hasiruratha/images/site/photo06.jpg"
+  },
+  {
+   "fieldname": "report_button",
+   "fieldtype": "Data",
+   "label": "Report button label",
+   "reqd": 0,
+   "default": "Report a tree"
+  }
+ ],
+ "idx": 0,
+ "modified": "2026-11-21 20:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Hasiruratha",
+ "name": "HR Take Action",
+ "owner": "Administrator",
+ "standard": 1,
+ "type": "Section"
+}

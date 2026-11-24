@@ -134,3 +134,32 @@
 	.hrw-foot { grid-template-columns: 1fr; }
 }
 @media (max-width: 420px) { .hrw-brand small { display: none; } }
+
+/* ---- one-page site: smooth jump to a section, clear of the header ---- */
+html { scroll-behavior: smooth; }
+section[id] { scroll-margin-top: 92px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+.hrw-lead { font-size: 18px; margin-bottom: 26px; }
+.hrw-about { padding: 56px 26px 24px; }
+.hrw-about-grid { display: grid; grid-template-columns: 5fr 7fr; gap: 40px; align-items: start; }
+.hrw-about-grid > img { width: 100%; height: 100%; max-height: 520px; object-fit: cover; border-radius: 4px; }
+.hrw-about-points { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 36px; }
+.hrw-about-points h3 { font-size: 22px; }
+.hrw-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 10px; }
+.hrw-action { border: 1px solid var(--hrw-line); border-top: 3px solid var(--hrw-gold); display: flex; flex-direction: column; background: #fff; }
+.hrw-action img { width: 100%; height: 210px; object-fit: cover; display: block; }
+.hrw-action > div { padding: 18px 20px 22px; display: flex; flex-direction: column; flex: 1; }
+.hrw-action p { color: var(--hrw-muted); flex: 1; }
+.hrw-points { padding-left: 20px; margin: 0 0 18px; color: var(--hrw-muted); }
+.hrw-points li { margin-bottom: 6px; }
+.hrw-mapframe { width: 100%; border: 1px solid var(--hrw-line); border-radius: 4px; display: block; margin-top: 10px; }
+@media (max-width: 760px) {
+	.hrw-about { padding: 36px 16px 8px; }
+	.hrw-about-grid, .hrw-about-points, .hrw-actions { grid-template-columns: 1fr; gap: 18px; }
+	.hrw-action img { height: 170px; }
+	section[id] { scroll-margin-top: 70px; }
+}
+
+/* map shown inside the one-page site: just the map, no second header or footer */
+html.hr-embed .hrw-header, html.hr-embed header, html.hr-embed footer, html.hr-embed .web-footer, html.hr-embed .navbar, html.hr-embed .hr-subnav { display: none !important; }
+html.hr-embed body { padding-top: 0 !important; }

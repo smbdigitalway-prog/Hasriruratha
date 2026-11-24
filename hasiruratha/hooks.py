@@ -39,6 +39,7 @@ jinja = {"methods": [
 	"hasiruratha.website.hr_blog_posts",
 	"hasiruratha.website.hr_links",
 	"hasiruratha.website.hr_account",
+	"hasiruratha.website.hr_home_route",
 ]}
 
 # the old dashboard page from the first version of the app is retired

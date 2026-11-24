@@ -7,6 +7,8 @@
  "field_order": [
   "photo",
   "issue_type",
+  "spot_or_stretch",
+  "number_of_trees",
   "notes",
   "location",
   "latitude",
@@ -39,6 +41,25 @@
    "default": "Dead tree",
    "reqd": 1,
    "in_standard_filter": 1
+  },
+  {
+   "fieldname": "spot_or_stretch",
+   "fieldtype": "Select",
+   "label": "Spot or stretch?",
+   "options": "Spot\nStretch",
+   "default": "Spot",
+   "in_list_view": 0,
+   "in_standard_filter": 1,
+   "description": "Spot = one tree has the problem. Stretch = several trees along a road have it."
+  },
+  {
+   "fieldname": "number_of_trees",
+   "fieldtype": "Int",
+   "label": "How many trees?",
+   "default": "1",
+   "depends_on": "eval:doc.spot_or_stretch=='Stretch'",
+   "mandatory_depends_on": "eval:doc.spot_or_stretch=='Stretch'",
+   "description": "Roughly how many trees have the problem."
   },
   {
    "fieldname": "notes",

@@ -1,0 +1,18 @@
+{%- set v = values or {} -%}
+{%- set D = [["meaning","Our Meaning","Hasiru Ratha means Green Chariot, symbolising our journey towards a greener and healthier Bengaluru."],
+             ["mission","Our Mission","To plant, protect and nurture trees while creating greener and healthier neighbourhoods."],
+             ["community","Our Community","Bringing together citizens, volunteers and nature enthusiasts to take collective environmental action."],
+             ["commitment","Our Commitment","Going beyond plantation by ensuring that every sapling receives care, protection and regular maintenance."]] -%}
+<div class="hrw hrw-wrap hrw-about">
+	<div class="hrw-eyebrow">{{ v.eyebrow or "About us" }}</div>
+	<h2>{{ v.title or "About Hasiru Ratha" }}</h2>
+	<p class="hrw-muted hrw-lead">{{ v.subtitle or "The Green Chariot – Growing a Greener Bengaluru" }}</p>
+	<div class="hrw-about-grid">
+		<img src="{{ v.image or '/assets/hasiruratha/images/site/photo03.jpg' }}" alt="{{ v.image_alt or '' }}" loading="lazy">
+		<div class="hrw-about-points">
+			{%- for key, default_title, default_text in D -%}
+			<div><h3>{{ v.get(key ~ '_title') or default_title }}</h3><p>{{ v.get(key ~ '_text') or default_text }}</p></div>
+			{%- endfor -%}
+		</div>
+	</div>
+</div>

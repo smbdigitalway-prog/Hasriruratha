@@ -48,7 +48,7 @@
  "show_list": 1,
  "show_sidebar": 0,
  "success_message": "Our team has been told. You can follow progress under My status. See everything under My status (/my-status).",
- "success_title": "Thank you for reporting \ud83d\ude4f",
+ "success_title": "Thank you for reporting 🙏",
  "success_url": "",
  "title": "Report a tree",
  "web_form_fields": [
@@ -78,6 +78,38 @@
    "hidden": 0,
    "options": "Dead tree\nDamage\nWatering\nPest / Disease\nLeaning\nDebris\nGuard / Support\nOther",
    "default": "Dead tree"
+  },
+  {
+   "allow_read_on_all_link_options": 0,
+   "fieldname": "spot_or_stretch",
+   "fieldtype": "Select",
+   "label": "Spot or stretch?",
+   "max_length": 0,
+   "max_value": 0,
+   "read_only": 0,
+   "reqd": 1,
+   "show_in_filter": 0,
+   "hidden": 0,
+   "description": "Spot = one tree has the problem. Stretch = several trees along a road have it.",
+   "options": "Spot\nStretch",
+   "default": "Spot"
+  },
+  {
+   "allow_read_on_all_link_options": 0,
+   "fieldname": "number_of_trees",
+   "fieldtype": "Int",
+   "label": "How many trees?",
+   "max_length": 0,
+   "max_value": 0,
+   "read_only": 0,
+   "reqd": 0,
+   "show_in_filter": 0,
+   "hidden": 0,
+   "description": "Roughly how many trees have the problem.",
+   "options": "",
+   "default": "1",
+   "depends_on": "eval:doc.spot_or_stretch=='Stretch'",
+   "mandatory_depends_on": "eval:doc.spot_or_stretch=='Stretch'"
   },
   {
    "allow_read_on_all_link_options": 0,

@@ -139,3 +139,16 @@ GPS locked once captured. Patches: `add_boards_and_console_to_workspace`, `add_e
 ### 21 Nov 2026 (filters)
 HR Visit, HR Volunteer, HR Duplicate Report: every filterable field is now a standard list filter. HR Visit gained Area and Zone
 (copied from its site; patch `backfill_visit_area_zone` fills old visits). HR Volunteer Area / Zone relabelled and shown in the list.
+
+### 21 Nov 2026 (one-page site)
+New Web Templates: HR About, HR Take Action (Plant a new tree / Volunteer / Report a tree -> the three Web Forms), HR Internships,
+HR Trees Map (the /trees map in a frame, `?embed=1` hides its header). HR Navbar links now jump to #about #work #impact #diary
+#internships #map on the Web Page `hasiru-ratha` (`hr_home_route()`). Patch `build_one_page_site` rebuilds that Web Page from the blocks.
+
+Rebuild (all fields): `patches/build_one_page_site.rebuild()` replaces every block of the `hasiru-ratha` Web Page with the HR blocks, each with all fields
+pre-filled, hides the `home-new` preview copy and sets Website Settings (Home Page, Navbar = HR Navbar, Footer = HR Footer).
+Run again any time with: bench --site <site> execute hasiruratha.patches.build_one_page_site.rebuild
+
+### 23 Nov 2026
+* Citizen Planting / Citizen Report / Plant a tree + Report a tree web forms: "Tree type" removed; "Spot or stretch?" (Spot = one tree, Stretch = more than one) and "How many trees?" (stretch only) added. A stretch from a citizen creates the site as a stretch.
+* Dashboard "Hasiru Ratha" (7 Dashboard Charts + 9 Number Cards). Patch `merge_admin_into_main_workspace` copies the admin charts/cards/shortcuts, the Dashboard, the Console and a Kanban section into the main workspace `hasiru_ratha`.

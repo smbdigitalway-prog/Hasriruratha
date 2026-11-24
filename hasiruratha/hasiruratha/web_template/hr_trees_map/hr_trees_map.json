@@ -1,0 +1,43 @@
+{
+ "creation": "2026-11-21 20:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Web Template",
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "reqd": 0,
+   "default": "Our trees, on the map"
+  },
+  {
+   "fieldname": "text",
+   "fieldtype": "Small Text",
+   "label": "Text",
+   "reqd": 0,
+   "default": "Every spot Hasiru Ratha looks after. Tap a pin to see the spot, a photo and its care status. Move the map to see saplings around any place in the city."
+  },
+  {
+   "fieldname": "button_label",
+   "fieldtype": "Data",
+   "label": "Button label",
+   "reqd": 0,
+   "default": "Open the full map"
+  },
+  {
+   "fieldname": "map_height",
+   "fieldtype": "Int",
+   "label": "Map height (px)",
+   "reqd": 0,
+   "default": "440"
+  }
+ ],
+ "idx": 0,
+ "modified": "2026-11-21 20:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Hasiruratha",
+ "name": "HR Trees Map",
+ "owner": "Administrator",
+ "standard": 1,
+ "type": "Section"
+}

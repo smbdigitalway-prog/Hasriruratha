@@ -1,0 +1,106 @@
+{
+ "creation": "2026-11-21 20:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Web Template",
+ "fields": [
+  {
+   "fieldname": "eyebrow",
+   "fieldtype": "Data",
+   "label": "Eyebrow",
+   "reqd": 0,
+   "default": "About us"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "reqd": 0,
+   "default": "About Hasiru Ratha"
+  },
+  {
+   "fieldname": "subtitle",
+   "fieldtype": "Data",
+   "label": "Subtitle",
+   "reqd": 0,
+   "default": "The Green Chariot \u2013 Growing a Greener Bengaluru"
+  },
+  {
+   "fieldname": "meaning_title",
+   "fieldtype": "Data",
+   "label": "Meaning title",
+   "reqd": 0,
+   "default": "Our Meaning"
+  },
+  {
+   "fieldname": "meaning_text",
+   "fieldtype": "Small Text",
+   "label": "Meaning text",
+   "reqd": 0,
+   "default": "Hasiru Ratha means Green Chariot, symbolising our journey towards a greener and healthier Bengaluru."
+  },
+  {
+   "fieldname": "mission_title",
+   "fieldtype": "Data",
+   "label": "Mission title",
+   "reqd": 0,
+   "default": "Our Mission"
+  },
+  {
+   "fieldname": "mission_text",
+   "fieldtype": "Small Text",
+   "label": "Mission text",
+   "reqd": 0,
+   "default": "To plant, protect and nurture trees while creating greener and healthier neighbourhoods."
+  },
+  {
+   "fieldname": "community_title",
+   "fieldtype": "Data",
+   "label": "Community title",
+   "reqd": 0,
+   "default": "Our Community"
+  },
+  {
+   "fieldname": "community_text",
+   "fieldtype": "Small Text",
+   "label": "Community text",
+   "reqd": 0,
+   "default": "Bringing together citizens, volunteers and nature enthusiasts to take collective environmental action."
+  },
+  {
+   "fieldname": "commitment_title",
+   "fieldtype": "Data",
+   "label": "Commitment title",
+   "reqd": 0,
+   "default": "Our Commitment"
+  },
+  {
+   "fieldname": "commitment_text",
+   "fieldtype": "Small Text",
+   "label": "Commitment text",
+   "reqd": 0,
+   "default": "Going beyond plantation by ensuring that every sapling receives care, protection and regular maintenance."
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "label": "Image",
+   "reqd": 0,
+   "default": "/assets/hasiruratha/images/site/photo03.jpg"
+  },
+  {
+   "fieldname": "image_alt",
+   "fieldtype": "Data",
+   "label": "Image alt",
+   "reqd": 0,
+   "default": "Hasiru Ratha volunteers caring for a sapling"
+  }
+ ],
+ "idx": 0,
+ "modified": "2026-11-21 20:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Hasiruratha",
+ "name": "HR About",
+ "owner": "Administrator",
+ "standard": 1,
+ "type": "Section"
+}
