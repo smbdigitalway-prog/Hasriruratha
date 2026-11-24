@@ -1,6 +1,7 @@
 [pre_model_sync]
 
 [post_model_sync]
+hasiruratha.patches.v1_0.rebuild_citizen_website
 hasiruratha.patches.add_citizen_requests_to_workspace
 hasiruratha.patches.create_duplicate_reports
 hasiruratha.patches.add_field_app_shortcut

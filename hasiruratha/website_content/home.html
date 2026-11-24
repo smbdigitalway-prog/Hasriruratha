@@ -1,0 +1,161 @@
+<div class="hr-site" id="hr-top">
+<style>
+.hr-site{--g:#304745;--dk:#172d29;--gold:#b39157;--line:#dedede;--mu:#555;color:#202722;font-family:Arial,Helvetica,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+.hr-site *{box-sizing:border-box}
+.hr-site h1,.hr-site h2,.hr-site h3{font-family:Georgia,'Times New Roman',serif;line-height:1.14;color:#1d2a27;margin:0}
+.hr-site h1{font-size:clamp(38px,5vw,70px);letter-spacing:-.035em}
+.hr-site h2{font-size:clamp(28px,3vw,42px);margin:0 0 14px}
+.hr-site h3{font-size:24px;margin:14px 0 6px}
+.hr-site p{margin:0 0 14px}
+.hr-site img{display:block;width:100%;object-fit:cover;max-width:100%}
+.hr-wrap{max-width:1240px;margin:0 auto;padding:0 26px}
+.hr-sec{padding:68px 0;border-top:1px solid var(--line);scroll-margin-top:70px}
+.hr-eyebrow{text-transform:uppercase;font-size:12px;letter-spacing:.16em;color:var(--g);font-weight:700;margin-bottom:10px}
+.hr-btn{display:inline-block;background:var(--g);color:#fff!important;text-decoration:none!important;padding:12px 22px;border-radius:3px;font-weight:700;font-size:14px;border:1px solid var(--g);cursor:pointer;transition:background .15s}
+.hr-btn:hover{background:var(--dk);border-color:var(--dk)}
+.hr-btn.out{background:#fff;color:var(--g)!important}
+.hr-btn.out:hover{background:#f1f5f4}
+.hr-head{display:flex;justify-content:space-between;align-items:baseline;gap:24px;margin-bottom:26px}
+.hr-head p{color:var(--mu);margin:0;max-width:430px}
+.hr-hero{display:grid;grid-template-columns:42% 58%;height:clamp(520px,68vh,640px);overflow:hidden}
+.hr-hero-copy{padding:60px 8% 44px 9%;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
+.hr-hero h1{margin:6px 0 18px}.hr-hero h1 span{color:var(--g)}
+.hr-hero p{max-width:470px;font-size:17px;color:#3b4541}
+.hr-hero img{height:100%;object-position:50% 40%}
+.hr-act{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.hr-card{border:1px solid var(--line);border-top:3px solid var(--g);background:#fff;display:flex;flex-direction:column}
+.hr-card img{height:230px}
+.hr-card div{padding:20px 22px 24px;display:flex;flex-direction:column;flex:1}
+.hr-card h3{margin-top:0}.hr-card p{color:var(--mu);font-size:15px;flex:1}
+.hr-card .hr-btn{align-self:flex-start}
+.hr-login{background:#f4f6f5;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:28px 0}
+.hr-login .hr-wrap{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.hr-login h3{margin:0 0 4px;font-size:22px}.hr-login p{margin:0;color:var(--mu);font-size:15px}
+.hr-login .hr-lb{display:flex;gap:10px;flex-wrap:wrap}
+.hr-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:26px}
+.hr-stat{border-left:2px solid var(--gold);padding-left:18px}
+.hr-stat strong{display:block;font:700 38px Georgia,serif;color:var(--g)}
+.hr-stat span{font-size:14px;color:var(--mu)}
+.hr-work{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.hr-work img{height:240px}.hr-work h3{font-size:25px}.hr-work p{font-size:14px;color:var(--mu);margin:0}
+.hr-about{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+.hr-about>img{height:560px}
+.hr-sub{font-size:18px;color:var(--mu);margin-bottom:22px}
+.hr-pill{display:grid;grid-template-columns:1fr 1fr;gap:20px 26px;margin:24px 0}
+.hr-pill div{border-top:2px solid var(--gold);padding-top:10px}
+.hr-pill h3{font-size:20px;margin:0 0 4px}.hr-pill p{font-size:14px;color:var(--mu);margin:0}
+.hr-gal{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}
+.hr-gal img{height:230px}
+.hr-duo{display:grid;grid-template-columns:1fr 1fr;gap:56px}
+.hr-panel{border-top:3px solid var(--g);padding-top:20px}.hr-panel p{max-width:490px}
+.hr-links{display:flex;gap:22px;flex-wrap:wrap}
+.hr-links a{color:var(--g);border-bottom:1px solid var(--g);text-decoration:none;padding-bottom:3px;font-weight:700}
+@media(max-width:900px){.hr-act,.hr-work{grid-template-columns:1fr 1fr}.hr-gal{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.hr-hero{display:flex;flex-direction:column-reverse;height:auto}.hr-hero img{height:320px}.hr-hero-copy{padding:26px 22px 38px}.hr-hero h1{font-size:42px}.hr-wrap{padding:0 20px}.hr-sec{padding:42px 0}.hr-head{display:block}.hr-head p{margin-top:6px}.hr-act{grid-template-columns:1fr}.hr-stats{grid-template-columns:1fr 1fr;gap:22px}.hr-work{grid-template-columns:1fr 1fr;gap:18px}.hr-work img{height:170px}.hr-about,.hr-duo{grid-template-columns:1fr;gap:24px}.hr-about>img{height:340px}.hr-pill{grid-template-columns:1fr}.hr-gal{grid-template-columns:1fr 1fr}.hr-gal img{height:180px}}
+</style>
+
+<div class="hr-hero">
+  <div class="hr-hero-copy">
+    <div class="hr-eyebrow">Citizen-led since 2017</div>
+    <h1>We don't just plant trees.<br><span>We help them grow.</span></h1>
+    <p>Early mornings, neighbourhood streets and a shared commitment to caring for Bengaluru's trees.</p>
+    <a class="hr-btn" href="#hr-join">Be part of it</a>
+  </div>
+  <img src="__IMG__/photo03.jpg" alt="Hasiru Ratha volunteers caring for a sapling" width="1200" height="1600">
+</div>
+
+<section class="hr-sec" id="hr-join" style="border-top:0">
+  <div class="hr-wrap">
+    <div class="hr-head"><h2>Be part of it</h2><p>Three simple ways to help Bengaluru's trees. Pick one and it takes less than a minute.</p></div>
+    <div class="hr-act">
+      <article class="hr-card"><img src="__IMG__/photo06.jpg" alt="Volunteers digging a planting pit" loading="lazy"><div><h3>Plant a Tree</h3><p>Tell us where a sapling can go and how many. Our team checks the spot and plans the planting.</p><a class="hr-btn" href="__PLANT_URL__">Plant a Tree</a></div></article>
+      <article class="hr-card"><img src="__IMG__/photo08.jpg" alt="A sapling growing inside a tree guard" loading="lazy"><div><h3>Report a Tree</h3><p>Spotted a sapling that needs water, a repair or a guard? Send a photo and its location.</p><a class="hr-btn" href="__REPORT_URL__">Report a Tree</a></div></article>
+      <article class="hr-card"><img src="__IMG__/photo01.jpg" alt="Hasiru Ratha volunteers with a tree guard" loading="lazy"><div><h3>Become a Volunteer</h3><p>Retirees, students and working professionals all have a place with us. Give a little time near you.</p><a class="hr-btn" href="__VOLUNTEER_URL__">Become a Volunteer</a></div></article>
+    </div>
+  </div>
+</section>
+
+<div class="hr-login" id="hr-login">
+  <div class="hr-wrap">
+    <div><h3 id="hr-login-title">Citizen login</h3><p id="hr-login-text">Log in with your mobile number or email to follow the status of your plantings and reports.</p></div>
+    <div class="hr-lb" id="hr-login-btns"><a class="hr-btn" href="__LOGIN_URL__">Log in</a><a class="hr-btn out" href="__SIGNUP_URL__">Create account</a></div>
+  </div>
+</div>
+
+<section class="hr-sec" id="hr-impact" style="border-top:0">
+  <div class="hr-wrap"><div class="hr-stats">
+    <div class="hr-stat"><strong>~5,000</strong><span>Saplings planted directly</span></div>
+    <div class="hr-stat"><strong>~8,000</strong><span>Saplings maintained so far</span></div>
+    <div class="hr-stat"><strong>~400</strong><span>New saplings planted each year</span></div>
+    <div class="hr-stat"><strong>2017</strong><span>Year initiative began</span></div>
+  </div></div>
+</section>
+
+<section class="hr-sec" id="hr-work">
+  <div class="hr-wrap">
+    <div class="hr-head"><h2>Our work, every week.</h2><p>Plant. Nurture. Protect. Reuse.</p></div>
+    <div class="hr-work">
+      <article><img src="__IMG__/photo10.jpg" alt="Volunteers planting a sapling" loading="lazy"><h3>Plant</h3><p>Choose appropriate locations, mindful of pathways and utilities.</p></article>
+      <article><img src="__IMG__/photo09.jpg" alt="Volunteers tending a young tree" loading="lazy"><h3>Nurture</h3><p>Regular watering and maintenance for young saplings.</p></article>
+      <article><img src="__IMG__/photo07.jpg" alt="Volunteers installing a tree guard" loading="lazy"><h3>Protect</h3><p>Install, repair and maintain tree guards.</p></article>
+      <article><img src="__IMG__/photo02.jpg" alt="Volunteers recovering a tree guard" loading="lazy"><h3>Reuse</h3><p>Free mature trees from guards and reuse them for new saplings.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="hr-sec" id="hr-about">
+  <div class="hr-wrap hr-about">
+    <img src="__IMG__/photo04.jpg" alt="The Hasiru Ratha van, the Green Chariot" loading="lazy" width="1200" height="1600">
+    <div>
+      <div class="hr-eyebrow">About us</div>
+      <h2>About Hasiru Ratha</h2>
+      <p class="hr-sub">The Green Chariot – Growing a Greener Bengaluru</p>
+      <p>Hasiru means green. Ratha means chariot. Our Maruti Omni, contributed by founder Dr Nagaraj Manya from his retirement funds, helps volunteers carry tools, materials and recovered tree guards to neighbourhood sites. The van is a practical symbol of a community that shows up, again and again.</p>
+      <div class="hr-pill">
+        <div><h3>Our Meaning</h3><p>Hasiru Ratha means Green Chariot, symbolising our journey towards a greener and healthier Bengaluru.</p></div>
+        <div><h3>Our Mission</h3><p>To plant, protect and nurture trees while creating greener and healthier neighbourhoods.</p></div>
+        <div><h3>Our Community</h3><p>Bringing together citizens, volunteers and nature enthusiasts to take collective environmental action.</p></div>
+        <div><h3>Our Commitment</h3><p>Going beyond plantation by ensuring that every sapling receives care, protection and regular maintenance.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hr-sec" id="hr-diary">
+  <div class="hr-wrap">
+    <div class="hr-head"><h2>From the Green Diary</h2><p>Real photographs from everyday work on the streets of south Bengaluru.</p></div>
+    <div class="hr-gal">
+      <img src="__IMG__/photo01.jpg" alt="Green Diary photo 1" loading="lazy"><img src="__IMG__/photo05.jpg" alt="Green Diary photo 2" loading="lazy"><img src="__IMG__/photo09.jpg" alt="Green Diary photo 3" loading="lazy"><img src="__IMG__/photo10.jpg" alt="Green Diary photo 4" loading="lazy"><img src="__IMG__/photo06.jpg" alt="Green Diary photo 5" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<section class="hr-sec" id="hr-intern">
+  <div class="hr-wrap hr-duo">
+    <div class="hr-panel"><div class="hr-eyebrow">People make this possible</div><h2>Age is just a number.</h2><p>Retirees, students and working professionals contribute their time, skills and energy. There is a place for everyone who cares about our neighbourhood trees.</p></div>
+    <div class="hr-panel"><div class="hr-eyebrow">1–3 months · Documentation and storytelling</div><h2>Intern with Hasiru Ratha</h2><p>Help record field activities, edit photographs and videos, write stories and maintain our Green Diary. A certificate may be issued after successful completion of agreed work.</p><a class="hr-btn out" href="__INTERNSHIP_URL__">Apply for internship</a></div>
+  </div>
+</section>
+
+<section class="hr-sec" id="hr-connect">
+  <div class="hr-wrap">
+    <h2>Stay connected.</h2>
+    <p>Follow field updates and share locations where saplings need attention.</p>
+    <div class="hr-links"><a href="https://www.facebook.com/rathahasiru/" target="_blank" rel="noopener">Facebook ↗</a><a href="https://x.com/RathaHasiru" target="_blank" rel="noopener">X ↗</a></div>
+  </div>
+</section>
+
+<script>
+(function(){
+  function ck(n){var m=document.cookie.split('; ').filter(function(r){return r.indexOf(n+'=')===0})[0];return m?decodeURIComponent(m.split('=').slice(1).join('=').replace(/\+/g,' ')):'';}
+  var u=ck('user_id'),nm=ck('full_name')||u;
+  if(!u||u==='Guest')return;
+  var t=document.getElementById('hr-login-title'),x=document.getElementById('hr-login-text'),b=document.getElementById('hr-login-btns');
+  if(!t)return;
+  t.textContent='Welcome, '+nm;
+  x.textContent='You are logged in. You can plant, report or volunteer above and we will keep your submissions together.';
+  b.innerHTML='<a class="hr-btn" href="/me">My account</a><a class="hr-btn out" href="#" id="hr-logout">Log out</a>';
+  document.getElementById('hr-logout').addEventListener('click',function(e){e.preventDefault();fetch('/api/method/logout',{credentials:'same-origin'}).then(function(){location.reload();});});
+})();
+</script>
+</div>
