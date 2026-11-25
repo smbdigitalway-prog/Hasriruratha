@@ -1,0 +1,26 @@
+<section class="hrb hrb-about" id="hr-about">
+<style>
+.hrb-about{padding:68px 0;border-top:1px solid var(--line)}
+.hrb-about .hrb-wrap{max-width:1240px;margin:0 auto;padding:0 26px;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+.hrb-about-img{height:560px}
+.hrb-about h2{font-size:clamp(28px,3vw,42px);margin-bottom:14px}
+.hrb-sub{font-size:18px;color:var(--mu);margin-bottom:22px}
+.hrb-pts{display:grid;grid-template-columns:1fr 1fr;gap:20px 26px;margin:24px 0}
+.hrb-pts div{border-top:2px solid var(--gold);padding-top:10px}
+.hrb-pts h3{font-size:20px;margin:0 0 4px}
+.hrb-pts p{font-size:14px;color:var(--mu);margin:0}
+@media(max-width:760px){.hrb-about{padding:42px 0}.hrb-about .hrb-wrap{grid-template-columns:1fr;gap:24px;padding:0 20px}.hrb-about-img{height:340px}.hrb-pts{grid-template-columns:1fr}}
+</style>
+<div class="hrb-wrap">
+  {% if values.image %}<img class="hrb-about-img" src="{{ values.image }}" alt="{{ values.image_alt or '' | e }}" loading="lazy" width="1200" height="1600">{% endif %}
+  <div>
+    <div class="hrb-eyebrow">{{ values.eyebrow | e }}</div>
+    <h2>{{ values.heading | e }}</h2>
+    <p class="hrb-sub">{{ values.subheading | e }}</p>
+    <p>{{ values.text | e }}</p>
+    <div class="hrb-pts">
+    {% for p in values.points or [] %}<div><h3>{{ p.point_title | e }}</h3><p>{{ p.point_text | e }}</p></div>{% endfor %}
+    </div>
+  </div>
+</div>
+</section>

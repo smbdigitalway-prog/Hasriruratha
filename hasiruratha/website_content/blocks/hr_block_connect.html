@@ -1,0 +1,14 @@
+<section class="hrb hrb-connect" id="hr-connect">
+<style>
+.hrb-connect{padding:68px 0;border-top:1px solid var(--line)}
+.hrb-connect .hrb-wrap{max-width:1240px;margin:0 auto;padding:0 26px}
+.hrb-connect h2{font-size:clamp(28px,3vw,42px);margin-bottom:14px}
+.hrb-links{display:flex;gap:22px;flex-wrap:wrap}
+.hrb-links a{color:var(--g);border-bottom:1px solid var(--g);text-decoration:none;padding-bottom:3px;font-weight:700}
+@media(max-width:760px){.hrb-connect{padding:42px 0}.hrb-connect .hrb-wrap{padding:0 20px}}
+</style>
+<div class="hrb-wrap">
+  <h2>{{ values.heading | e }}</h2><p>{{ values.text | e }}</p>
+  <div class="hrb-links">{% for l in values.links or [] %}<a href="{{ l.url }}" target="_blank" rel="noopener">{{ l.label | e }} ↗</a>{% endfor %}</div>
+</div>
+</section>

@@ -1,0 +1,30 @@
+<section class="hrb hrb-actions" id="hr-join">
+<style>
+.hrb-actions{padding:68px 0}
+.hrb-wrap{max-width:1240px;margin:0 auto;padding:0 26px}
+.hrb-head{display:flex;justify-content:space-between;align-items:baseline;gap:24px;margin-bottom:26px}
+.hrb-head h2{font-size:clamp(28px,3vw,42px)}
+.hrb-head p{color:var(--mu);margin:0;max-width:430px}
+.hrb-act{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.hrb-card{border:1px solid var(--line);border-top:3px solid var(--g);background:#fff;display:flex;flex-direction:column}
+.hrb-card img{height:230px}
+.hrb-card-body{padding:20px 22px 24px;display:flex;flex-direction:column;flex:1}
+.hrb-card h3{font-size:24px;margin-bottom:6px}
+.hrb-card p{color:var(--mu);font-size:15px;flex:1}
+.hrb-card .hrb-btn{align-self:flex-start}
+@media(max-width:900px){.hrb-act{grid-template-columns:1fr 1fr}}
+@media(max-width:760px){.hrb-actions{padding:42px 0}.hrb-wrap{padding:0 20px}.hrb-head{display:block}.hrb-act{grid-template-columns:1fr}}
+</style>
+<div class="hrb-wrap">
+  <div class="hrb-head"><h2>{{ values.heading | e }}</h2><p>{{ values.subtext | e }}</p></div>
+  <div class="hrb-act">
+  {% for c in values.cards or [] %}
+    <article class="hrb-card">
+      {% if c.image %}<img src="{{ c.image }}" alt="{{ c.image_alt or '' | e }}" loading="lazy">{% endif %}
+      <div class="hrb-card-body"><h3>{{ c.title | e }}</h3><p>{{ c.text | e }}</p>
+      {% if c.button_label %}<a class="hrb-btn" href="{{ c.button_link or '#' }}">{{ c.button_label | e }}</a>{% endif %}</div>
+    </article>
+  {% endfor %}
+  </div>
+</div>
+</section>

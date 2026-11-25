@@ -1,0 +1,26 @@
+<div class="hrb hrb-hero">
+<style>
+.hrb{--g:#304745;--dk:#172d29;--gold:#b39157;--line:#dedede;--mu:#555;color:#202722;font-family:Arial,Helvetica,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+.hrb *{box-sizing:border-box}
+.hrb h1,.hrb h2,.hrb h3{font-family:Georgia,'Times New Roman',serif;line-height:1.14;color:#1d2a27;margin:0}
+.hrb p{margin:0 0 14px}
+.hrb img{display:block;width:100%;max-width:100%;object-fit:cover}
+.hrb-btn{display:inline-block;background:var(--g);color:#fff!important;text-decoration:none!important;padding:12px 22px;border-radius:3px;font-weight:700;font-size:14px;border:1px solid var(--g);transition:background .15s}
+.hrb-btn:hover{background:var(--dk);border-color:var(--dk)}
+.hrb-eyebrow{text-transform:uppercase;font-size:12px;letter-spacing:.16em;color:var(--g);font-weight:700;margin-bottom:10px}
+.hrb-hero{display:grid;grid-template-columns:42% 58%;height:clamp(520px,68vh,640px);grid-template-rows:minmax(0,1fr);overflow:hidden}
+.hrb-hero-copy{padding:40px 6% 40px 8%;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
+.hrb-hero h1{font-size:clamp(34px,3.7vw,56px);letter-spacing:-.03em;margin:6px 0 18px}
+.hrb-hero h1 span{display:block;color:var(--g)}
+.hrb-hero p{max-width:470px;font-size:17px;color:#3b4541}
+.hrb-hero img{height:100%;min-height:0;object-position:50% 40%}
+@media(max-width:760px){.hrb-hero{display:flex;flex-direction:column-reverse;height:auto}.hrb-hero img{height:320px}.hrb-hero-copy{padding:26px 22px 38px}.hrb-hero h1{font-size:42px}}
+</style>
+<div class="hrb-hero-copy">
+  <div class="hrb-eyebrow">{{ values.eyebrow | e }}</div>
+  <h1>{{ values.headline | e }}<span>{{ values.headline_accent | e }}</span></h1>
+  <p>{{ values.text | e }}</p>
+  {% if values.button_label %}<a class="hrb-btn" href="{{ values.button_link or '#' }}">{{ values.button_label | e }}</a>{% endif %}
+</div>
+{% if values.image %}<img src="{{ values.image }}" alt="{{ values.image_alt or '' | e }}" width="1200" height="1600">{% endif %}
+</div>

@@ -1,0 +1,31 @@
+<section class="hrb hrb-diary" id="hr-diary">
+<style>
+.hrb-diary{padding:68px 0;border-top:1px solid var(--line);background:#f7f8f6}
+.hrb-diary .hrb-wrap{max-width:1240px;margin:0 auto;padding:0 26px}
+.hrb-diary .hrb-head{display:flex;justify-content:space-between;align-items:baseline;gap:24px;margin-bottom:28px}
+.hrb-diary .hrb-head h2{font-size:clamp(28px,3vw,42px)}
+.hrb-diary .hrb-head p{color:var(--mu);margin:0;max-width:430px}
+.hrb-mosaic{display:grid;grid-template-columns:1.25fr 1fr 1fr;grid-auto-rows:300px;gap:14px}
+.hrb-tile{position:relative;overflow:hidden;background:#dfe5e2;margin:0}
+.hrb-tile:first-child{grid-row:span 2}
+.hrb-tile img{width:100%;height:100%;object-fit:cover;object-position:50% 30%;transition:transform .6s ease}
+.hrb-tile:hover img{transform:scale(1.045)}
+.hrb-tile figcaption{position:absolute;left:0;right:0;bottom:0;padding:46px 18px 16px;color:#fff;background:linear-gradient(to top,rgba(10,22,19,.82),rgba(10,22,19,0))}
+.hrb-tile figcaption b{display:block;font:400 19px/1.25 Georgia,serif}
+.hrb-tile:first-child figcaption b{font-size:26px}
+.hrb-tile figcaption span{display:block;margin-top:4px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#e6d3a6}
+@media(max-width:900px){.hrb-mosaic{grid-template-columns:1fr 1fr;grid-auto-rows:260px}.hrb-tile:first-child{grid-column:span 2;grid-row:span 1}}
+@media(max-width:760px){.hrb-diary{padding:42px 0}.hrb-diary .hrb-wrap{padding:0 20px}.hrb-diary .hrb-head{display:block}.hrb-mosaic{grid-auto-rows:220px;gap:10px}}
+</style>
+<div class="hrb-wrap">
+  <div class="hrb-head"><h2>{{ values.heading | e }}</h2><p>{{ values.subtext | e }}</p></div>
+  <div class="hrb-mosaic">
+  {% for e in values.entries or [] %}
+    <figure class="hrb-tile">
+      {% if e.image %}<img src="{{ e.image }}" alt="{{ e.caption or '' | e }}" loading="lazy">{% endif %}
+      <figcaption><b>{{ e.caption | e }}</b>{% if e.place %}<span>{{ e.place | e }}</span>{% endif %}</figcaption>
+    </figure>
+  {% endfor %}
+  </div>
+</div>
+</section>

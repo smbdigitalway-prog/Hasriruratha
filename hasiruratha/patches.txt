@@ -16,3 +16,5 @@ hasiruratha.patches.backfill_visit_area_zone
 hasiruratha.patches.build_one_page_site
 hasiruratha.patches.rebuild_one_page_site_all_fields
 hasiruratha.patches.merge_admin_into_main_workspace
+hasiruratha.patches.v1_0.build_page_blocks
+hasiruratha.patches.v1_0.add_geolocation_map

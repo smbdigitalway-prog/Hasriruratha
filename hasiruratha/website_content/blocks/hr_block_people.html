@@ -1,0 +1,16 @@
+<section class="hrb hrb-people" id="hr-intern">
+<style>
+.hrb-people{padding:68px 0;border-top:1px solid var(--line)}
+.hrb-people .hrb-wrap{max-width:1240px;margin:0 auto;padding:0 26px;display:grid;grid-template-columns:1fr 1fr;gap:56px}
+.hrb-panel{border-top:3px solid var(--g);padding-top:20px}
+.hrb-panel h2{font-size:clamp(28px,3vw,42px);margin-bottom:14px}
+.hrb-panel p{max-width:490px}
+.hrb-people .hrb-btn.out{background:#fff;color:var(--g)!important}
+@media(max-width:760px){.hrb-people{padding:42px 0}.hrb-people .hrb-wrap{grid-template-columns:1fr;gap:24px;padding:0 20px}}
+</style>
+<div class="hrb-wrap">
+  <div class="hrb-panel"><div class="hrb-eyebrow">{{ values.left_eyebrow | e }}</div><h2>{{ values.left_heading | e }}</h2><p>{{ values.left_text | e }}</p></div>
+  <div class="hrb-panel"><div class="hrb-eyebrow">{{ values.right_eyebrow | e }}</div><h2>{{ values.right_heading | e }}</h2><p>{{ values.right_text | e }}</p>
+  {% if values.button_label %}<a class="hrb-btn out" href="{{ values.button_link or '#' }}">{{ values.button_label | e }}</a>{% endif %}</div>
+</div>
+</section>

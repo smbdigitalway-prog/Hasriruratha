@@ -1,0 +1,14 @@
+<section class="hrb hrb-impact" id="hr-impact">
+<style>
+.hrb-impact{padding:68px 0}
+.hrb-impact .hrb-wrap{max-width:1240px;margin:0 auto;padding:0 26px}
+.hrb-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:26px}
+.hrb-stat{border-left:2px solid var(--gold);padding-left:18px}
+.hrb-stat strong{display:block;font:700 38px Georgia,serif;color:var(--g)}
+.hrb-stat span{font-size:14px;color:var(--mu)}
+@media(max-width:760px){.hrb-impact{padding:42px 0}.hrb-impact .hrb-wrap{padding:0 20px}.hrb-stats{grid-template-columns:1fr 1fr;gap:22px}}
+</style>
+<div class="hrb-wrap"><div class="hrb-stats">
+{% for s in values.stats or [] %}<div class="hrb-stat"><strong>{{ s.number | e }}</strong><span>{{ s.label | e }}</span></div>{% endfor %}
+</div></div>
+</section>

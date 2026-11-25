@@ -1,0 +1,21 @@
+<section class="hrb hrb-work" id="hr-work">
+<style>
+.hrb-work{padding:68px 0;border-top:1px solid var(--line)}
+.hrb-work .hrb-wrap{max-width:1240px;margin:0 auto;padding:0 26px}
+.hrb-work .hrb-head{display:flex;justify-content:space-between;align-items:baseline;gap:24px;margin-bottom:26px}
+.hrb-work .hrb-head h2{font-size:clamp(28px,3vw,42px)}
+.hrb-work .hrb-head p{color:var(--mu);margin:0;max-width:430px}
+.hrb-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.hrb-tiles img{height:240px}
+.hrb-tiles h3{font-size:25px;margin:14px 0 6px}
+.hrb-tiles p{font-size:14px;color:var(--mu);margin:0}
+@media(max-width:900px){.hrb-tiles{grid-template-columns:1fr 1fr}}
+@media(max-width:760px){.hrb-work{padding:42px 0}.hrb-work .hrb-wrap{padding:0 20px}.hrb-work .hrb-head{display:block}.hrb-tiles{gap:18px}.hrb-tiles img{height:170px}}
+</style>
+<div class="hrb-wrap">
+  <div class="hrb-head"><h2>{{ values.heading | e }}</h2><p>{{ values.subtext | e }}</p></div>
+  <div class="hrb-tiles">
+  {% for t in values.tiles or [] %}<article>{% if t.image %}<img src="{{ t.image }}" alt="{{ t.title or '' | e }}" loading="lazy">{% endif %}<h3>{{ t.title | e }}</h3><p>{{ t.text | e }}</p></article>{% endfor %}
+  </div>
+</div>
+</section>
