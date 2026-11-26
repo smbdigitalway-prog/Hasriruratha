@@ -1,0 +1,5 @@
+{% extends "templates/web.html" %}
+{% block page_content %}
+{% set tk = {"kind": "report", "heading": "My reports", "sub": "Track every tree problem you have reported and see how far it has come.", "new_label": "Raise a request", "new_url": "/report-a-tree/new", "empty": "You have not reported anything yet.", "other_label": "My trees", "other_url": "/my-trees"} %}
+{% include "hasiruratha/templates/tracker.html" %}
+{% endblock %}

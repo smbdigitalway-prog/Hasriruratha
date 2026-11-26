@@ -25,8 +25,8 @@
   var t=document.getElementById('hr-login-title'),x=document.getElementById('hr-login-text'),b=document.getElementById('hr-login-btns');
   if(!t)return;
   t.textContent='Welcome, '+nm;
-  x.textContent='You are logged in. You can plant, report or volunteer above and we will keep your submissions together.';
-  b.innerHTML='<a class="hrb-btn" href="/me">My account</a><a class="hrb-btn out" href="#" id="hr-logout">Log out</a>';
+  x.textContent='You are logged in. Track the status of your reports and plantings, or plant, report or volunteer above.';
+  b.innerHTML='<a class="hrb-btn" href="/my-reports">My reports</a><a class="hrb-btn" href="/my-trees">My trees</a><a class="hrb-btn out" href="/me">My account</a><a class="hrb-btn out" href="#" id="hr-logout">Log out</a>';
   document.getElementById('hr-logout').addEventListener('click',function(e){e.preventDefault();fetch('/api/method/logout',{credentials:'same-origin'}).then(function(){location.reload();});});
 })();
 </script>

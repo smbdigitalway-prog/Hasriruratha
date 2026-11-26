@@ -1,4 +1,6 @@
-"""Rebuild the citizen website page, remove the empty Dashboard, surface every Kanban board.
+"""Remove the empty Dashboard from the Hasiru workspaces and surface every Kanban board.
+
+(The old home-page rebuild was dropped: the page is now built by build_page_blocks.)
 
 Safe to run more than once. Run with:  bench --site <site> migrate
 or directly:  bench --site <site> execute hasiruratha.patches.v1_0.rebuild_citizen_website.execute
@@ -11,27 +13,11 @@ import string
 import frappe
 
 APP = "hasiruratha"          # python package name of the app (folder that holds hooks.py)
-PAGE_ROUTE = "hasiru-ratha"  # route of the existing Web Page
-IMG_BASE = f"/assets/{APP}/images/site"
 
-# Web Forms are looked up by the DocType they save into; fallbacks are used if none is found.
-FORM_FOR = {
-	"__PLANT_URL__": ("HR Citizen Planting", "/plant-a-tree"),
-	"__REPORT_URL__": ("HR Citizen Report", "/report-a-tree"),
-	"__VOLUNTEER_URL__": ("HR Volunteer Request", "/become-a-volunteer"),
-	"__INTERNSHIP_URL__": ("HR Internship Application", "/internship"),
-}
 ADMIN_WORKSPACES = ["Hasiru Ratha Admin", "Hasiru Ratha Console"]
 
 
 # ---------- pure helpers (no frappe calls, unit-testable) ----------
-
-def render_page(template: str, urls: dict) -> str:
-	out = template.replace("__IMG__", IMG_BASE)
-	for token, value in urls.items():
-		out = out.replace(token, value)
-	return out
-
 
 def is_dashboard_row(row: dict) -> bool:
 	"""True for a Workspace shortcut/link that points at the Frappe 'Dashboard' feature."""
@@ -83,46 +69,7 @@ def add_shortcut_blocks(content: str, labels: list) -> str:
 # ---------- frappe steps ----------
 
 def execute():
-	rebuild_web_page()
 	clean_workspaces()
-
-
-def web_form_route(doctype, fallback):
-	route = frappe.db.get_value("Web Form", {"doc_type": doctype, "published": 1}, "route")
-	return "/" + route.strip("/") if route else fallback
-
-
-def rebuild_web_page():
-	name = frappe.db.get_value("Web Page", {"route": PAGE_ROUTE}, "name")
-	if not name:
-		print(f"[hasiruratha] Web Page with route '{PAGE_ROUTE}' not found: creating it")
-		doc = frappe.new_doc("Web Page")
-		doc.title = "Hasiru Ratha"
-		doc.route = PAGE_ROUTE
-		doc.published = 1
-	else:
-		doc = frappe.get_doc("Web Page", name)
-		backup = frappe.get_site_path("private", "files", f"web_page_{name}_before_rebuild.json")
-		with open(backup, "w") as f:
-			json.dump(doc.as_dict(), f, default=str, indent=1)
-		print(f"[hasiruratha] old page backed up to {backup}")
-
-	template_path = frappe.get_app_path(APP, "website_content", "home.html")
-	with open(template_path, encoding="utf-8") as f:
-		template = f.read()
-
-	urls = {t: web_form_route(dt, fb) for t, (dt, fb) in FORM_FOR.items()}
-	urls.update({"__LOGIN_URL__": "/login", "__SIGNUP_URL__": "/login#signup"})
-
-	doc.content_type = "HTML"
-	doc.main_section_html = render_page(template, urls)
-	doc.full_width = 1
-	doc.show_title = 0
-	doc.published = 1
-	if doc.meta.has_field("add_breadcrumbs"):
-		doc.add_breadcrumbs = 0
-	doc.save(ignore_permissions=True)
-	print("[hasiruratha] page rebuilt; links used:", urls)
 
 
 def clean_workspaces():
