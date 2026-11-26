@@ -164,6 +164,7 @@ def rebuild_page():
 		doc.route = PAGE_ROUTE
 
 	urls = {k: web_form_route(*v) for k, v in FORM_FOR.items()}
+	urls["plant"], urls["report"] = "/plant", "/report"   # guided citizen pages
 	doc.content_type = "Page Builder"
 	doc.main_section_html = ""
 	if doc.meta.has_field("slideshow"):

@@ -1,0 +1,292 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<style>
+.hrc{--g:#2f4a43;--line:#e3e8e6;--mu:#5d6b66;max-width:720px;margin:0 auto 70px;padding:0 4px}
+.hrc *{box-sizing:border-box}
+.hrc .tabs{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 4px}
+.hrc .tabs a{padding:6px 12px;border-radius:8px;color:#111;text-decoration:none;font-size:15px}
+.hrc .tabs a.on{background:#f1f1f1;font-weight:600}
+.hrc h1{font-size:26px;margin:14px 0 2px}
+.hrc h2{font-size:18px;margin:30px 0 4px;display:flex;align-items:center;gap:10px}
+.hrc h2 i{font-style:normal;font-size:13px;width:26px;height:26px;border-radius:50%;background:var(--g);color:#fff;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.hrc .sub{color:var(--mu);margin:0 0 12px;font-size:14px}
+.hrc .visitor{background:#eef6f2;border:1px solid #cfe3d9;border-radius:10px;padding:10px 14px;margin:10px 0;font-size:14px}
+.hrc .visitor a{font-weight:700}
+.hrc .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hrc .opt{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff;cursor:pointer;text-align:left;font:inherit}
+.hrc .opt.on{border:2px solid #111;padding:13px;background:#fafafa}
+.hrc .opt b{display:block;font-size:16px;margin:4px 0 2px}.hrc .opt small{color:var(--mu)}
+.hrc .btn{border:0;background:#f1f1f1;border-radius:8px;padding:10px 14px;font:inherit;cursor:pointer}
+.hrc .btn.main{width:100%;background:var(--g);color:#fff;font-weight:700;padding:13px;margin-top:14px}
+.hrc .btn:disabled{opacity:.6}
+.hrc input[type=text],.hrc input[type=number],.hrc input[type=date],.hrc textarea,.hrc select{width:100%;padding:9px 11px;border:1px solid #d9dfdd;border-radius:8px;margin-bottom:8px;font:inherit;background:#fff}
+.hrc label.l{display:block;font-size:13px;color:var(--mu);margin:0 0 3px}
+.hrc .row{display:flex;gap:8px}.hrc .row>div{flex:1;min-width:0}
+.hrc .st{display:flex;gap:8px;align-items:flex-start;font-size:14px;color:var(--mu);margin:10px 0 4px}
+.hrc .st u{width:9px;height:9px;border-radius:50%;background:#bbb;margin-top:5px;flex:none}
+.hrc .st.ok u{background:#2f7d32}.hrc .st.warn u{background:#d98a00}
+.hrc .mapbox{position:relative}
+.hrc .map{height:340px;border-radius:12px;border:1px solid var(--line);margin:6px 0}
+.hrc .legend{font-size:12.5px;color:var(--mu);display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+.hrc .legend s{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;text-decoration:none}
+.hrc .hits div{padding:9px 6px;border-bottom:1px solid #eee;cursor:pointer;font-size:14px}
+.hrc .hits div:hover{background:#f6f8f7}
+.hrc .dup{background:#fff6e0;border:1px solid #f0d9a0;border-radius:10px;padding:12px 14px;margin:10px 0;font-size:14px}
+.hrc .dup .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.hrc .dup a{cursor:pointer;color:#6b5200;text-decoration:underline;font-size:13px;align-self:center}
+.hrc .trees{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px}
+.hrc .tree{min-width:130px;max-width:130px;border:1px solid var(--line);border-radius:10px;padding:8px;font-size:13px;background:#fff;cursor:pointer}
+.hrc .tree.on{border:2px solid #111;padding:7px}
+.hrc .tree img,.hrc .tree .ph{width:100%;height:84px;object-fit:cover;border-radius:8px;background:#eef2f0;display:block;margin-bottom:6px}
+.hrc .tree span{color:var(--mu)}
+.hrc .picked{background:#eef6f2;border:1px solid #cfe3d9;border-radius:10px;padding:10px 14px;margin:8px 0;font-size:14px;display:none}
+.hrc .chips label{display:inline-block;border:1px solid #d9dfdd;border-radius:999px;padding:6px 14px;margin:0 6px 8px 0;font-size:14px;cursor:pointer}
+.hrc .chips label.on{background:var(--g);color:#fff;border-color:var(--g)}
+.hrc .chk{display:flex;gap:8px;align-items:flex-start;font-size:14px;margin:8px 0}
+.hrc .prev{max-width:170px;border-radius:8px;margin:8px 0;display:none}
+.hrc .msg{font-size:14px;margin-top:10px}.hrc .msg.err{color:#a12622}.hrc .msg.ok{color:#1b6b3a}
+.hrc .leaflet-popup-content .pb{display:block;width:100%;margin-top:6px;padding:6px 8px;border:0;border-radius:6px;background:#2f4a43;color:#fff;cursor:pointer;font:inherit;font-size:13px}
+.hrc .leaflet-popup-content a.pl{display:block;margin-top:6px;font-size:13px}
+@media(max-width:560px){.hrc .two{grid-template-columns:1fr}.hrc .row{flex-direction:column;gap:0}}
+</style>
+
+<div class="hrc" id="hrc">
+  <div class="tabs">
+    <a href="/plant" id="tab-plant">Plant a tree</a><a href="/report" id="tab-report">Report a tree</a>
+    <a href="/my-trees">My trees</a><a href="/my-reports">My reports</a>
+  </div>
+  <h1>{{ cf.heading }}</h1>
+  <p class="sub">{{ cf.sub }}</p>
+  {% if is_guest %}<div class="visitor">You are browsing as a visitor. You can explore the map and every tree on it. <a href="/login?redirect-to={{ cf.path }}">Log in</a> when you are ready to send.</div>{% endif %}
+
+  <h2><i>1</i><span id="h1t"></span></h2>
+  <p class="sub" id="s1"></p>
+  <div class="two">
+    <button type="button" class="opt" id="o-gps">📍<b>Use my location</b><small>We read your latitude, longitude, road and area for you</small></button>
+    <button type="button" class="opt" id="o-pick">🗺️<b>Pick another place</b><small>Search an area or road, or tap the map and drag the pin</small></button>
+  </div>
+  <div id="searchBox" style="display:none;margin-top:10px">
+    <div class="row"><div><input type="text" id="q" placeholder="Search area or road, e.g. 4th Block Jayanagar"></div><div style="flex:0 0 96px"><button type="button" class="btn" id="go" style="width:100%">Search</button></div></div>
+    <div class="hits" id="hits"></div>
+  </div>
+  <div class="st" id="st"><u></u><span>Location not set yet. Choose an option above, or tap the map.</span></div>
+  <div class="mapbox"><div class="map" id="map"></div></div>
+  <div class="legend"><span><s style="background:#2f7d32"></s>Tree</span><span><s style="background:#1565c0"></s>Registered spot</span><span><s style="background:#c62828"></s>Your pin</span><span id="zoomHint"></span></div>
+  <div class="dup" id="dup" style="display:none"></div>
+  <div class="picked" id="picked"></div>
+  <div class="row"><div><label class="l">Latitude</label><input type="text" id="lat"></div><div><label class="l">Longitude</label><input type="text" id="lng"></div></div>
+  <div class="row"><div><label class="l">Road (filled for you, you can edit)</label><input type="text" id="road"></div><div><label class="l">Area (filled for you, you can edit)</label><input type="text" id="area"></div></div>
+  {% if form.has.address or form.has.landmark %}<div class="row">
+    {% if form.has.address %}<div><label class="l">Door no / Cross / Main (optional)</label><input type="text" id="addr"></div>{% endif %}
+    {% if form.has.landmark %}<div><label class="l">Nearby landmark (optional)</label><input type="text" id="lmk"></div>{% endif %}</div>{% endif %}
+  <h5 style="margin:14px 0 2px" id="nearH"></h5>
+  <div class="trees" id="trees"></div>
+
+  <h2><i>2</i>Add a photo</h2>
+  <p class="sub" id="s2"></p>
+  <input type="file" id="photo" accept="image/*" capture="environment">
+  <img class="prev" id="prev" alt="">
+
+  <h2><i>3</i>A few details</h2>
+  <div id="extras"></div>
+
+  <h2><i>4</i>Send it</h2>
+  <button type="button" class="btn main" id="send"></button>
+  <div class="msg" id="out"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+(function () {
+  var CF = {{ cf | tojson }}, FORM = {{ form | tojson }}, GUEST = {{ is_guest | tojson }};
+  var MODE = CF.mode, PLANT = MODE === "plant";
+  var S = { lat: null, lng: null, src: "Map pin", acc: null, tree: null, says_new: 0 }, near = { trees: [], sites: [] }, view = { trees: [], sites: [] };
+  var map, pin, layer, photoData = null, timer;
+  function $(s) { return document.querySelector("#hrc " + s); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function q(a) { return Object.keys(a).map(function (k) { return encodeURIComponent(k) + "=" + encodeURIComponent(a[k]); }).join("&"); }
+  function get(m, a) { return fetch("/api/method/hasiruratha.api.citizen." + m + "?" + q(a), { credentials: "same-origin" }).then(function (r) { return r.json(); }).then(function (j) { if (j.exc || !("message" in j)) throw j; return j.message; }); }
+  function post(m, a) {
+    return fetch("/api/method/hasiruratha.api.citizen." + m, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json", "X-Frappe-CSRF-Token": window.csrf_token || (window.frappe && frappe.csrf_token) || "" }, body: JSON.stringify(a) })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw j; return j.message; }); });
+  }
+  function errText(e) { try { var m = JSON.parse(e._server_messages || "[]"); if (m.length) return JSON.parse(m[0]).message.replace(/<[^>]+>/g, ""); } catch (x) {} return "Could not send. Check your connection and try again."; }
+  function status(cls, t) { var s = $("#st"); s.className = "st " + cls; s.lastChild.textContent = t; }
+
+  // ---------- wording for each page ----------
+  $("#tab-" + MODE).className = "on";
+  $("#h1t").textContent = PLANT ? "Where should the sapling go?" : "Which tree needs care?";
+  $("#s1").textContent = PLANT ? "Use your location if you are at the spot, or pick another place. Green dots are trees that are already planted, so you can choose a free spot."
+                               : "Find the tree on the map and tap it, then choose \"Select this tree\". Not on the map? Place the pin where it is and describe it in the details.";
+  $("#s2").textContent = PLANT ? "Take a photo of the exact place where the sapling should go." : "Take a clear photo of the whole tree, including the guard and the base.";
+  $("#nearH").textContent = PLANT ? "Trees already around your pin" : "Trees around your pin (tap one to select it)";
+  $("#send").textContent = GUEST ? "Log in to send" : (PLANT ? "Send planting request" : "Send report");
+
+  // ---------- map ----------
+  var qs = new URLSearchParams(location.search);
+  map = L.map("map").setView([12.925, 77.5938], 12);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap" }).addTo(map);
+  layer = L.layerGroup().addTo(map);
+  map.on("click", function (e) { setPoint(e.latlng.lat, e.latlng.lng, "Map pin"); });
+  map.on("moveend", function () { clearTimeout(timer); timer = setTimeout(refresh, 400); });
+  setTimeout(function () { map.invalidateSize(); refresh(); }, 250);
+
+  function refresh() {
+    if (map.getZoom() < 14) { $("#zoomHint").textContent = "Zoom in to see the trees"; layer.clearLayers(); return; }
+    $("#zoomHint").textContent = "";
+    var b = map.getBounds();
+    get("trees_in_view", { south: b.getSouth(), west: b.getWest(), north: b.getNorth(), east: b.getEast() }).then(function (r) { view = r; draw(); }).catch(function () {});
+  }
+  function popup(t) {
+    var h = (t.photo ? '<img src="' + esc(t.photo) + '" width="130" style="border-radius:6px"><br>' : "") + "<b>" + esc(t.name) + "</b> " + esc(t.species || "") + (t.status ? "<br>" + esc(t.status) : "");
+    if (PLANT) return h + '<button class="pb" data-act="beside" data-id="' + esc(t.name) + '">Plant a sapling beside it</button><a class="pl" href="/report?tree=' + encodeURIComponent(t.name) + '">Report this tree</a>';
+    return h + '<button class="pb" data-act="pick" data-id="' + esc(t.name) + '">Select this tree</button><a class="pl" href="/plant?near=' + encodeURIComponent(t.name) + '">Plant a sapling beside it</a>';
+  }
+  function draw() {
+    layer.clearLayers();
+    (view.sites || []).forEach(function (s) { L.circleMarker([s.lat, s.lng], { radius: 6, color: "#1565c0", fillOpacity: .5 }).addTo(layer).bindPopup("Registered spot " + esc(s.label || s.name) + (s.tree_count ? "<br>" + s.tree_count + " trees" : "")); });
+    (view.trees || []).forEach(function (t) {
+      var sel = S.tree && S.tree.name === t.name;
+      L.circleMarker([t.lat, t.lng], { radius: sel ? 10 : 7, color: sel ? "#000" : "#2f7d32", weight: sel ? 3 : 2, fillColor: "#2f7d32", fillOpacity: .9 }).addTo(layer).bindPopup(popup(t));
+    });
+  }
+  function treeByName(n) { return (view.trees || []).concat(near.trees || []).filter(function (t) { return t.name === n; })[0]; }
+  document.getElementById("hrc").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-act]"); if (!b) return;
+    var t = treeByName(b.dataset.id); if (!t) return;
+    map.closePopup();
+    if (b.dataset.act === "pick") pickTree(t); else freeFrom(t.lat, t.lng, "Plant beside " + t.name);
+  });
+
+  // ---------- location ----------
+  function setPoint(lat, lng, src, acc, zoom, keepTree) {
+    S.lat = +lat; S.lng = +lng; S.src = src; S.acc = acc || null; S.says_new = 0;
+    if (!keepTree) { S.tree = null; showPicked(); }
+    if (!pin) { pin = L.marker([lat, lng], { draggable: true }).addTo(map); pin.on("dragend", function () { var p = pin.getLatLng(); setPoint(p.lat, p.lng, "Map pin"); }); } else pin.setLatLng([lat, lng]);
+    map.setView([lat, lng], zoom || Math.max(map.getZoom(), 17));
+    $("#lat").value = S.lat.toFixed(6); $("#lng").value = S.lng.toFixed(6);
+    if (src === "GPS") status(acc > 50 ? "warn" : "ok", "Location set from GPS, accurate to about " + Math.round(acc) + " m." + (acc > 50 ? " Drag the pin to the exact spot." : " Drag the pin if it is off."));
+    else status("ok", "Location set. Drag the pin to adjust it.");
+    reverse(lat, lng); loadNear();
+  }
+  function reverse(lat, lng) {
+    fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&lat=" + lat + "&lon=" + lng).then(function (r) { return r.json(); }).then(function (r) {
+      var a = r.address || {}; S.pin = a.postcode || "";
+      $("#road").value = a.road || a.pedestrian || a.footway || ""; $("#area").value = a.suburb || a.neighbourhood || a.city_district || a.village || "";
+    }).catch(function () {});
+  }
+  ["lat", "lng"].forEach(function (id) { $("#" + id).onchange = function () { var a = parseFloat($("#lat").value), b = parseFloat($("#lng").value); if (!isNaN(a) && !isNaN(b) && Math.abs(a) <= 90 && Math.abs(b) <= 180) setPoint(a, b, "Map pin"); }; });
+
+  $("#o-gps").onclick = function () {
+    $("#o-gps").classList.add("on"); $("#o-pick").classList.remove("on"); $("#searchBox").style.display = "none";
+    if (!navigator.geolocation) return status("warn", "This device cannot share its location. Use \"Pick another place\".");
+    status("", "Getting your location…");
+    navigator.geolocation.getCurrentPosition(function (p) { setPoint(p.coords.latitude, p.coords.longitude, "GPS", p.coords.accuracy, 18); },
+      function () { status("warn", "Location is blocked. Allow location for this site, or use \"Pick another place\"."); }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+  };
+  $("#o-pick").onclick = function () { $("#o-pick").classList.add("on"); $("#o-gps").classList.remove("on"); $("#searchBox").style.display = "block"; $("#q").focus(); status("", "Search an area or road, or tap the map to drop the pin."); };
+  function search() {
+    var t = $("#q").value.trim(); if (!t) return;
+    fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=in&limit=6&viewbox=77.40,13.15,77.80,12.80&q=" + encodeURIComponent(t + ", Bengaluru")).then(function (r) { return r.json(); }).then(function (r) {
+      $("#hits").innerHTML = r.length ? r.map(function (x, i) { return '<div data-i="' + i + '">' + esc(x.display_name) + "</div>"; }).join("") : "<div>No match. Try a nearby landmark or main road.</div>";
+      $("#hits").onclick = function (e) { var d = e.target.closest("[data-i]"); if (!d) return; var x = r[d.dataset.i]; $("#hits").innerHTML = ""; setPoint(x.lat, x.lon, "Map pin", null, 17); };
+    }).catch(function () { $("#hits").innerHTML = "<div>Search is not available right now. Tap the map instead.</div>"; });
+  }
+  $("#go").onclick = search; $("#q").onkeydown = function (e) { if (e.key === "Enter") { e.preventDefault(); search(); } };
+
+  // ---------- trees near the pin, duplicates, free spot ----------
+  function loadNear() {
+    get("nearby", { lat: S.lat, lng: S.lng, radius_m: 150 }).then(function (r) { near = r; renderNear(); }).catch(function () { near = { trees: [], sites: [] }; renderNear(); });
+  }
+  function renderNear() {
+    $("#trees").innerHTML = near.trees.length ? near.trees.map(function (t) {
+      return '<div class="tree' + (S.tree && S.tree.name === t.name ? " on" : "") + '" data-n="' + esc(t.name) + '">' + (t.photo ? '<img src="' + esc(t.photo) + '" alt="">' : '<div class="ph"></div>') + "<b>" + esc(t.name) + "</b><br><span>" + esc(t.species || "Tree") + "<br>" + t.distance_m + " m away</span></div>";
+    }).join("") : '<span class="sub">No trees are registered within 150 m of the pin.</span>';
+    draw(); dupPanel();
+  }
+  $("#trees").onclick = function (e) {
+    var c = e.target.closest(".tree"); if (!c) return; var t = treeByName(c.dataset.n); if (!t) return;
+    if (PLANT) map.setView([t.lat, t.lng], 19); else pickTree(t);
+  };
+  function dupPanel() {
+    var d = $("#dup"), c = near.trees[0] && near.trees[0].distance_m <= 20 ? near.trees[0] : (near.sites[0] && near.sites[0].distance_m <= 20 ? near.sites[0] : null);
+    if (!PLANT || !c || S.says_new) { d.style.display = "none"; return; }
+    d.style.display = "block";
+    d.innerHTML = "<b>A tree is already here.</b> " + (c.species ? esc(c.species) + " " : "") + esc(c.label || c.name) + " is only " + c.distance_m + " m from your pin, so a new sapling could be a duplicate." +
+      '<div class="acts"><button type="button" class="btn" id="dMove">I will move the pin</button><button type="button" class="btn" id="dFree">Find a free spot for me</button><a id="dKeep">It is a different spot, keep my pin</a></div>';
+    $("#dMove").onclick = function () { d.style.display = "none"; status("warn", "Drag the pin, or tap the map, to a place away from the green dots."); document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "center" }); };
+    $("#dFree").onclick = function () { freeFrom(S.lat, S.lng, "Pin"); };
+    $("#dKeep").onclick = function () { S.says_new = 1; d.style.display = "none"; status("ok", "Okay. Our team will check this spot before planting."); };
+  }
+  function freeFrom(lat, lng, label) {
+    status("", "Looking for a free spot…");
+    get("free_spot", { lat: lat, lng: lng }).then(function (r) {
+      if (!r.found) return status("warn", "No free spot within 120 m. Please pick a place on the map yourself.");
+      setPoint(r.lat, r.lng, "Map pin", null, 19);
+      status("ok", (r.moved_m ? "Moved the pin " + r.moved_m + " m " + r.direction + " to a spot with no tree within " + r.gap_m + " m." : "This spot is free.") + " Drag it if you prefer another place.");
+    }).catch(function () { status("warn", "Could not search for a free spot. Please move the pin yourself."); });
+  }
+
+  // ---------- report: choose a tree ----------
+  function showPicked() {
+    var p = $("#picked"); if (PLANT || !S.tree) { p.style.display = "none"; return; }
+    p.style.display = "block";
+    p.innerHTML = "✅ Selected tree: <b>" + esc(S.tree.name) + "</b> " + esc(S.tree.species || "") + ' <a id="unpick" style="cursor:pointer;text-decoration:underline;margin-left:8px">Clear</a>';
+    $("#unpick").onclick = function () { S.tree = null; showPicked(); renderNear(); };
+  }
+  function pickTree(t) { setPoint(t.lat, t.lng, "Map pin", null, 19, true); S.tree = t; showPicked(); draw(); }
+
+  // ---------- photo (resized in the browser) ----------
+  $("#photo").onchange = function () {
+    var f = this.files[0]; if (!f) return; var img = new Image();
+    img.onload = function () {
+      var k = Math.min(1, 1280 / Math.max(img.width, img.height)), c = document.createElement("canvas");
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      photoData = c.toDataURL("image/jpeg", 0.8); $("#prev").src = photoData; $("#prev").style.display = "block";
+    };
+    img.src = URL.createObjectURL(f);
+  };
+
+  // ---------- details: the Web Form's own questions ----------
+  function control(f) {
+    var id = "x_" + f.fieldname, t = f.fieldtype, h = "";
+    if (t === "Check") return '<label class="chk"><input type="checkbox" id="' + id + '"><span>' + esc(f.label) + "</span></label>";
+    h += '<label class="l">' + esc(f.label) + (f.reqd ? " *" : "") + "</label>";
+    if (t === "Select" && f.options.length) h += '<div class="chips" id="' + id + '">' + f.options.map(function (o) { return '<label data-v="' + esc(o) + '">' + esc(o) + "</label>"; }).join("") + "</div>";
+    else if (t === "Link" && f.options.length) h += '<select id="' + id + '"><option value=""></option>' + f.options.map(function (o) { return '<option value="' + esc(o.v) + '">' + esc(o.l) + "</option>"; }).join("") + "</select>";
+    else if (/Text|Markdown|HTML/.test(t)) h += '<textarea id="' + id + '" rows="2"></textarea>';
+    else if (/^(Int|Float|Currency|Percent)$/.test(t)) h += '<input type="number" id="' + id + '" step="any">';
+    else if (t === "Date") h += '<input type="date" id="' + id + '">';
+    else h += '<input type="text" id="' + id + '">';
+    if (f.help) h += '<div class="sub" style="margin-top:-4px">' + esc(f.help) + "</div>";
+    return h;
+  }
+  $("#extras").innerHTML = FORM.extras.length ? FORM.extras.map(control).join("") : '<p class="sub">Nothing else needed. You can send it now.</p>';
+  $("#extras").onclick = function (e) { var l = e.target.closest(".chips label"); if (!l) return; var on = l.classList.contains("on"); l.parentNode.querySelectorAll("label").forEach(function (x) { x.classList.remove("on"); }); if (!on) l.classList.add("on"); };
+  function value(f) {
+    var el = document.getElementById("x_" + f.fieldname); if (!el) return "";
+    if (f.fieldtype === "Check") return el.checked ? 1 : 0;
+    if (el.classList.contains("chips")) { var o = el.querySelector("label.on"); return o ? o.dataset.v : ""; }
+    return el.value;
+  }
+
+  // ---------- send ----------
+  function say(t, c) { var o = $("#out"); o.textContent = t; o.className = "msg " + (c || ""); }
+  $("#send").onclick = function () {
+    if (GUEST) { location.href = "/login?redirect-to=" + encodeURIComponent(location.pathname + location.search); return; }
+    if (S.lat == null) return say("Set the location in step 1 first.", "err");
+    if (!photoData) return say("Add a photo in step 2.", "err");
+    var extra = {}, bad = null;
+    FORM.extras.forEach(function (f) { var v = value(f); extra[f.fieldname] = v; if (f.reqd && (v === "" || v === 0 && f.fieldtype !== "Check") && !bad) bad = f.label; });
+    if (bad) return say("Please fill in: " + bad, "err");
+    var b = $("#send"); b.disabled = true; say("Sending…");
+    post("submit", { kind: MODE, data: JSON.stringify({ lat: S.lat, lng: S.lng, src: S.src, acc: S.acc, tree: S.tree ? S.tree.name : "", says_new: S.says_new, road: $("#road").value, area: $("#area").value, pincode: S.pin || "",
+      address: $("#addr") ? $("#addr").value : "", landmark: $("#lmk") ? $("#lmk").value : "", extra: extra, photo: photoData }) })
+      .then(function (r) { say("Sent. Your request number is " + r.name + ". Taking you to your list…", "ok"); setTimeout(function () { location.href = r.next; }, 1400); })
+      .catch(function (e) { b.disabled = false; say(errText(e), "err"); });
+  };
+
+  // ---------- links from the other page: ?tree=ID (report) and ?near=ID (plant) ----------
+  var id = qs.get(PLANT ? "near" : "tree");
+  if (id) get("tree_info", { name: id }).then(function (t) { if (!t) return; map.setView([t.lat, t.lng], 18); if (PLANT) freeFrom(t.lat, t.lng, "Plant beside " + t.name); else { view.trees = [t]; pickTree(t); } }).catch(function () {});
+})();
+</script>
