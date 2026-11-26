@@ -104,9 +104,9 @@
   function $(s) { return document.querySelector("#hrc " + s); }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function q(a) { return Object.keys(a).map(function (k) { return encodeURIComponent(k) + "=" + encodeURIComponent(a[k]); }).join("&"); }
-  function get(m, a) { return fetch("/api/method/hasiruratha.api.citizen." + m + "?" + q(a), { credentials: "same-origin" }).then(function (r) { return r.json(); }).then(function (j) { if (j.exc || !("message" in j)) throw j; return j.message; }); }
+  function get(m, a) { return fetch("/api/method/hasiruratha.portal.citizen." + m + "?" + q(a), { credentials: "same-origin" }).then(function (r) { return r.json(); }).then(function (j) { if (j.exc || !("message" in j)) throw j; return j.message; }); }
   function post(m, a) {
-    return fetch("/api/method/hasiruratha.api.citizen." + m, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json", "X-Frappe-CSRF-Token": window.csrf_token || (window.frappe && frappe.csrf_token) || "" }, body: JSON.stringify(a) })
+    return fetch("/api/method/hasiruratha.portal.citizen." + m, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json", "X-Frappe-CSRF-Token": window.csrf_token || (window.frappe && frappe.csrf_token) || "" }, body: JSON.stringify(a) })
       .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw j; return j.message; }); });
   }
   function errText(e) { try { var m = JSON.parse(e._server_messages || "[]"); if (m.length) return JSON.parse(m[0]).message.replace(/<[^>]+>/g, ""); } catch (x) {} return "Could not send. Check your connection and try again."; }

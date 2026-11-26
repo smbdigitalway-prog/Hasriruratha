@@ -65,7 +65,7 @@
     if((it.details||[]).length)h+='<div class="hrt-det">'+it.details.map(function(d){return '<div><span>'+esc(d.label)+'</span>'+esc(d.value)+'</div>';}).join('')+'</div>';
     return h+'</details></div></div>';
   }
-  fetch('/api/method/hasiruratha.api.tracker.get_my_items?kind='+kind,{credentials:'same-origin'})
+  fetch('/api/method/hasiruratha.portal.tracker.get_my_items?kind='+kind,{credentials:'same-origin'})
    .then(function(r){if(r.status===401||r.status===403){location.href='/login?redirect-to='+encodeURIComponent(location.pathname);throw 0;}return r.json();})
    .then(function(j){
       var d=j.message||{items:[],steps:[],negative:[]},items=d.items||[],steps=d.steps||[],neg=d.negative||[];

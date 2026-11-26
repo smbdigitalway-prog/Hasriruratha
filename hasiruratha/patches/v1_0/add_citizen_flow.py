@@ -10,7 +10,7 @@ import json
 import frappe
 from frappe.custom.doctype.custom_field.custom_field import create_custom_field
 
-from hasiruratha.api.citizen import FORMS, _doctype, _map
+from hasiruratha.portal.citizen import FORMS, _doctype, _map
 
 LAYOUT = ("Section Break", "Column Break", "Tab Break", "HTML", "Button", "Heading", "Fold")
 

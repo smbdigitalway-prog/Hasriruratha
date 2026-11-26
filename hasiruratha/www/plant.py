@@ -1,6 +1,6 @@
 import frappe
 
-from hasiruratha.api import citizen
+from hasiruratha.portal import citizen
 
 no_cache = 1
 
