@@ -23,7 +23,7 @@ BOARDS = {
 	"HR Citizen Report": dict(board="HR Citizen Reports", field="status", title="issue_type", image="photo",
 	                          sub=["area", "assigned_volunteer"], label="Citizen reports"),
 	"HR Tree Report": dict(board="HR Tree Reports", field="status", title="report_id", image="photo_url",
-	                       sub=["issue_type", "area", "assigned_volunteer_name"], label="Tree reports"),
+	                       sub=["issue_type", "road", "area", "assigned_volunteer_name"], label="Tree reports"),
 	"HR Volunteer Request": dict(board="HR Volunteer Requests", field="status", title="full_name", image=None,
 	                             sub=["area", "email"], label="Volunteer requests"),
 	"HR Application": dict(board="HR Applications", field="status", title="volunteer", image=None,

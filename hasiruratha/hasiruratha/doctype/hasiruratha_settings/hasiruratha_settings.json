@@ -37,13 +37,13 @@
    "fieldname": "google_maps_browser_key",
    "fieldtype": "Data",
    "label": "Maps JavaScript key (browser)",
-   "description": "Key used by the map in the browser. Restrict it by HTTP referrer (your site URL) in Google Cloud."
+   "description": "Optional. Leave empty to use the free OpenStreetMap maps (they already work everywhere in the Desk and website)."
   },
   {
    "fieldname": "google_maps_server_key",
    "fieldtype": "Password",
    "label": "Geocoding key (server)",
-   "description": "Key used by the server for road-name lookup (Geocoding API). Do NOT use the browser key here; restrict this one to the Geocoding API only."
+   "description": "Optional. Used to turn a pin into road / area names and to search places. Leave empty and the app uses OpenStreetMap (Nominatim) automatically."
   },
   {
    "fieldname": "section_login",

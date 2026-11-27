@@ -29,4 +29,4 @@ Read from the code only. Nothing has been run on the Frappe Cloud site yet: depl
 
 Done 18, partly 2 (5, 6), needs a decision 1 (11), plus 21 and 22 as asked.
 
-Needs on the live site: an outgoing Email Account (codes, confirmations), Maps/Geocoding keys, a run of `tools/e2e`.
+Needs on the live site: an outgoing Email Account (codes, confirmations), a run of `tools/e2e` and `tools/test_console_evidence.py`. Google keys are optional: without them the app uses OpenStreetMap for maps, address lookup and place search.

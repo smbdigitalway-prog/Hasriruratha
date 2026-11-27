@@ -6,6 +6,120 @@ const LEAFLET = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/";
 const COLORS = { "Needs Review": "#f97316", Urgent: "#dc2626", Completed: "#16a34a", Healthy: "#16a34a",
 	Monitoring: "#7c3aed", Planned: "#2563eb", Identified: "#eab308", Hold: "#6b7280" };
 
+// ───────────────────────────── shared place picker + admin dialogs (photo evidence everywhere) ─────────────────────────────
+const HRP_CSS = `
+.hrp{margin-bottom:10px}.hrp-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}.hrp-bar input{flex:1;min-width:180px}
+.hrp-chips{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px}.hrp-chip{border:1px solid var(--border-color);border-radius:14px;padding:1px 10px;font-size:12px;cursor:pointer;background:var(--control-bg)}
+.hrp-chip:hover,.hrp-chip.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+.hrp-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;max-height:340px;overflow:auto;padding:2px}
+.hrp-card{border:2px solid var(--border-color);border-radius:10px;overflow:hidden;background:var(--card-bg);cursor:pointer;display:flex;flex-direction:column}
+.hrp-card:hover{box-shadow:var(--shadow-md)}.hrp-card.sel{border-color:#16a34a;box-shadow:0 0 0 2px rgba(22,163,74,.25)}
+.hrp-card .ph{height:110px;background:#eee;display:flex;align-items:center;justify-content:center;color:#999;font-size:12px}
+.hrp-card .ph img{width:100%;height:100%;object-fit:cover}.hrp-card .bd{padding:8px;font-size:12px}.hrp-card b{font-size:13px}
+.hrp-tag{display:inline-block;border-radius:6px;padding:0 6px;margin:2px 4px 0 0;color:#fff;font-size:11px}
+.hrp-map{height:260px;border-radius:8px;border:1px solid var(--border-color);margin-bottom:8px}
+.hrp-warn{border:1px solid #f97316;background:#fff7ed;color:#9a3412;border-radius:8px;padding:8px 10px;margin:6px 0;font-size:13px}
+.hrp-ok{border:1px solid #16a34a;background:#f0fdf4;color:#166534;border-radius:8px;padding:8px 10px;margin:6px 0;font-size:13px}
+.hrp-sel{display:flex;gap:10px;align-items:center;border:2px solid #16a34a;border-radius:10px;padding:8px;margin:6px 0;background:var(--card-bg)}
+.hrp-sel img{width:72px;height:72px;object-fit:cover;border-radius:8px;background:#eee}
+.hrp-mini{display:flex;gap:8px;overflow:auto;padding:4px 0}.hrp-mini div{flex:0 0 96px;font-size:11px}.hrp-mini img{width:96px;height:72px;object-fit:cover;border-radius:6px;background:#eee}
+.hrp-sug{border:1px solid var(--border-color);border-radius:8px;background:var(--card-bg);max-height:180px;overflow:auto;margin-bottom:6px}
+.hrp-sug div{padding:6px 10px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--border-color)}.hrp-sug div:hover{background:var(--control-bg)}
+`;
+const HR_STATUS_COLOR = { Completed: "#16a34a", Healthy: "#16a34a", Planned: "#2563eb", Identified: "#eab308", Urgent: "#dc2626", "Needs Review": "#f97316", Open: "#dc2626", Assigned: "#2563eb", Monitoring: "#7c3aed" };
+const esc = (x) => frappe.utils.escape_html(x == null ? "" : String(x));
+const gpsText = (c) => (c.lat && c.lng ? `${(+c.lat).toFixed(5)}, ${(+c.lng).toFixed(5)}` : __("no GPS yet"));
+const mapLink = (c) => (c.lat && c.lng ? `<a href="https://www.openstreetmap.org/?mlat=${c.lat}&mlon=${c.lng}#map=19/${c.lat}/${c.lng}" target="_blank" onclick="event.stopPropagation()">${__("map")}</a>` : "");
+
+function hr_leaflet(cb) { frappe.require([LEAFLET + "leaflet.css", LEAFLET + "leaflet.js"], cb); }
+function hr_locate(ok, fail) {
+	if (!navigator.geolocation) return fail(__("This browser cannot read your location. Search a place or tap the map."));
+	navigator.geolocation.getCurrentPosition((p) => ok(p.coords.latitude, p.coords.longitude, p.coords.accuracy),
+		() => fail(__("Could not read the GPS. Allow location access (it needs https), or search a place / tap the map.")), { enableHighAccuracy: true, timeout: 15000 });
+}
+
+// Search by area / road / ID, browse area+road chips, use GPS or tap the map. kind: trees | sites | reports
+class HRPicker {
+	constructor($el, o) {
+		$el.off(); this.$ = $el; this.o = o; this.kind = o.kind; this.q = ""; this.area = ""; this.road = ""; this.pin = null; this.sel = null;
+		this.$.html(`<div class="hrp">
+		  <div class="hrp-bar"><input class="form-control input-sm hrp-q" placeholder="${esc(o.placeholder || __("Search area or road, e.g. Jayanagar 4th Block, or a tree ID"))}">
+		   <button type="button" class="btn btn-xs btn-default hrp-gps">📍 ${__("Use my location")}</button>
+		   <button type="button" class="btn btn-xs btn-default hrp-pick">🗺️ ${__("Pick on map")}</button></div>
+		  <div class="hrp-chips"></div><div class="hrp-mapwrap" style="display:none"><div class="hrp-map"></div></div>
+		  <div class="hrp-note small text-muted"></div><div class="hrp-list"></div><div class="hrp-chosen"></div></div>`);
+		let tm; const me = this;
+		this.$.on("input", ".hrp-q", function () { me.q = this.value; clearTimeout(tm); tm = setTimeout(() => me.search(), 300); });
+		this.$.on("click", ".hrp-chip", function () { me.area = $(this).data("area") || ""; me.road = $(this).data("road") || ""; me.pin = null; me.search(); });
+		this.$.on("click", ".hrp-gps", () => hr_locate((la, ln) => this.setPin(la, ln, true), (m) => frappe.show_alert({ message: m, indicator: "orange" })));
+		this.$.on("click", ".hrp-pick", () => this.toggleMap());
+		this.$.on("click", ".hrp-card", function () { me.choose($(this).data("i")); });
+		this.search();
+	}
+	toggleMap() {
+		const w = this.$.find(".hrp-mapwrap"); w.toggle();
+		if (!w.is(":visible") || this.map) return this.map && setTimeout(() => this.map.invalidateSize(), 100);
+		hr_leaflet(() => {
+			this.map = L.map(this.$.find(".hrp-map")[0]).setView([12.92, 77.58], 12);
+			L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(this.map);
+			this.map.on("click", (e) => this.setPin(e.latlng.lat, e.latlng.lng, false));
+			setTimeout(() => this.map.invalidateSize(), 200);
+		});
+	}
+	setPin(la, ln, fly) {
+		this.pin = { lat: la, lng: ln }; this.area = ""; this.road = ""; this.q = ""; this.$.find(".hrp-q").val("");
+		if (this.map) { this.marker ? this.marker.setLatLng([la, ln]) : (this.marker = L.marker([la, ln]).addTo(this.map)); if (fly) this.map.setView([la, ln], 18); }
+		this.search();
+	}
+	search() {
+		const note = this.$.find(".hrp-note"), list = this.$.find(".hrp-list");
+		list.html(`<div class="text-muted">${__("Searching…")}</div>`);
+		const done = (rows, places) => {
+			this.rows = rows;
+			this.$.find(".hrp-chips").html((places || []).map((p) => `<span class="hrp-chip ${p.area === this.area && p.road === this.road ? "on" : ""}" data-area="${esc(p.area)}" data-road="${esc(p.road)}">${esc([p.road, p.area].filter(Boolean).join(", ") || __("No area"))} · ${p.sites}</span>`).join(""));
+			note.text(rows.length ? __("{0} found. Tap one to choose it.", [rows.length]) : (this.q || this.area || this.pin ? __("Nothing found here. Try another spelling, pick a chip above, or tap the map.") : __("Type an area or road, pick one of the chips, or use your location.")));
+			list.html(rows.map((c, i) => this.card(c, i)).join(""));
+		};
+		if (this.kind === "reports") {
+			frappe.xcall(`${HRC}.find_reports`, { q: this.q, area: this.area, road: this.road }).then((r) => done(r, []));
+		} else {
+			frappe.xcall(`${HRC}.find_places`, { q: this.q, area: this.area, road: this.road, lat: this.pin && this.pin.lat, lng: this.pin && this.pin.lng, radius: 200, kind: this.kind })
+				.then((r) => done(this.kind === "sites" ? r.sites : r.trees, r.places));
+		}
+	}
+	card(c, i) {
+		const tag = (t, col) => `<span class="hrp-tag" style="background:${col}">${esc(t)}</span>`;
+		let title, tags = "", line = [c.road, c.area].filter(Boolean).join(", ") || __("No area or road");
+		if (this.kind === "reports") {
+			title = `${c.report_id} · ${c.issue_type}`; tags = tag(c.status, HR_STATUS_COLOR[c.status] || "#6b7280") + (c.priority ? tag(c.priority, "#6b7280") : "") + (c.tree_id ? tag(c.tree_id, "#0f766e") : "");
+			if (c.volunteer) tags += tag(__("Volunteer: {0}", [c.volunteer]), "#2563eb");
+		} else if (this.kind === "sites") {
+			title = c.site_name; tags = tag(c.status, HR_STATUS_COLOR[c.status] || "#6b7280") + tag(__("{0} trees", [c.tree_count]), "#0f766e");
+			if (c.next_visit) tags += tag(__("Visit planned {0}", [c.next_visit.on]), "#2563eb");
+		} else {
+			title = `${c.tree_id}${c.species ? " · " + c.species : ""}`; tags = tag(c.status, HR_STATUS_COLOR[c.status] || "#6b7280");
+			if (c.open_reports.length) tags += tag(__("Already reported"), "#dc2626");
+		}
+		if (c.distance_m != null) tags += tag(c.distance_m + " m", "#6b7280");
+		return `<div class="hrp-card ${this.sel && this.sel === c ? "sel" : ""}" data-i="${i}"><div class="ph">${c.photo ? `<img loading="lazy" src="${esc(c.photo)}">` : __("No photo")}</div>
+		  <div class="bd"><b>${esc(title)}</b><div>${esc(line)}</div><div class="text-muted">📍 ${gpsText(c)} ${mapLink(c)}</div>${tags}</div></div>`;
+	}
+	choose(i) {
+		const c = this.rows[i]; this.sel = c;
+		this.$.find(".hrp-card").removeClass("sel").eq(i).addClass("sel");
+		this.o.onPick && this.o.onPick(c);
+	}
+	select_where(fn) { const i = (this.rows || []).findIndex(fn); if (i >= 0) this.choose(i); }
+}
+
+// small panel with the chosen card (photo, place, GPS) shown above the form
+function hr_chosen_html(c, kind) {
+	const line = [c.road, c.area].filter(Boolean).join(", ") || __("No area or road");
+	const head = kind === "reports" ? `${esc(c.report_id)} · ${esc(c.issue_type)}` : kind === "sites" ? esc(c.site_name) : `${esc(c.tree_id)}${c.species ? " · " + esc(c.species) : ""}`;
+	return `<div class="hrp-sel">${c.photo ? `<a href="${esc(c.photo)}" target="_blank"><img src="${esc(c.photo)}"></a>` : `<img alt="">`}
+	  <div><b>✓ ${head}</b><div>${esc(line)}</div><div class="text-muted small">📍 ${gpsText(c)} ${mapLink(c)}</div></div></div>`;
+}
+
 frappe.pages["hr-console"].on_page_load = function (wrapper) {
 	const page = frappe.ui.make_app_page({ parent: wrapper, title: __("Hasiru Ratha Console"), single_column: true });
 	wrapper.hrc = new HRConsole(page, wrapper);
@@ -14,6 +128,7 @@ frappe.pages["hr-console"].on_page_show = function (wrapper) { wrapper.hrc && wr
 
 class HRConsole {
 	constructor(page, wrapper) {
+		if (!$("#hrp-style").length) $("<style id=\"hrp-style\">" + HRP_CSS + "</style>").appendTo("head");
 		this.page = page; this.data = null; this.map = null; this.f = { q: "", zone: "", show: "both", issue: "", status: "" };
 		page.set_secondary_action(__("Refresh"), () => this.load(), "refresh");
 		$(page.body).html(`
@@ -45,7 +160,7 @@ class HRConsole {
 		</style>
 		<div class="hrc">
 		 <div class="hrc-tiles">
-		  <div class="hrc-tile" data-act="plant"><span class="hrc-ico">🌱</span><b>${__("Plant a sapling")}</b><small>${__("Opens the planting screen")}</small></div>
+		  <div class="hrc-tile" data-act="plant"><span class="hrc-ico">🌱</span><b>${__("Plant a sapling")}</b><small>${__("Photo + location, duplicate check")}</small></div>
 		  <div class="hrc-tile" data-act="report"><span class="hrc-ico">📝</span><b>${__("Report a tree")}</b><small>${__("Tell us what a tree needs")}</small></div>
 		  <div class="hrc-tile" data-act="visit"><span class="hrc-ico">📅</span><b>${__("Plan a visit")}</b><small>${__("Schedule a care visit")}</small></div>
 		  <div class="hrc-tile" data-act="assign"><span class="hrc-ico">🤝</span><b>${__("Assign a volunteer")}</b><small>${__("To a tree or a report")}</small></div>
@@ -130,7 +245,7 @@ class HRConsole {
 			  ${c.photo_url ? `<a href="${e(c.photo_url)}" target="_blank"><img src="${e(c.photo_url)}"></a>` : "<img>"}
 			  <div class="body"><span class="hrc-tag" style="background:${c.kind === "Plant" ? "#16a34a" : "#f97316"}">${c.kind === "Plant" ? __("Plant") : __("Report")}</span><b>${e(c.title)}</b>
 			  <div class="text-muted small">${e([c.road, c.area].filter(Boolean).join(", ") || c.address || "")}</div>
-			  <div class="text-muted small">${e(c.address || "")}</div>
+			  <div class="text-muted small">${e(c.address || "")}${c.lat ? ` · 📍 ${(+c.lat).toFixed(5)}, ${(+c.lng).toFixed(5)}` : ""}</div>
 			  <div class="small">${__("By")} ${e(c.by)}${c.phone ? " · " + e(c.phone) : ""} · ${frappe.datetime.prettyDate(c.when)}${c.detail ? " · " + e(c.detail) : ""}</div>
 			  <div class="small text-muted">${e(c.zone_note || "")}</div>
 			  <div style="margin-top:6px"><label class="small">${__("Zone")} </label> <select class="form-control input-xs" data-zone="${i}">${opts}</select>
@@ -167,7 +282,7 @@ class HRConsole {
 				if (!s.gps_lat || !s.gps_lng || !this.pass([s.area, s.road, s.site_name, s.name], s.zone_id)) return;
 				const c = COLORS[s.status] || "#6b7280";
 				L.circleMarker([s.gps_lat, s.gps_lng], { radius: s.status === "Needs Review" ? 11 : 8, color: "#fff", weight: 2, fillColor: c, fillOpacity: 0.95 })
-					.bindPopup(`<b>${e(s.site_name || s.site_id)}</b><br>${e(s.area || s.road || "")}<br>${e(zn[s.zone_id] || "")}<br>${s.tree_count || 0} ${__("trees")} · ${__(s.status)}<br>
+					.bindPopup(`<b>${e(s.site_name || s.site_id)}</b><br>${e(s.area || s.road || "")}<br>${e(zn[s.zone_id] || "")}<br>${s.tree_count || 0} ${__("trees")} · ${__(s.status)}<br>${s.gps_lat ? "📍 " + (+s.gps_lat).toFixed(5) + ", " + (+s.gps_lng).toFixed(5) + "<br>" : ""}${s.photo_url ? `<a href="${e(s.photo_url)}" target="_blank"><img src="${e(s.photo_url)}" style="width:140px;border-radius:6px;margin:4px 0"></a><br>` : ""}
 					<a href="/app/hr-site/${s.name}">${__("Open")}</a> · <a href="#" data-act="visit" data-site="${s.name}">${__("Plan a visit")}</a>`)
 					.addTo(this.layer);
 				pts.push([s.gps_lat, s.gps_lng]); ns++; if (zn[s.zone_id]) zones.add(zn[s.zone_id]);
@@ -192,71 +307,206 @@ class HRConsole {
 	}
 
 	act(a, site, rep) {
-		if (a === "plant") return frappe.set_route("Form", "HR Site", "new");
 		if (a === "citizen") return $("#hrc-cit")[0].scrollIntoView({ behavior: "smooth" });
 		if (a === "boards") return $("#hrc-boards")[0].scrollIntoView({ behavior: "smooth" });
 		if (a === "dups") return $("#hrc-dups")[0].scrollIntoView({ behavior: "smooth" });
 		if (!this.data) return frappe.show_alert(__("Still loading, try again in a moment"));
+		if (a === "plant") return this.plantDialog();
 		if (a === "report") return this.reportDialog();
 		if (a === "visit") return this.visitDialog(site);
 		if (a === "assign") return this.assignDialog(rep);
 	}
 
-	opts(rows, f) { return rows.map(f); }
+	photo_field(label, reqd, desc) {
+		return { fieldname: "photo_url", fieldtype: "Attach Image", label, reqd: reqd ? 1 : 0,
+			description: desc || __("Photo evidence is required. On a phone, choose Camera to take it now.") };
+	}
 
-	reportDialog() {
+	// ── Plant a sapling: location (GPS / search / pin) → duplicate check → photo → save ──
+	plantDialog() {
+		const me = this, st = { lat: null, lng: null, dup: false };
 		const d = new frappe.ui.Dialog({
-			title: __("Report a tree"),
+			title: __("Plant a sapling"), size: "large",
 			fields: [
-				{ fieldname: "tree_id", fieldtype: "Autocomplete", label: __("Tree"), reqd: 1,
-				  options: this.opts(this.data.trees, (t) => ({ label: `${t.tree_id} · ${t.species || ""} · ${t.site_id}`, value: t.tree_id })) },
+				{ fieldname: "loc", fieldtype: "HTML" },
+				{ fieldname: "road", fieldtype: "Data", label: __("Road"), reqd: 1 },
+				{ fieldname: "area", fieldtype: "Data", label: __("Area"), reqd: 1 },
+				{ fieldname: "gps", fieldtype: "Data", label: __("GPS"), read_only: 1 },
+				{ fieldname: "cb", fieldtype: "Column Break" },
+				{ fieldname: "species", fieldtype: "Link", options: "HR Species", label: __("Species") },
+				{ fieldname: "count", fieldtype: "Int", label: __("Number of saplings"), default: 1 },
+				{ fieldname: "sb", fieldtype: "Section Break" },
+				this.photo_field(__("Photo of the sapling"), true),
+				{ fieldname: "notes", fieldtype: "Small Text", label: __("Notes") },
+				{ fieldname: "force", fieldtype: "Check", label: __("Plant anyway: send to duplicate review"), hidden: 1 },
+			],
+			primary_action_label: __("Plant"),
+			primary_action: (v) => {
+				if (!st.lat) return frappe.msgprint(__("Set the location first: use my location, search a place, or tap the map."));
+				frappe.xcall(`${HRC}.plant_sapling`, { ...v, gps_lat: st.lat, gps_lng: st.lng, address: st.address || "" }).then((r) => {
+					if (r.duplicate) { showDup(r); return frappe.show_alert({ message: __("A tree is already near this pin"), indicator: "orange" }); }
+					d.hide(); this.load();
+					frappe.show_alert({ message: r.needs_review ? __("Saved, but sent to duplicate review") : __("Planted: {0}", [r.tree_ids.join(", ")]), indicator: r.needs_review ? "orange" : "green" });
+				});
+			},
+		});
+		const $w = d.fields_dict.loc.$wrapper;
+		$w.html(`<div class="hrp"><div class="hrp-bar"><input class="form-control input-sm pl-q" placeholder="${esc(__("Search an area or road in Bengaluru"))}">
+		  <button type="button" class="btn btn-xs btn-default pl-s">${__("Search")}</button>
+		  <button type="button" class="btn btn-xs btn-default pl-gps">📍 ${__("Use my location")}</button></div>
+		  <div class="hrp-sug pl-sug" style="display:none"></div>
+		  <div class="hrp-map pl-map"></div><div class="small text-muted">${__("Tap the map or drag the pin to the exact spot.")}</div><div class="pl-dup"></div></div>`);
+		const showDup = (r) => {
+			st.dup = !!r.duplicate; d.set_df_property("force", "hidden", r.duplicate ? 0 : 1);
+			if (!r.duplicate) { d.set_value("force", 0); $w.find(".pl-dup").html(r.nearby && r.nearby.length ? `<div class="hrp-ok">✓ ${__("No tree on this exact spot.")} ${__("{0} nearby:", [r.nearby.length])}<div class="hrp-mini">${r.nearby.map(mini).join("")}</div></div>` : `<div class="hrp-ok">✓ ${__("Free spot: nothing planted within {0} m.", [r.limit_m || 10])}</div>`); return; }
+			$w.find(".pl-dup").html(`<div class="hrp-warn"><b>⚠ ${__("Something is already planted here")}</b> (${__("within {0} m", [r.limit_m])}). ${__("Planting again would duplicate it.")}
+			  <div class="hrp-mini">${(r.same_spot && r.same_spot.length ? r.same_spot : r.nearby).slice(0, 6).map(mini).join("")}</div>
+			  <button type="button" class="btn btn-xs btn-default pl-move">${__("Move the pin")}</button>
+			  ${r.free_spot ? `<button type="button" class="btn btn-xs btn-primary pl-free">${__("Find a free spot for me")} (${r.free_spot.metres} m)</button>` : ""}
+			  <div class="small" style="margin-top:6px">${__("Or tick “Plant anyway” below if this really is a different tree.")}</div></div>`);
+			$w.find(".pl-move").on("click", () => frappe.show_alert({ message: __("Drag the pin or tap the map to a free place"), indicator: "blue" }));
+			$w.find(".pl-free").on("click", () => setPin(r.free_spot.lat, r.free_spot.lng, true));
+		};
+		const mini = (c) => `<div>${c.photo ? `<img src="${esc(c.photo)}">` : `<img alt="">`}<b>${esc(c.tree_id || c.site_name)}</b><br>${c.distance_m != null ? c.distance_m + " m" : ""}</div>`;
+		let map, marker, tm;
+		const setPin = (la, ln, fly) => {
+			st.lat = la; st.lng = ln; d.set_value("gps", `${la.toFixed(6)}, ${ln.toFixed(6)}`);
+			marker ? marker.setLatLng([la, ln]) : (marker = L.marker([la, ln], { draggable: true }).addTo(map).on("dragend", (e) => { const p = e.target.getLatLng(); setPin(p.lat, p.lng, false); }));
+			if (fly) map.setView([la, ln], 19);
+			clearTimeout(tm); tm = setTimeout(() => {
+				const check = () => frappe.xcall(`${HRC}.check_spot`, { lat: la, lng: ln, road: d.get_value("road"), area: d.get_value("area") }).then(showDup);
+				frappe.xcall(`${HRC}.where_is`, { lat: la, lng: ln }).then((w) => {
+					st.address = w.address; d.set_value("road", w.road || ""); d.set_value("area", w.area || "");
+					if (!w.lookup_ok) frappe.show_alert({ message: __("Could not look up the road name. Please type the road and area."), indicator: "orange" });
+					setTimeout(check, 150);
+				}, check);
+			}, 350);
+		};
+		const search = () => {
+			const q = $w.find(".pl-q").val();
+			frappe.xcall(`${HRC}.search_map`, { q }).then((rows) => {
+				const $s = $w.find(".pl-sug").toggle(true);
+				$s.html(rows.length ? rows.map((r, i) => `<div data-i="${i}">${esc(r.label)}</div>`).join("") : `<div>${__("No match. Try the road name plus the area.")}</div>`);
+				$s.find("[data-i]").on("click", function () { const r = rows[$(this).data("i")]; $s.hide(); setPin(r.lat, r.lng, true); });
+			});
+		};
+		$w.on("click", ".pl-s", search);
+		$w.on("keydown", ".pl-q", (e) => { if (e.key === "Enter") { e.preventDefault(); search(); } });
+		$w.on("click", ".pl-gps", () => hr_locate((la, ln) => setPin(la, ln, true), (m) => frappe.show_alert({ message: m, indicator: "orange" })));
+		d.show();
+		hr_leaflet(() => {
+			map = L.map($w.find(".pl-map")[0]).setView([12.92, 77.58], 12);
+			L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(map);
+			(this.data.sites || []).forEach((s) => s.gps_lat && L.circleMarker([s.gps_lat, s.gps_lng], { radius: 4, color: "#16a34a", weight: 1, fillOpacity: 0.7 }).addTo(map));
+			map.on("click", (e) => setPin(e.latlng.lat, e.latlng.lng, false));
+			setTimeout(() => map.invalidateSize(), 300);
+		});
+	}
+
+	// ── Report a tree: pick the tree (photo, GPS, already reported?) → photo evidence ──
+	reportDialog() {
+		const st = { tree: null };
+		const d = new frappe.ui.Dialog({
+			title: __("Report a tree"), size: "large",
+			fields: [
+				{ fieldname: "pick", fieldtype: "HTML" },
+				{ fieldname: "info", fieldtype: "HTML" },
 				{ fieldname: "issue_type", fieldtype: "Select", label: __("What does it need?"), reqd: 1,
 				  options: "Damage\nWatering\nPest / Disease\nDead tree\nGuard / Support\nDebris\nLeaning\nOther", default: "Watering" },
 				{ fieldname: "priority", fieldtype: "Select", label: __("Priority"), options: "Low\nMedium\nHigh\nCritical", default: "Medium" },
+				this.photo_field(__("Photo of the problem"), true),
 				{ fieldname: "description", fieldtype: "Small Text", label: __("Notes") },
+				{ fieldname: "force", fieldtype: "Check", label: __("Report again anyway"), hidden: 1 },
 			],
 			primary_action_label: __("Send"),
-			primary_action: (v) => frappe.xcall(`${HRC}.report_tree`, v).then(() => { d.hide(); frappe.show_alert({ message: __("Report saved"), indicator: "green" }); }),
+			primary_action: (v) => {
+				if (!st.tree) return frappe.msgprint(__("Choose the tree from the list first."));
+				frappe.xcall(`${HRC}.report_tree`, { ...v, tree_id: st.tree.tree_id }).then((r) => {
+					if (r.already_reported) {
+						d.set_df_property("force", "hidden", 0);
+						return frappe.msgprint({ title: __("Already reported"), indicator: "orange", message: __("This tree already has an open report: {0}. Open it instead, or tick “Report again anyway”.", [r.reports.map((x) => `<a href="/app/hr-tree-report/${x.name}">${esc(x.report_id)}</a> (${esc(x.issue_type)}, ${esc(x.status)})`).join(", ")]) });
+					}
+					d.hide(); frappe.show_alert({ message: __("Report saved: {0}", [r.report_id]), indicator: "green" }); this.load();
+				});
+			},
 		});
+		new HRPicker(d.fields_dict.pick.$wrapper, { kind: "trees", onPick: (c) => {
+			st.tree = c;
+			const rep = c.open_reports.length ? `<div class="hrp-warn"><b>⚠ ${__("Already reported")}</b>: ${c.open_reports.map((x) => `<a href="/app/hr-tree-report/${x.name}">${esc(x.report_id)}</a> · ${esc(x.issue_type)} · ${esc(x.status)}${x.on ? " · " + esc(x.on) : ""}`).join("<br>")}<br>${__("Report again only if this is a new problem.")}</div>` : `<div class="hrp-ok">✓ ${__("No open report for this tree yet.")}</div>`;
+			d.fields_dict.info.$wrapper.html(hr_chosen_html(c, "trees") + rep);
+			d.set_df_property("force", "hidden", c.open_reports.length ? 0 : 1); if (!c.open_reports.length) d.set_value("force", 0);
+		} });
 		d.show();
 	}
 
+	// ── Plan a visit: pick the site (area, road, GPS, photo) ──
 	visitDialog(site) {
+		const st = { site: null };
 		const d = new frappe.ui.Dialog({
-			title: __("Plan a visit"),
+			title: __("Plan a visit"), size: "large",
 			fields: [
-				{ fieldname: "site_id", fieldtype: "Autocomplete", label: __("Site"), reqd: 1, default: site || "",
-				  options: this.opts(this.data.sites, (s) => ({ label: `${s.site_name || s.name} (${s.name})`, value: s.name })) },
+				{ fieldname: "pick", fieldtype: "HTML" },
+				{ fieldname: "info", fieldtype: "HTML" },
 				{ fieldname: "planned_date", fieldtype: "Date", label: __("Date"), reqd: 1, default: frappe.datetime.get_today() },
 				{ fieldname: "planned_time", fieldtype: "Data", label: __("Time"), default: "06:30" },
 				{ fieldname: "service_type", fieldtype: "Select", label: __("What will volunteers do?"),
 				  options: "Watering / follow-up\nNew plantation\nMaintenance visit\nTree Guard Needed\nTree Guard Removal\nSupport pole needed\nPesticide needed\nDebris cleanup", default: "Watering / follow-up" },
 				{ fieldname: "volunteers_needed", fieldtype: "Int", label: __("Volunteers needed"), default: 2 },
+				this.photo_field(__("Photo of the site"), true, __("Needed as evidence. If the site already has a photo, it is used and you can skip this.")),
+				{ fieldname: "notes", fieldtype: "Small Text", label: __("Notes") },
 			],
 			primary_action_label: __("Plan visit"),
-			primary_action: (v) => frappe.xcall(`${HRC}.plan_visit`, v).then(() => { d.hide(); frappe.show_alert({ message: __("Visit planned"), indicator: "green" }); this.load(); }),
+			primary_action: (v, force) => {
+				if (!st.site) return frappe.msgprint(__("Choose the site from the list first."));
+				frappe.xcall(`${HRC}.plan_visit`, { ...v, site_id: st.site.site_id, force: force ? 1 : 0 }).then((r) => {
+					if (r.already_planned) return frappe.confirm(__("A visit ({0}) is already planned for this site on that date. Plan another anyway?", [r.visit_id]), () => d.primary_action(v, true));
+					d.hide(); frappe.show_alert({ message: __("Visit planned"), indicator: "green" }); this.load();
+				});
+			},
 		});
+		const pk = new HRPicker(d.fields_dict.pick.$wrapper, { kind: "sites", onPick: (c) => {
+			st.site = c; d.fields_dict.info.$wrapper.html(hr_chosen_html(c, "sites") + (c.photo ? `<div class="hrp-ok">✓ ${__("The site photo will be used as evidence.")}</div>` : `<div class="hrp-warn">${__("This site has no photo yet. Attach one below.")}</div>`));
+			d.set_df_property("photo_url", "reqd", c.photo ? 0 : 1);
+		} });
 		d.show();
+		if (site) { pk.q = site; d.fields_dict.pick.$wrapper.find(".hrp-q").val(site); frappe.xcall(`${HRC}.find_places`, { q: site, kind: "sites" }).then((r) => { pk.rows = r.sites; pk.$.find(".hrp-list").html(r.sites.map((c, i) => pk.card(c, i)).join("")); pk.select_where((c) => c.site_id === site); }); }
 	}
 
+	// ── Assign a volunteer: pick the report or tree (photo + place), volunteers in the same area first ──
 	assignDialog(rep) {
+		const st = { card: null };
 		const d = new frappe.ui.Dialog({
-			title: __("Assign a volunteer"),
+			title: __("Assign a volunteer"), size: "large",
 			fields: [
-				{ fieldname: "mode", fieldtype: "Select", label: __("Assign to"), options: "A tree\nA tree report", default: rep ? "A tree report" : "A tree" },
-				{ fieldname: "tree_id", fieldtype: "Autocomplete", label: __("Tree"), depends_on: "eval:doc.mode=='A tree'", mandatory_depends_on: "eval:doc.mode=='A tree'",
-				  options: this.opts(this.data.trees, (t) => ({ label: `${t.tree_id} · ${t.species || ""} · ${t.site_id}${t.owner_volunteer_id ? " · " + t.owner_volunteer_id : ""}`, value: t.tree_id })) },
-				{ fieldname: "report_id", fieldtype: "Autocomplete", label: __("Report"), depends_on: "eval:doc.mode=='A tree report'", mandatory_depends_on: "eval:doc.mode=='A tree report'", default: rep || "",
-				  options: this.opts(this.data.reports, (r) => ({ label: `${r.report_id} · ${r.tree_id} · ${r.issue_type} (${r.status})`, value: r.report_id })) },
-				{ fieldname: "volunteer_id", fieldtype: "Autocomplete", label: __("Volunteer"), reqd: 1,
-				  options: this.opts(this.data.volunteers, (v) => ({ label: `${v.volunteer_name} (${v.volunteer_id})${v.area ? " · " + v.area : ""}`, value: v.volunteer_id })) },
+				{ fieldname: "mode", fieldtype: "Select", label: __("Assign to"), options: "A tree report\nA tree", default: "A tree report" },
+				{ fieldname: "pick", fieldtype: "HTML" },
+				{ fieldname: "info", fieldtype: "HTML" },
+				{ fieldname: "volunteer_id", fieldtype: "Autocomplete", label: __("Volunteer"), reqd: 1, options: [],
+				  description: __("Volunteers from the same area are listed first.") },
 			],
 			primary_action_label: __("Assign"),
-			primary_action: (v) => frappe.xcall(`${HRC}.assign`, {
-				tree_id: v.mode === "A tree" ? v.tree_id : null, report_id: v.mode === "A tree report" ? v.report_id : null, volunteer_id: v.volunteer_id,
-			}).then(() => { d.hide(); frappe.show_alert({ message: __("Volunteer assigned"), indicator: "green" }); this.load(); }),
+			primary_action: (v) => {
+				if (!st.card) return frappe.msgprint(__("Choose the report or tree first."));
+				const isRep = v.mode === "A tree report";
+				frappe.xcall(`${HRC}.assign`, { tree_id: isRep ? null : st.card.tree_id, report_id: isRep ? st.card.report_id : null, volunteer_id: v.volunteer_id })
+					.then(() => { d.hide(); frappe.show_alert({ message: __("Volunteer assigned"), indicator: "green" }); this.load(); });
+			},
 		});
-		d.show();
+		const vols = (area) => {
+			const a = (area || "").toLowerCase();
+			const rows = (this.data.volunteers || []).slice().sort((x, y) => ((y.area || "").toLowerCase() === a && a ? 1 : 0) - ((x.area || "").toLowerCase() === a && a ? 1 : 0));
+			const opts = rows.map((v) => ({ label: `${v.volunteer_name} (${v.volunteer_id})${v.area ? " · " + v.area : ""}${a && (v.area || "").toLowerCase() === a ? " ★ " + __("same area") : ""}`, value: v.volunteer_id }));
+			const f = d.fields_dict.volunteer_id; f.df.options = opts; f.set_data && f.set_data(opts);
+		};
+		const mount = () => {
+			st.card = null; d.fields_dict.info.$wrapper.empty(); vols("");
+			const kind = d.get_value("mode") === "A tree" ? "trees" : "reports";
+			this.apk = new HRPicker(d.fields_dict.pick.$wrapper, { kind, onPick: (c) => { st.card = c; d.fields_dict.info.$wrapper.html(hr_chosen_html(c, kind)); vols(c.area); } });
+			return this.apk;
+		};
+		d.fields_dict.mode.df.onchange = mount;
+		d.show(); const pk = mount();
+		if (rep) frappe.xcall(`${HRC}.find_reports`, { q: rep }).then((rows) => { pk.rows = rows; pk.$.find(".hrp-list").html(rows.map((c, i) => pk.card(c, i)).join("")); pk.select_where((c) => c.name === rep); });
 	}
 
 

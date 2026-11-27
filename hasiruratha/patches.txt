@@ -20,3 +20,4 @@ hasiruratha.patches.v1_0.build_page_blocks
 hasiruratha.patches.v1_0.add_geolocation_map
 hasiruratha.patches.v1_0.add_citizen_tracking
 hasiruratha.patches.v1_0.add_citizen_flow
+hasiruratha.patches.admin_area_road_lists

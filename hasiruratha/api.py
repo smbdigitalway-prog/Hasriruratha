@@ -830,8 +830,12 @@ def reverse_geocode(p):
 	api_key = get_decrypted_password(
 		"Hasiruratha Settings", "Hasiruratha Settings", "google_maps_server_key", raise_exception=False
 	)
+	# No Google key (or Google refused): use OpenStreetMap instead, so road / area are still filled in.
 	if not api_key:
-		return {"success": False, "error": "Geocoding key not configured in Hasiruratha Settings"}
+		out = _osm_reverse(lat, lng)
+		if out.get("success"):
+			_cache().set_value(key, out, expires_in_sec=6 * 3600)
+		return out
 
 	import requests
 	try:
@@ -842,9 +846,10 @@ def reverse_geocode(p):
 		)
 		res = r.json()
 	except Exception as e:
-		return {"success": False, "error": "Geocoder unreachable: %s" % e}
+		return _osm_reverse(lat, lng) or {"success": False, "error": "Geocoder unreachable: %s" % e}
 	if res.get("status") != "OK" or not res.get("results"):
-		return {"success": False, "error": res.get("status") or "NO_RESULT"}
+		out = _osm_reverse(lat, lng)
+		return out if out.get("success") else {"success": False, "error": res.get("status") or "NO_RESULT"}
 
 	road = area = pincode = ""
 	for result in res["results"]:
@@ -862,6 +867,66 @@ def reverse_geocode(p):
 	       "address": res["results"][0].get("formatted_address")}
 	_cache().set_value(key, out, expires_in_sec=6 * 3600)
 	return out
+
+
+# ── OpenStreetMap (Nominatim): free fallback when no Google key is set ─────────────────────────────
+OSM_HEADERS = {"User-Agent": "HasiruRatha/1.0 (plantation tracker; contact: rathahasiru@gmail.com)"}
+BENGALURU_VIEWBOX = "77.35,13.25,77.85,12.70"        # left,top,right,bottom - search is biased to Bengaluru
+
+
+def _osm_reverse(lat, lng):
+	"""lat/lng -> road, area, pincode, address using OpenStreetMap. Same shape as the Google result."""
+	import requests
+	try:
+		r = requests.get("https://nominatim.openstreetmap.org/reverse", headers=OSM_HEADERS, timeout=8,
+		                 params={"format": "jsonv2", "lat": lat, "lon": lng, "zoom": 18, "addressdetails": 1})
+		j = r.json()
+	except Exception as e:
+		return {"success": False, "error": "Map lookup unreachable: %s" % e}
+	a = j.get("address") or {}
+	if not a:
+		return {"success": False, "error": "NO_RESULT"}
+	road = a.get("road") or a.get("pedestrian") or a.get("residential") or a.get("footway") or ""
+	area = a.get("suburb") or a.get("neighbourhood") or a.get("quarter") or a.get("city_district") or ""
+	return {"success": True, "road": road or area, "area": area, "pincode": a.get("postcode") or "",
+	        "address": j.get("display_name") or ""}
+
+
+def search_places(p):
+	"""Typed place name -> a few map points (lat, lng, label). Google when a key is set, else OpenStreetMap."""
+	q = (p.get("q") or "").strip()
+	if len(q) < 3:
+		return {"success": True, "data": []}
+	key = "hr_sp_%s" % re.sub(r"\W+", "_", q.lower())[:80]
+	hit = _cache().get_value(key)
+	if hit is not None:
+		return {"success": True, "data": hit}
+	cache = _cache()
+	rl = "hr_sp_rl_%s_%s" % (frappe.local.site, frappe.session.user)
+	n = cache.incrby(rl, 1)
+	if n == 1:
+		cache.expire(rl, 60)
+	if n > 40:
+		return {"success": False, "error": "Too many searches, wait a minute"}
+	import requests
+	from frappe.utils.password import get_decrypted_password
+	api_key = get_decrypted_password("Hasiruratha Settings", "Hasiruratha Settings", "google_maps_server_key", raise_exception=False)
+	out = []
+	try:
+		if api_key:
+			j = requests.get(GEOCODE_URL, timeout=8, params={"address": q + ", Bengaluru", "key": api_key, "region": "in"}).json()
+			for x in (j.get("results") or [])[:6]:
+				g = x["geometry"]["location"]
+				out.append({"label": x.get("formatted_address"), "lat": g["lat"], "lng": g["lng"]})
+		if not out:
+			j = requests.get("https://nominatim.openstreetmap.org/search", headers=OSM_HEADERS, timeout=8,
+			                 params={"format": "jsonv2", "q": q, "countrycodes": "in", "limit": 6, "viewbox": BENGALURU_VIEWBOX}).json()
+			for x in j:
+				out.append({"label": x.get("display_name"), "lat": flt(x.get("lat")), "lng": flt(x.get("lon"))})
+	except Exception as e:
+		return {"success": False, "error": "Place search unreachable: %s" % e}
+	cache.set_value(key, out, expires_in_sec=24 * 3600)
+	return {"success": True, "data": out}
 
 
 # ════════════════════════════════════════════════════════════════════════════════════
@@ -958,4 +1023,5 @@ ACTIONS = {
 	"deleteVolunteer": delete_volunteer, "assignTree": assign_tree,
 	"getDashboard": get_dashboard, "getDashboardStats": get_dashboard_stats,
 	"reverseGeocode": reverse_geocode,
+	"searchPlaces": search_places,
 }
